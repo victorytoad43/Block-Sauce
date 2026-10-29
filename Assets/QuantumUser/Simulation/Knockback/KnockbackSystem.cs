@@ -40,9 +40,9 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Turns a moving body striking a character into knockback: the closing speed, scaled by how heavy the striker is
-        /// relative to the character, becomes a speed change along the striker's motion, lifted a little by the up bias.
-        /// Another character must be running into this one faster than the body-check speed to count.
+        /// Turns a moving body striking a character into knockback: the striker's speed toward the character, scaled by
+        /// how heavy the striker is relative to the character, becomes a speed change along the striker's motion, lifted
+        /// a little by the up bias. Another character must be running into this one faster than the body-check speed.
         /// </summary>
         void ISignalOnCollisionEnter3D.OnCollisionEnter3D(Frame frame, CollisionInfo3D info)
         {
@@ -68,13 +68,10 @@ namespace Quantum
 
             toTarget = toTarget.Normalized;
 
-            // A character striker counts only by its own speed toward the target, so in a body check the runner knocks
-            // the other character and is not knocked back by the same contact.
+            // The striker counts only by its own speed toward the target. A block or character standing still is not
+            // a hit when someone runs into it, and in a body check only the runner knocks the other one.
             bool isBodyCheck = frame.Has<Player>(striker);
-            FPVector3 relativeVelocity = strikerBody->Velocity - targetBody->Velocity;
-            FP closingSpeed = isBodyCheck
-                ? FPVector3.Dot(strikerBody->Velocity, toTarget)
-                : FPVector3.Dot(relativeVelocity, toTarget);
+            FP closingSpeed = FPVector3.Dot(strikerBody->Velocity, toTarget);
 
             FP minSpeed = isBodyCheck ? config.MinBodyCheckSpeed : config.MinHitSpeed;
             if (closingSpeed < minSpeed)
@@ -83,7 +80,7 @@ namespace Quantum
             FP massShare = strikerBody->Mass / (strikerBody->Mass + targetBody->Mass);
             FP speedChange = FPMath.Min(closingSpeed * massShare * config.HitScale, config.MaxHitSpeedChange);
 
-            FPVector3 direction = relativeVelocity;
+            FPVector3 direction = strikerBody->Velocity;
             direction.Y = FP._0;
             direction = direction.SqrMagnitude > FP._0 ? direction.Normalized : toTarget;
 

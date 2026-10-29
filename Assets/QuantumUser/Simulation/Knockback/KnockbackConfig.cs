@@ -10,12 +10,12 @@ namespace Quantum
     public class KnockbackConfig : AssetObject
     {
         /// <summary>
-        /// The closing speed, in m/s, a block or other object must hit the character with to count as a hit.
+        /// The speed toward the character, in m/s, a block or other object must be moving at to count as a hit.
         /// </summary>
         [Header("Hits")]
         public FP MinHitSpeed = 2;
         /// <summary>
-        /// The closing speed, in m/s, another character must run into this one with to count as a body check.
+        /// The speed, in m/s, another character must be running into this one at to count as a body check.
         /// Higher than MinHitSpeed so walking into someone only pushes them.
         /// </summary>
         public FP MinBodyCheckSpeed = (FP)45 / 10;
