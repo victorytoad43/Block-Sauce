@@ -50,6 +50,63 @@ namespace Quantum.Prototypes {
   #endif //;
   
   [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.Block))]
+  public unsafe partial class BlockPrototype : ComponentPrototype<Quantum.Block> {
+    [HideInInspector()]
+    public Int32 _empty_prototype_dummy_field_;
+    partial void MaterializeUser(Frame frame, ref Quantum.Block result, in PrototypeMaterializationContext context);
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.Block component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.Block result, in PrototypeMaterializationContext context = default) {
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.Grabbable))]
+  public unsafe class GrabbablePrototype : ComponentPrototype<Quantum.Grabbable> {
+    [HideInInspector()]
+    public MapEntityId Holder;
+    [HideInInspector()]
+    public MapEntityId LastHolder;
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.Grabbable component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.Grabbable result, in PrototypeMaterializationContext context = default) {
+      PrototypeValidator.FindMapEntity(this.Holder, in context, out result.Holder);
+      PrototypeValidator.FindMapEntity(this.LastHolder, in context, out result.LastHolder);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.Grabber))]
+  public unsafe class GrabberPrototype : ComponentPrototype<Quantum.Grabber> {
+    public AssetRef<GrabConfig> Config;
+    public MapEntityId Held;
+    [UnitAttribute(Units.Degrees)]
+    [HideInInspector()]
+    public FPVector3 HeldRotationOffset;
+    [HideInInspector()]
+    public FP SwingYaw;
+    [HideInInspector()]
+    public FP SwingPitch;
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.Grabber component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.Grabber result, in PrototypeMaterializationContext context = default) {
+      result.Config = this.Config;
+      PrototypeValidator.FindMapEntity(this.Held, in context, out result.Held);
+      result.HeldRotationOffset = FPQuaternion.Euler(this.HeldRotationOffset);
+      result.SwingYaw = this.SwingYaw;
+      result.SwingPitch = this.SwingPitch;
+    }
+  }
+  [System.SerializableAttribute()]
   [Quantum.Prototypes.Prototype(typeof(Quantum.GroundedTracker))]
   public unsafe partial class GroundedTrackerPrototype : ComponentPrototype<Quantum.GroundedTracker> {
     public AssetRef<GroundedTrackerConfig> Config;
@@ -103,11 +160,36 @@ namespace Quantum.Prototypes {
     }
   }
   [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.Knockbackable))]
+  public unsafe partial class KnockbackablePrototype : ComponentPrototype<Quantum.Knockbackable> {
+    public AssetRef<KnockbackConfig> Config;
+    partial void MaterializeUser(Frame frame, ref Quantum.Knockbackable result, in PrototypeMaterializationContext context);
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.Knockbackable component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.Knockbackable result, in PrototypeMaterializationContext context = default) {
+      result.Config = this.Config;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
   [Quantum.Prototypes.Prototype(typeof(Quantum.MovementData))]
   public unsafe partial class MovementDataPrototype : ComponentPrototype<Quantum.MovementData> {
     public AssetRef<MovementConfig> Config;
     [HideInInspector()]
-    public Quantum.Prototypes.FrameTimerPrototype MovementLockTimer;
+    public Quantum.QEnum32<ControlTier> Tier;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype StaggerTimer;
+    [HideInInspector()]
+    public QBoolean IsCrouching;
+    [HideInInspector()]
+    public QBoolean IsSliding;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype SlideTimer;
+    [HideInInspector()]
+    public FPVector2 SlideDirection;
     partial void MaterializeUser(Frame frame, ref Quantum.MovementData result, in PrototypeMaterializationContext context);
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
       Quantum.MovementData component = default;
@@ -116,7 +198,12 @@ namespace Quantum.Prototypes {
     }
     public void Materialize(Frame frame, ref Quantum.MovementData result, in PrototypeMaterializationContext context = default) {
       result.Config = this.Config;
-      this.MovementLockTimer.Materialize(frame, ref result.MovementLockTimer, in context);
+      result.Tier = this.Tier;
+      this.StaggerTimer.Materialize(frame, ref result.StaggerTimer, in context);
+      result.IsCrouching = this.IsCrouching;
+      result.IsSliding = this.IsSliding;
+      this.SlideTimer.Materialize(frame, ref result.SlideTimer, in context);
+      result.SlideDirection = this.SlideDirection;
       MaterializeUser(frame, ref result, in context);
     }
   }

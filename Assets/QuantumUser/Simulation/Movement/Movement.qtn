@@ -1,10 +1,28 @@
+enum ControlTier
+{
+    InControl,
+    Staggered
+}
+
 component MovementData
 {
     asset_ref<MovementConfig> Config;
-    [HideInInspector] FrameTimer MovementLockTimer;
+    [HideInInspector] ControlTier Tier;
+    [HideInInspector] FrameTimer StaggerTimer;
+    [HideInInspector] bool IsCrouching;
+    [HideInInspector] bool IsSliding;
+    [HideInInspector] FrameTimer SlideTimer;
+    [HideInInspector] FPVector2 SlideDirection;
 }
 
 event Jumped
 {
     EntityRef Entity;
 }
+
+event SlideStarted
+{
+    EntityRef Entity;
+}
+
+signal Stagger(EntityRef entity, FP duration);

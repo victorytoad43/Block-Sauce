@@ -1,0 +1,49 @@
+component Grabber
+{
+    asset_ref<GrabConfig> Config;
+    EntityRef Held;
+    [HideInInspector] FPQuaternion HeldRotationOffset;
+    [HideInInspector] FP SwingYaw;
+    [HideInInspector] FP SwingPitch;
+}
+
+component Grabbable
+{
+    [HideInInspector] EntityRef Holder;
+    [HideInInspector] EntityRef LastHolder;
+}
+
+event Grabbed
+{
+    EntityRef Entity;
+    EntityRef Held;
+}
+
+event Dropped
+{
+    EntityRef Entity;
+    EntityRef Held;
+}
+
+event Placed
+{
+    EntityRef Entity;
+    EntityRef Held;
+}
+
+event Thrown
+{
+    EntityRef Entity;
+    EntityRef Held;
+    FPVector3 Velocity;
+    bool Jumpshot;
+}
+
+event ObjectImpact
+{
+    EntityRef Entity;
+    FPVector3 Position;
+    FP Speed;
+}
+
+signal DropHeld(EntityRef holder);

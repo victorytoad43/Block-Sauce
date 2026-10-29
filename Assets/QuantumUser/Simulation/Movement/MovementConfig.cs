@@ -42,6 +42,48 @@ namespace Quantum
         public FP FallGravityScale = FP._2 + FP._0_50;
 
         /// <summary>
+        /// The capsule's radius, in meters. Must match the player prototype's collider.
+        /// </summary>
+        [Header("Capsule")]
+        public FP CapsuleRadius = (FP)35 / 100;
+        /// <summary>
+        /// The standing capsule height, in meters (Guy at game scale). Must match the player prototype's collider.
+        /// </summary>
+        public FP StandingHeight = (FP)166 / 100;
+        /// <summary>
+        /// The capsule height while crouching or sliding, in meters.
+        /// </summary>
+        public FP CrouchHeight = (FP)110 / 100;
+
+        /// <summary>
+        /// The top horizontal speed while crouching, in m/s.
+        /// </summary>
+        [Header("Crouch and Slide")]
+        public FP CrouchSpeedMax = (FP)3 / 2;
+        /// <summary>
+        /// The horizontal speed, in m/s, a running character needs before crouch starts a slide.
+        /// </summary>
+        public FP SlideMinSpeed = 4;
+        /// <summary>
+        /// The horizontal speed a slide starts at, in m/s; a faster character keeps its own speed.
+        /// </summary>
+        public FP SlideSpeed = (FP)15 / 2;
+        /// <summary>
+        /// How long a slide lasts, in seconds, unless it slows below crouch speed first.
+        /// </summary>
+        public FP SlideDuration = FP._0_75;
+        /// <summary>
+        /// How hard a slide brakes, as force per m/s of horizontal speed; low so the slide carries.
+        /// </summary>
+        public FP SlideDeceleration = (FP)8 / 10;
+
+        /// <summary>
+        /// How hard a staggered character brakes, as force per m/s; low so the hit's momentum carries the body.
+        /// </summary>
+        [Header("Stagger")]
+        public FP StaggerDeceleration = 1;
+
+        /// <summary>
         /// The tallest ledge, in meters, the step-up lifts the character onto, and the height of the knee probe.
         /// </summary>
         [Header("Step Up")]

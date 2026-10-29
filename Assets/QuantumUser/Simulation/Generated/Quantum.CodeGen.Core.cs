@@ -49,6 +49,10 @@ namespace Quantum {
   using RuntimeInitializeOnLoadMethodAttribute = UnityEngine.RuntimeInitializeOnLoadMethodAttribute;
   #endif //;
   
+  public enum ControlTier : int {
+    InControl,
+    Staggered,
+  }
   [System.FlagsAttribute()]
   public enum InputButtons : int {
     Jump = 1 << 0,
@@ -210,6 +214,83 @@ namespace Quantum {
     }
   }
   [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct Block : Quantum.IComponent {
+    public const Int32 SIZE = 4;
+    public const Int32 ALIGNMENT = 4;
+    [FieldOffset(0)]
+    private fixed Byte _alignment_padding_[4];
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 14561;
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (Block*)ptr;
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct Grabbable : Quantum.IComponent {
+    public const Int32 SIZE = 16;
+    public const Int32 ALIGNMENT = 8;
+    [FieldOffset(0)]
+    [HideInInspector()]
+    public EntityRef Holder;
+    [FieldOffset(8)]
+    [HideInInspector()]
+    public EntityRef LastHolder;
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 13457;
+        hash = hash * 31 + Holder.GetHashCode();
+        hash = hash * 31 + LastHolder.GetHashCode();
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (Grabbable*)ptr;
+      EntityRef.Serialize(&p->Holder, serializer);
+      EntityRef.Serialize(&p->LastHolder, serializer);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct Grabber : Quantum.IComponent {
+    public const Int32 SIZE = 64;
+    public const Int32 ALIGNMENT = 8;
+    [FieldOffset(0)]
+    public AssetRef<GrabConfig> Config;
+    [FieldOffset(8)]
+    public EntityRef Held;
+    [FieldOffset(32)]
+    [HideInInspector()]
+    public FPQuaternion HeldRotationOffset;
+    [FieldOffset(24)]
+    [HideInInspector()]
+    public FP SwingYaw;
+    [FieldOffset(16)]
+    [HideInInspector()]
+    public FP SwingPitch;
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 8447;
+        hash = hash * 31 + Config.GetHashCode();
+        hash = hash * 31 + Held.GetHashCode();
+        hash = hash * 31 + HeldRotationOffset.GetHashCode();
+        hash = hash * 31 + SwingYaw.GetHashCode();
+        hash = hash * 31 + SwingPitch.GetHashCode();
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (Grabber*)ptr;
+      AssetRef.Serialize(&p->Config, serializer);
+      EntityRef.Serialize(&p->Held, serializer);
+      FP.Serialize(&p->SwingPitch, serializer);
+      FP.Serialize(&p->SwingYaw, serializer);
+      FPQuaternion.Serialize(&p->HeldRotationOffset, serializer);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct GroundedTracker : Quantum.IComponent {
     public const Int32 SIZE = 64;
     public const Int32 ALIGNMENT = 8;
@@ -248,26 +329,69 @@ namespace Quantum {
     }
   }
   [StructLayout(LayoutKind.Explicit)]
-  public unsafe partial struct MovementData : Quantum.IComponent {
-    public const Int32 SIZE = 16;
+  public unsafe partial struct Knockbackable : Quantum.IComponent {
+    public const Int32 SIZE = 8;
     public const Int32 ALIGNMENT = 8;
     [FieldOffset(0)]
+    public AssetRef<KnockbackConfig> Config;
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 21169;
+        hash = hash * 31 + Config.GetHashCode();
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (Knockbackable*)ptr;
+      AssetRef.Serialize(&p->Config, serializer);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct MovementData : Quantum.IComponent {
+    public const Int32 SIZE = 56;
+    public const Int32 ALIGNMENT = 8;
+    [FieldOffset(16)]
     public AssetRef<MovementConfig> Config;
+    [FieldOffset(0)]
+    [HideInInspector()]
+    public ControlTier Tier;
+    [FieldOffset(32)]
+    [HideInInspector()]
+    public FrameTimer StaggerTimer;
+    [FieldOffset(4)]
+    [HideInInspector()]
+    public QBoolean IsCrouching;
     [FieldOffset(8)]
     [HideInInspector()]
-    public FrameTimer MovementLockTimer;
+    public QBoolean IsSliding;
+    [FieldOffset(24)]
+    [HideInInspector()]
+    public FrameTimer SlideTimer;
+    [FieldOffset(40)]
+    [HideInInspector()]
+    public FPVector2 SlideDirection;
     public override readonly Int32 GetHashCode() {
       unchecked { 
         var hash = 19213;
         hash = hash * 31 + Config.GetHashCode();
-        hash = hash * 31 + MovementLockTimer.GetHashCode();
+        hash = hash * 31 + (Int32)Tier;
+        hash = hash * 31 + StaggerTimer.GetHashCode();
+        hash = hash * 31 + IsCrouching.GetHashCode();
+        hash = hash * 31 + IsSliding.GetHashCode();
+        hash = hash * 31 + SlideTimer.GetHashCode();
+        hash = hash * 31 + SlideDirection.GetHashCode();
         return hash;
       }
     }
     public static void Serialize(void* ptr, FrameSerializer serializer) {
       var p = (MovementData*)ptr;
+      serializer.Stream.Serialize((Int32*)&p->Tier);
+      QBoolean.Serialize(&p->IsCrouching, serializer);
+      QBoolean.Serialize(&p->IsSliding, serializer);
       AssetRef.Serialize(&p->Config, serializer);
-      FrameTimer.Serialize(&p->MovementLockTimer, serializer);
+      FrameTimer.Serialize(&p->SlideTimer, serializer);
+      FrameTimer.Serialize(&p->StaggerTimer, serializer);
+      FPVector2.Serialize(&p->SlideDirection, serializer);
     }
   }
   [StructLayout(LayoutKind.Explicit)]
@@ -351,12 +475,22 @@ namespace Quantum {
       serializer.Stream.Serialize(&p->Id);
     }
   }
+  public unsafe partial interface ISignalDropHeld : ISignal {
+    void DropHeld(Frame frame, EntityRef holder);
+  }
+  public unsafe partial interface ISignalApplyKnockback : ISignal {
+    void ApplyKnockback(Frame frame, EntityRef target, FPVector3 impulse, EntityRef source);
+  }
+  public unsafe partial interface ISignalStagger : ISignal {
+    void Stagger(Frame frame, EntityRef entity, FP duration);
+  }
   unsafe partial class Constants {
   }
   unsafe partial class FramePrinterPreserve {
     [Preserve()]
     private static void EnsureNotStripped_Core() {
       FramePrinter.EnsurePrimitiveNotStripped<CallbackFlags>();
+      FramePrinter.EnsurePrimitiveNotStripped<Quantum.ControlTier>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.InputButtons>();
       FramePrinter.EnsurePrimitiveNotStripped<QueryOptions>();
     }
@@ -399,10 +533,14 @@ namespace Quantum {
       Physics3D?.Init(_globals->PhysicsState3D.MapStaticCollidersState.TrackedMap);
     }
     unsafe partial record FrameSignals {
+      private ComponentSignals _componentSignals_Block = CreateComponentSignals<Quantum.Block>(frame);
       private ComponentSignals _componentSignals_CharacterController2D = CreateComponentSignals<CharacterController2D>(frame);
       private ComponentSignals _componentSignals_CharacterController3D = CreateComponentSignals<CharacterController3D>(frame);
       private ComponentSignals _componentSignals_EntityGroup = CreateComponentSignals<EntityGroup>(frame);
+      private ComponentSignals _componentSignals_Grabbable = CreateComponentSignals<Quantum.Grabbable>(frame);
+      private ComponentSignals _componentSignals_Grabber = CreateComponentSignals<Quantum.Grabber>(frame);
       private ComponentSignals _componentSignals_GroundedTracker = CreateComponentSignals<Quantum.GroundedTracker>(frame);
+      private ComponentSignals _componentSignals_Knockbackable = CreateComponentSignals<Quantum.Knockbackable>(frame);
       private ComponentSignals _componentSignals_MapEntityLink = CreateComponentSignals<MapEntityLink>(frame);
       private ComponentSignals _componentSignals_MovementData = CreateComponentSignals<Quantum.MovementData>(frame);
       private ComponentSignals _componentSignals_NavMeshAvoidanceAgent = CreateComponentSignals<NavMeshAvoidanceAgent>(frame);
@@ -425,6 +563,36 @@ namespace Quantum {
       private ComponentSignals _componentSignals_Transform2DVertical = CreateComponentSignals<Transform2DVertical>(frame);
       private ComponentSignals _componentSignals_Transform3D = CreateComponentSignals<Transform3D>(frame);
       private ComponentSignals _componentSignals_View = CreateComponentSignals<View>(frame);
+      private ISignalDropHeld[] _ISignalDropHeldSystems = CreateSignalArray<ISignalDropHeld>(frame);
+      private ISignalApplyKnockback[] _ISignalApplyKnockbackSystems = CreateSignalArray<ISignalApplyKnockback>(frame);
+      private ISignalStagger[] _ISignalStaggerSystems = CreateSignalArray<ISignalStagger>(frame);
+      public void DropHeld(EntityRef holder) {
+        var array = _ISignalDropHeldSystems;
+        for (Int32 i = 0; i < array.Length; ++i) {
+          var s = array[i];
+          if (frame.SystemIsEnabledInHierarchy((SystemBase)s)) {
+            s.DropHeld(frame, holder);
+          }
+        }
+      }
+      public void ApplyKnockback(EntityRef target, FPVector3 impulse, EntityRef source) {
+        var array = _ISignalApplyKnockbackSystems;
+        for (Int32 i = 0; i < array.Length; ++i) {
+          var s = array[i];
+          if (frame.SystemIsEnabledInHierarchy((SystemBase)s)) {
+            s.ApplyKnockback(frame, target, impulse, source);
+          }
+        }
+      }
+      public void Stagger(EntityRef entity, FP duration) {
+        var array = _ISignalStaggerSystems;
+        for (Int32 i = 0; i < array.Length; ++i) {
+          var s = array[i];
+          if (frame.SystemIsEnabledInHierarchy((SystemBase)s)) {
+            s.Stagger(frame, entity, duration);
+          }
+        }
+      }
     }
   }
   unsafe partial class Statics {
@@ -441,6 +609,7 @@ namespace Quantum {
         registry.Register<Quantum.BitSet4096>(Quantum.BitSet4096.SIZE);
         registry.Register<Quantum.BitSet512>(Quantum.BitSet512.SIZE);
         registry.Register<Quantum.BitSet6>(Quantum.BitSet6.SIZE);
+        registry.Register<Quantum.Block>(Quantum.Block.SIZE);
         registry.Register<Button>(Button.SIZE);
         registry.Register<CallbackFlags>(4);
         registry.Register<CharacterController2D>(CharacterController2D.SIZE);
@@ -449,6 +618,7 @@ namespace Quantum {
         registry.Register<ColorRGBA>(ColorRGBA.SIZE);
         registry.Register<ComponentPrototypeRef>(ComponentPrototypeRef.SIZE);
         registry.Register<ComponentTypeRef>(ComponentTypeRef.SIZE);
+        registry.Register<Quantum.ControlTier>(4);
         registry.Register<DistanceJoint>(DistanceJoint.SIZE);
         registry.Register<DistanceJoint3D>(DistanceJoint3D.SIZE);
         registry.Register<EntityGroup>(EntityGroup.SIZE);
@@ -465,6 +635,8 @@ namespace Quantum {
         registry.Register<FPVector3>(FPVector3.SIZE);
         registry.Register<FrameMetaData>(FrameMetaData.SIZE);
         registry.Register<FrameTimer>(FrameTimer.SIZE);
+        registry.Register<Quantum.Grabbable>(Quantum.Grabbable.SIZE);
+        registry.Register<Quantum.Grabber>(Quantum.Grabber.SIZE);
         registry.Register<Quantum.GroundedTracker>(Quantum.GroundedTracker.SIZE);
         registry.Register<HingeJoint>(HingeJoint.SIZE);
         registry.Register<HingeJoint3D>(HingeJoint3D.SIZE);
@@ -479,6 +651,7 @@ namespace Quantum {
         registry.Register<IntVector3>(IntVector3.SIZE);
         registry.Register<Joint>(Joint.SIZE);
         registry.Register<Joint3D>(Joint3D.SIZE);
+        registry.Register<Quantum.Knockbackable>(Quantum.Knockbackable.SIZE);
         registry.Register<LayerMask>(LayerMask.SIZE);
         registry.Register<MapEntityId>(MapEntityId.SIZE);
         registry.Register<MapEntityLink>(MapEntityLink.SIZE);
@@ -529,7 +702,11 @@ namespace Quantum {
     unsafe partial record ComponentRegistrations {
       internal ComponentRegistry CoreRegistrations = RegisterCore(registry);
       private static ComponentRegistry RegisterCore(ComponentRegistry registry) {
+        registry.Register<Quantum.Block>(Quantum.Block.Serialize, null, null, ComponentFlags.None);
+        registry.Register<Quantum.Grabbable>(Quantum.Grabbable.Serialize, null, null, ComponentFlags.None);
+        registry.Register<Quantum.Grabber>(Quantum.Grabber.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.GroundedTracker>(Quantum.GroundedTracker.Serialize, null, null, ComponentFlags.None);
+        registry.Register<Quantum.Knockbackable>(Quantum.Knockbackable.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.MovementData>(Quantum.MovementData.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.Player>(Quantum.Player.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.PlayerLook>(Quantum.PlayerLook.Serialize, null, null, ComponentFlags.None);

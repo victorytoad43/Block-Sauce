@@ -1,0 +1,53 @@
+using Photon.Deterministic;
+using UnityEngine;
+
+namespace Quantum
+{
+    /// <summary>
+    /// How hard a character gets knocked by hits, and when a hit staggers it.
+    /// Hit strength is the speed change a hit gives the character, in m/s, so it is independent of the character's mass.
+    /// </summary>
+    public class KnockbackConfig : AssetObject
+    {
+        /// <summary>
+        /// The closing speed, in m/s, a block or other object must hit the character with to count as a hit.
+        /// </summary>
+        [Header("Hits")]
+        public FP MinHitSpeed = 2;
+        /// <summary>
+        /// The closing speed, in m/s, another character must run into this one with to count as a body check.
+        /// Higher than MinHitSpeed so walking into someone only pushes them.
+        /// </summary>
+        public FP MinBodyCheckSpeed = (FP)45 / 10;
+        /// <summary>
+        /// Scales a hit's speed change on top of what the physics contact already does, for a party-game punch.
+        /// </summary>
+        public FP HitScale = (FP)3 / 2;
+        /// <summary>
+        /// The share of a hit's horizontal speed change added upward, so hits lift the character off its feet.
+        /// </summary>
+        public FP UpBias = FP._0_25;
+        /// <summary>
+        /// The largest speed change, in m/s, a single hit can give.
+        /// </summary>
+        public FP MaxHitSpeedChange = 9;
+
+        /// <summary>
+        /// The speed change, in m/s, from which a hit staggers the character.
+        /// </summary>
+        [Header("Stagger")]
+        public FP StaggerSpeedChange = (FP)5 / 2;
+        /// <summary>
+        /// Seconds of stagger per m/s of speed change.
+        /// </summary>
+        public FP StaggerSecondsPerSpeed = (FP)12 / 100;
+        /// <summary>
+        /// The shortest stagger, in seconds.
+        /// </summary>
+        public FP MinStaggerSeconds = FP._0_25;
+        /// <summary>
+        /// The longest stagger, in seconds. Knockdowns past this come in Phase 3.
+        /// </summary>
+        public FP MaxStaggerSeconds = (FP)12 / 10;
+    }
+}

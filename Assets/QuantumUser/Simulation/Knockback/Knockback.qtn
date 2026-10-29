@@ -1,0 +1,14 @@
+component Knockbackable
+{
+    asset_ref<KnockbackConfig> Config;
+}
+
+event KnockedBack
+{
+    EntityRef Entity;
+    EntityRef Source;
+    FPVector3 Impulse;
+    bool Staggered;
+}
+
+signal ApplyKnockback(EntityRef target, FPVector3 impulse, EntityRef source);

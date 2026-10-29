@@ -9,18 +9,20 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 
 | ID | Asset | Needed by | Priority | Status | Placeholder in use |
 |---|---|---|---|---|---|
-| A-001 | Player color palette (8 colors) | Phase 2 | Needed soon | Requested | Unity default colors |
+| A-001 | Player color palette (8 colors) | Phase 2 | Next phase | Requested | Unity default colors |
 | A-002 | Lobby + main menu UI mock-ups | Phase 1 | Next phase | Requested | Default UI |
 | A-003 | Guy character model + rig | Phase 0 (import test) | Needed soon | In progress | `PH_PlayerCapsule` |
 | A-004 | Guy animation set (first pass) | Phase 4 (walk needed soon for Phase 0) | Start now | In progress | None |
-| A-005 | Block mesh | Draft for Phase 1; final by Phase 5 | Next phase | Requested (draft seen) | `PH_Block` |
+| A-005 | Block mesh | Draft for Phase 1; final by Phase 5 | Needed soon | Requested (draft seen) | `PH_Block` |
 | A-006 | Match HUD + results screen mock-ups | Phase 2 | Next phase | Requested | Default UI |
 | A-007 | Lock effect art direction | Phase 2 | Next phase | Requested | Agent's shader defaults |
 | A-008 | Arena layout sketch | Phase 6 (graybox from Phase 0) | Nice to have | Requested | Graybox terrain |
 | A-009 | Sauce vat model + sauce look references | Phase 5 | Nice to have | Requested | Cylinder |
 | A-010 | Block Sauce logo / wordmark | Phase 6 | Nice to have | Requested | Text |
-| A-011 | Movement feel targets (design input) | Phase 1 | Next phase | Requested | Friendslop defaults |
+| A-011 | Movement feel targets (design input) | Phase 1 | Needed soon | Requested | Friendslop defaults |
 | A-012 | Guy hold-block pose + throw timing | Phase 1 timings; Phase 4 clip | Start now | Requested | None |
+| A-013 | Block owner tint and team readability | Phase 2 | Next phase | Requested | Flat team color on `PH_Block` |
+| A-014 | SFX placeholder list | Phase 6 (temp SFX any time) | Nice to have | Requested | Silent |
 
 ## Request format (agent: use this for every new request)
 
@@ -70,7 +72,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 
 ### A-001: Player color palette
 - Phase / needed by: Phase 2, block ownership colors and the lock dither
-- Priority: Needed soon
+- Priority: Next phase
 - Purpose: Each player's blocks, character tint and HUD use one color. Sauces must stay readable on top of every one.
 - Spec: 8 colors as hex, each with a darker shade for the lock dither and a lighter shade for highlights. Distinguishable for common color-vision deficiencies and on both light and dark terrain.
 - Must match: Leaves room for sauce materials (A-009) to read by material, not hue.
@@ -118,8 +120,8 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Notes: the file has three actions named `Guy.WalkBasic`, `.001` and `.002`; only `.002` has keyframes (frames 0–96) and it has no fake user. 2026-10-28: Jackson says none of these is a real walk yet; animation work continues. **Delivery format: one animated FBX** (`CH_Guy.fbx` with mesh, deform skeleton and all actions, using clean action names). The Phase 0 import test (height, `prop` bone, squash-and-stretch bone scale, a clip playing in place) runs when the first export lands in `_Incoming`. Until then, Phase 0 uses the capsule at the confirmed 1.66 m.
 
 ### A-005: Block mesh
-- Phase / needed by: Phase 2; final topology needed by Phase 5 for sauce displacement
-- Priority: Next phase
+- Phase / needed by: draft now (Phase 1 tunes grab, swing and stacking at its size); final topology by Phase 5 for sauce displacement
+- Priority: Needed soon
 - Purpose: The stackable block.
 - Spec: Beveled cube with several even subdivision loops per face so the sauce shader can displace it; UVs unwrapped; pivot at the center.
 - Must match: Draft block is 2 m at authoring scale (0.8 m in game). The agent records the final block size and mass here after Phase 1 tuning.
@@ -170,7 +172,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 
 ### A-011: Movement feel targets (design input)
 - Phase / needed by: Phase 1, movement and camera tuning
-- Priority: Next phase
+- Priority: Needed soon
 - Purpose: The numbers that make the movement feel like Block Sauce, rather than the agent guessing at game feel.
 - Spec: A short list (rough is fine): walk and run speed, how floaty the jump is (rough jump height), whether run is a held button or a stick push, slide length, how far a throw carries, and 1–3 reference games for feel. A sentence each is enough.
 - Must match: Simulation timers (slide length, throw release) get sized to the clips in A-004, so state these in seconds if you have them.
@@ -184,4 +186,22 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Spec: A static hold-block pose (one frame is enough for now) with the `prop` bone at the block's center. Plus a rough throw: the frame count from start to release and the total length at 24 fps. Blocking-out quality is fine.
 - Must match: Block draft size from A-005 (0.8 m in game); the `prop` bone's rest position (about 0.84 m forward and 0.84 m up from the root at game scale) is the current default hold point.
 - Placeholder: None (capsule; the block floats at the `prop` offset)
+- Status: Requested
+
+### A-013: Block owner tint and team readability
+- Phase / needed by: Phase 2, when blocks get owners
+- Priority: Next phase
+- Purpose: Every block shows whose it is at a glance, from across the arena and while tumbling, and later under a sauce coat (A-009).
+- Spec: How ownership shows on the block: a full tint, a colored edge or bevel, a stripe or icon, or a combination. One reference image or a quick paint-over of the A-005 draft is enough.
+- Must match: The player palette in A-001. The lock dither (A-007) climbs the block in the owner's darker shade, so the base treatment must leave room for that overlay.
+- Placeholder: `PH_Block` with a flat team color
+- Status: Requested
+
+### A-014: SFX placeholder list
+- Phase / needed by: final audio Phase 6; temporary sounds welcome any time
+- Priority: Nice to have
+- Purpose: The simulation raises events for jump, grab, drop, throw, block impact (with impact speed) and knockback. The view can play a sound on each as soon as one exists.
+- Spec: WAV 48 kHz mono, short. For each event, one sound or a pointer to a free/CC0 pack you like. Impacts benefit from 2-3 variations, plus a light and a heavy version.
+- Must match: Event names in code: `Jumped`, `Grabbed`, `Dropped`, `Thrown`, `ObjectImpact` (speed), `KnockedBack`.
+- Placeholder: Silent
 - Status: Requested

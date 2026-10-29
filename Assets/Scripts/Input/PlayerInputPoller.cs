@@ -11,14 +11,22 @@ namespace BlockSauce
     /// </summary>
     public class PlayerInputPoller : MonoBehaviour
     {
+#if UNITY_EDITOR
+        /// <summary>
+        /// Editor-only test hook: when set, rewrites each tick's input before it is sent. Automated play tests drive
+        /// the game through this, because an unfocused editor drops or resets synthetic device input.
+        /// </summary>
+        public static System.Func<QInput, QInput> EditorInputOverride;
+#endif
+
         private void OnEnable()
         {
             QuantumCallback.Subscribe(this, (CallbackPollInput callback) => PollInput(callback));
         }
 
         /// <summary>
-        /// Builds this tick's input and submits it. Swing stays zero until holding blocks exists (Phase 1),
-        /// when the right stick switches from turning the camera to swinging the held block.
+        /// Builds this tick's input and submits it. While holding a block, the look movement the orbit camera collected
+        /// since the last tick goes out as Swing, in degrees.
         /// </summary>
         private void PollInput(CallbackPollInput callback)
         {
@@ -31,6 +39,9 @@ namespace BlockSauce
                 input.HasCamera = true;
                 input.Camera.Pitch = orbit.Pitch.ToFP();
                 input.Camera.Yaw = orbit.Yaw.ToFP();
+
+                Vector2 swing = orbit.ConsumeSwing();
+                input.Swing = new FPVector2(swing.x.ToFP(), swing.y.ToFP());
             }
 
             Vector2 move = controls.Move.ReadValue<Vector2>();
@@ -40,6 +51,13 @@ namespace BlockSauce
             input.Run = controls.Run.IsPressed();
             input.Grab = controls.Grab.IsPressed();
             input.Throw = controls.Throw.IsPressed();
+
+#if UNITY_EDITOR
+            if (EditorInputOverride != null)
+            {
+                input = EditorInputOverride(input);
+            }
+#endif
 
             callback.SetInput(input, DeterministicInputFlags.Repeatable);
         }

@@ -5,6 +5,8 @@ namespace BlockSauce
     /// <summary>
     /// The local player's third-person orbit camera. Mouse or right stick turns it around the followed character.
     /// Its absolute yaw and pitch are sent as input every tick, so movement, aim and throws follow the camera.
+    /// While the character holds a block, the same look input swings the block instead: the camera stops turning,
+    /// eases round behind the character, and collects the look movement as swing degrees for the input poller.
     /// This is view-only state: the simulation never reads it except through that input.
     /// </summary>
     public class OrbitCamera : MonoBehaviour
@@ -26,8 +28,15 @@ namespace BlockSauce
         [SerializeField] private float _pitchMin = -30f;
         [Tooltip("Highest pitch, in degrees; positive looks down.")]
         [SerializeField] private float _pitchMax = 70f;
+        [Tooltip("Swing degrees per degree of look input while holding a block.")]
+        [SerializeField] private float _swingSensitivity = 1f;
+        [Tooltip("How fast the camera eases round behind the character while holding, per second.")]
+        [SerializeField] private float _followSharpness = 6f;
 
         private Transform _target;
+        private bool _isHolding;
+        private float _followYaw;
+        private Vector2 _pendingSwing;
 
         /// <summary>
         /// The camera's absolute yaw, in degrees around world up.
@@ -45,6 +54,31 @@ namespace BlockSauce
         {
             _target = target;
             Yaw = yaw;
+        }
+
+        /// <summary>
+        /// Switches look input between turning the camera and swinging a held block, and gives the character's facing
+        /// for the camera to follow while holding.
+        /// </summary>
+        public void SetHolding(bool isHolding, float bodyYaw)
+        {
+            if (isHolding == false)
+            {
+                _pendingSwing = Vector2.zero;
+            }
+
+            _isHolding = isHolding;
+            _followYaw = bodyYaw;
+        }
+
+        /// <summary>
+        /// Returns the swing collected since the last call, in degrees (x: around the character, y: up), and clears it.
+        /// </summary>
+        public Vector2 ConsumeSwing()
+        {
+            Vector2 swing = _pendingSwing;
+            _pendingSwing = Vector2.zero;
+            return swing;
         }
 
         private void OnEnable()
@@ -69,6 +103,14 @@ namespace BlockSauce
             if (Cursor.lockState == CursorLockMode.Locked)
             {
                 turn += controls.LookMouse.ReadValue<Vector2>() * _mouseSensitivity;
+            }
+
+            if (_isHolding)
+            {
+                _pendingSwing += turn * _swingSensitivity;
+                float t = 1f - Mathf.Exp(-_followSharpness * Time.deltaTime);
+                Yaw = Mathf.Repeat(Mathf.LerpAngle(Yaw, _followYaw, t) + 180f, 360f) - 180f;
+                return;
             }
 
             Yaw = Mathf.Repeat(Yaw + turn.x + 180f, 360f) - 180f;

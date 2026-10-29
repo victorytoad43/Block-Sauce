@@ -1,0 +1,537 @@
+using Photon.Deterministic;
+using Quantum.Physics3D;
+
+namespace Quantum
+{
+    /// <summary>
+    /// The joint tags that tell the grab's own joints apart from any other joints on a body.
+    /// </summary>
+    public enum EGrabJointTag
+    {
+        /// <summary>
+        /// Any joint the grab does not own.
+        /// </summary>
+        None,
+        /// <summary>
+        /// The distance joint that tethers a held block to its carrier's hold pivot.
+        /// </summary>
+        Leash,
+    }
+
+    /// <summary>
+    /// Lets characters grab, hold and swing, place and throw blocks.
+    /// Adapted from Friendslop's GrabSystem: the held block chases a hand point by velocity each tick, swing-limited
+    /// and leashed, so a swing physically hits players and towers. Block Sauce replaces Friendslop's look-driven hand
+    /// with a swing angle the right stick drives: the hand orbits a pivot inside the character, and the body turns to
+    /// follow a swing that goes far enough round. Grab while holding places the block; Throw throws it, and throwing
+    /// while airborne is the jumpshot.
+    /// </summary>
+    public unsafe class GrabSystem : SystemMainThreadFilter<GrabSystem.Filter>, ISignalDropHeld,
+        ISignalOnComponentRemoved<Grabbable>, ISignalOnComponentRemoved<Grabber>
+    {
+        /// <summary>
+        /// The components the grab system updates for each character.
+        /// </summary>
+        public struct Filter
+        {
+            public EntityRef Entity;
+            public Transform3D* Transform;
+            public PhysicsBody3D* PhysicsBody;
+            public Player* Player;
+            public PlayerLook* PlayerLook;
+            public Grabber* Grabber;
+        }
+
+        /// <summary>
+        /// Grabs on a grab press with empty hands. While holding: a grab press places the block, a throw press throws it,
+        /// and otherwise the swing input moves it around the character.
+        /// </summary>
+        public override void Update(Frame frame, ref Filter filter)
+        {
+            Input* input = &filter.Player->Input;
+            GrabConfig config = frame.FindAsset(filter.Grabber->Config);
+
+            if (filter.Grabber->Held == EntityRef.None)
+            {
+                if (input->Grab.WasPressed && IsInControl(frame, filter.Entity))
+                {
+                    TryGrab(frame, ref filter, config);
+                }
+
+                return;
+            }
+
+            if (frame.Exists(filter.Grabber->Held) == false)
+            {
+                filter.Grabber->Held = EntityRef.None;
+                return;
+            }
+
+            if (input->Grab.WasPressed)
+            {
+                Place(frame, ref filter);
+                return;
+            }
+
+            if (input->Throw.WasPressed)
+            {
+                Throw(frame, ref filter, config);
+                return;
+            }
+
+            UpdateSwing(frame, ref filter, config, input->Swing);
+            UpdateHeld(frame, ref filter, config);
+        }
+
+        /// <summary>
+        /// Takes hold of the nearest free block in the grab cone, switching off its gravity, banking its rotation
+        /// relative to the character's facing and attaching the leash. The swing starts wherever the block is.
+        /// </summary>
+        private void TryGrab(Frame frame, ref Filter filter, GrabConfig config)
+        {
+            FPVector3 pivot = GetPivot(filter.Transform, config);
+            EntityRef target = FindGrabTarget(frame, filter.Entity, pivot, GetBodyYaw(filter.Transform), config);
+            if (target == EntityRef.None)
+                return;
+
+            Grabbable* grabbable = frame.Unsafe.GetPointer<Grabbable>(target);
+            grabbable->Holder = filter.Entity;
+            grabbable->LastHolder = filter.Entity;
+            filter.Grabber->Held = target;
+
+            PhysicsBody3D* heldBody = frame.Unsafe.GetPointer<PhysicsBody3D>(target);
+            heldBody->WakeUp();
+            heldBody->AllowSleeping = false;
+            heldBody->Velocity = FPVector3.Zero;
+            heldBody->AngularVelocity = FPVector3.Zero;
+            heldBody->GravityScale = FP._0;
+            heldBody->IsKinematic = false;
+
+            Transform3D* heldTransform = frame.Unsafe.GetPointer<Transform3D>(target);
+            FPQuaternion bodyYaw = GetBodyYaw(filter.Transform);
+            filter.Grabber->HeldRotationOffset = FPQuaternion.Inverse(bodyYaw) * heldTransform->Rotation;
+
+            FPVector3 localToBlock = FPQuaternion.Inverse(bodyYaw) * (heldTransform->Position - pivot);
+            filter.Grabber->SwingYaw = FPMath.Clamp(FPMath.Atan2(localToBlock.X, localToBlock.Z) * FP.Rad2Deg,
+                -config.SwingYawLimit, config.SwingYawLimit);
+            FP flatDistance = FPMath.Sqrt(localToBlock.X * localToBlock.X + localToBlock.Z * localToBlock.Z);
+            filter.Grabber->SwingPitch = FPMath.Clamp(FPMath.Atan2(localToBlock.Y, flatDistance) * FP.Rad2Deg,
+                config.SwingPitchMin, config.SwingPitchMax);
+
+            AttachLeash(frame, ref filter, config, target);
+
+            frame.Events.Grabbed(filter.Entity, target);
+        }
+
+        /// <summary>
+        /// Returns the nearest grabbable block nobody holds within grab range of the pivot and inside the cone
+        /// in front of the character, or none.
+        /// </summary>
+        private EntityRef FindGrabTarget(Frame frame, EntityRef grabber, FPVector3 pivot, FPQuaternion bodyYaw, GrabConfig config)
+        {
+            FPVector3 forward = bodyYaw * FPVector3.Forward;
+            FP minCos = FPMath.Cos(config.GrabConeHalfAngle * FP.Deg2Rad);
+
+            HitCollection3D hits = frame.Physics3D.OverlapShape(pivot, FPQuaternion.Identity,
+                Shape3D.CreateSphere(config.GrabRange), -1, QueryOptions.HitDynamics | QueryOptions.HitKinematics);
+
+            EntityRef best = EntityRef.None;
+            FP bestDistanceSqr = FP.UseableMax;
+            for (int i = 0; i < hits.Count; i++)
+            {
+                EntityRef candidate = hits[i].Entity;
+                if (candidate == grabber || candidate == best)
+                    continue;
+
+                if (frame.Unsafe.TryGetPointer(candidate, out Grabbable* grabbable) == false
+                    || grabbable->Holder != EntityRef.None)
+                    continue;
+
+                FPVector3 toCandidate = frame.Get<Transform3D>(candidate).Position - pivot;
+                FP distanceSqr = toCandidate.SqrMagnitude;
+                if (distanceSqr >= bestDistanceSqr)
+                    continue;
+
+                FPVector3 flat = new FPVector3(toCandidate.X, FP._0, toCandidate.Z);
+                if (flat.SqrMagnitude > FP.EN4 && FPVector3.Dot(flat.Normalized, forward) < minCos)
+                    continue;
+
+                best = candidate;
+                bestDistanceSqr = distanceSqr;
+            }
+
+            return best;
+        }
+
+        /// <summary>
+        /// Adds a disabled leash from the block to the carrier's hold pivot, sized to the hold radius plus slack.
+        /// Any stale leash is removed first, since only the first leash found is ever enabled.
+        /// </summary>
+        private void AttachLeash(Frame frame, ref Filter filter, GrabConfig config, EntityRef held)
+        {
+            if (frame.Has<PhysicsJoints3D>(held) == false)
+            {
+                frame.Add<PhysicsJoints3D>(held);
+            }
+
+            PhysicsJoints3D* joints = frame.Unsafe.GetPointer<PhysicsJoints3D>(held);
+            joints->RemoveJoints(frame, (int)EGrabJointTag.Leash);
+
+            Joint3D leash = DistanceJoint3D.CreateJoint(config.LeashMinDistance, config.HoldRadius + config.LeashSlack,
+                filter.Entity, FPVector3.Zero, FPVector3.Up * config.PivotHeight);
+            leash.UserTag = (int)EGrabJointTag.Leash;
+            leash.Enabled = false;
+
+            joints->AddJoint(frame, ref leash);
+        }
+
+        /// <summary>
+        /// Applies this tick's swing input to the swing angles, and turns the body when the swing goes past the
+        /// threshold, moving the swing back by the same amount so the block keeps its place in the world.
+        /// </summary>
+        private void UpdateSwing(Frame frame, ref Filter filter, GrabConfig config, FPVector2 swing)
+        {
+            Grabber* grabber = filter.Grabber;
+            grabber->SwingYaw = FPMath.Clamp(grabber->SwingYaw + swing.X, -config.SwingYawLimit, config.SwingYawLimit);
+            grabber->SwingPitch = FPMath.Clamp(grabber->SwingPitch + swing.Y, config.SwingPitchMin, config.SwingPitchMax);
+
+            FP excess = FPMath.Abs(grabber->SwingYaw) - config.BodyTurnThreshold;
+            if (excess <= FP._0)
+                return;
+
+            FP turn = FPMath.Min(excess, config.BodyTurnSpeed * frame.DeltaTime) * FPMath.Sign(grabber->SwingYaw);
+            grabber->SwingYaw -= turn;
+            filter.Transform->Rotation = FPQuaternion.AngleAxis(turn, FPVector3.Up) * GetBodyYaw(filter.Transform);
+        }
+
+        /// <summary>
+        /// Steers the held block toward the hand point on top of the carrier's velocity and turns it with the swing.
+        /// Drops it when an engaged leash stretches too far or level geometry comes between it and the pivot.
+        /// </summary>
+        private void UpdateHeld(Frame frame, ref Filter filter, GrabConfig config)
+        {
+            EntityRef held = filter.Grabber->Held;
+            Transform3D* heldTransform = frame.Unsafe.GetPointer<Transform3D>(held);
+            FPVector3 pivot = GetPivot(filter.Transform, config);
+            FPVector3 pivotToHeld = heldTransform->Position - pivot;
+
+            bool leashEngaged = UpdateLeashEngagement(frame, held, config, pivotToHeld);
+            if (leashEngaged && pivotToHeld.SqrMagnitude > config.GrabBreakDistance * config.GrabBreakDistance)
+            {
+                frame.Signals.DropHeld(filter.Entity);
+                return;
+            }
+
+            FP tautDistance = config.HoldRadius + config.LeashSlack * FP._0_50;
+            if (pivotToHeld.SqrMagnitude > tautDistance * tautDistance
+                && IsHeldBlockBlocked(frame, pivot, heldTransform->Position))
+            {
+                frame.Signals.DropHeld(filter.Entity);
+                return;
+            }
+
+            FPQuaternion swingRotation = GetSwingRotation(filter.Transform, filter.Grabber);
+            FPVector3 handPosition = pivot + swingRotation * FPVector3.Forward * config.HoldRadius;
+            FPVector3 targetPosition = GetSwingLimitedTarget(frame, config, pivot, pivotToHeld, handPosition);
+
+            PhysicsBody3D* heldBody = frame.Unsafe.GetPointer<PhysicsBody3D>(held);
+            FPVector3 carrierVelocity = filter.PhysicsBody->Velocity;
+            FPVector3 correction = (targetPosition - heldTransform->Position) * config.HoldFollowGain;
+            if (correction.SqrMagnitude > config.HoldMaxFollowSpeed * config.HoldMaxFollowSpeed)
+            {
+                correction = correction.Normalized * config.HoldMaxFollowSpeed;
+            }
+
+            FPVector3 velocity = carrierVelocity + correction;
+
+            FPVector3 pivotNext = pivot + carrierVelocity * frame.DeltaTime;
+            FPVector3 predictedFromPivot = heldTransform->Position + velocity * frame.DeltaTime - pivotNext;
+            if (predictedFromPivot.SqrMagnitude < config.LeashMinDistance * config.LeashMinDistance)
+            {
+                if (predictedFromPivot.SqrMagnitude < FP.EN4)
+                {
+                    predictedFromPivot = handPosition - pivotNext;
+                }
+
+                FPVector3 clamped = pivotNext + predictedFromPivot.Normalized * config.LeashMinDistance;
+                velocity = (clamped - heldTransform->Position) / frame.DeltaTime;
+                FPVector3 clampedCorrection = velocity - carrierVelocity;
+                if (clampedCorrection.SqrMagnitude > config.HoldMaxFollowSpeed * config.HoldMaxFollowSpeed)
+                {
+                    velocity = carrierVelocity + clampedCorrection.Normalized * config.HoldMaxFollowSpeed;
+                }
+            }
+
+            ApplyCarryVelocity(config, filter.PhysicsBody, heldBody, velocity, pivotToHeld);
+
+            heldTransform->Rotation = FPQuaternion.RotateTowards(heldTransform->Rotation,
+                swingRotation * filter.Grabber->HeldRotationOffset, config.HoldTurnSpeed * frame.DeltaTime);
+            heldBody->AngularVelocity = FPVector3.Zero;
+        }
+
+        /// <summary>
+        /// Sets the held block down where it is: stopped, turned square to the character's facing, and let go.
+        /// </summary>
+        private void Place(Frame frame, ref Filter filter)
+        {
+            EntityRef held = filter.Grabber->Held;
+            PhysicsBody3D* body = frame.Unsafe.GetPointer<PhysicsBody3D>(held);
+            body->Velocity = FPVector3.Zero;
+            body->AngularVelocity = FPVector3.Zero;
+            frame.Unsafe.GetPointer<Transform3D>(held)->Rotation = GetBodyYaw(filter.Transform);
+
+            Release(frame, filter.Entity, filter.Grabber);
+            frame.Events.Placed(filter.Entity, held);
+        }
+
+        /// <summary>
+        /// Throws the held block along the character's facing, raised by the throw pitch, on top of the carrier's
+        /// velocity. Throwing while airborne is the jumpshot: faster, and aimed by the jumpshot pitch instead.
+        /// </summary>
+        private void Throw(Frame frame, ref Filter filter, GrabConfig config)
+        {
+            EntityRef held = filter.Grabber->Held;
+            bool airborne = frame.TryGet(filter.Entity, out GroundedTracker grounded) && grounded.IsGrounded == false;
+
+            FP pitch = airborne ? config.JumpshotPitch : config.ThrowPitch;
+            FP speed = airborne ? config.ThrowSpeed * config.JumpshotSpeedScale : config.ThrowSpeed;
+            FPVector3 direction = GetBodyYaw(filter.Transform) * FPQuaternion.Euler(-pitch, FP._0, FP._0) * FPVector3.Forward;
+
+            PhysicsBody3D* body = frame.Unsafe.GetPointer<PhysicsBody3D>(held);
+            FPVector3 velocity = filter.PhysicsBody->Velocity + direction * speed;
+            body->Velocity = velocity;
+
+            Release(frame, filter.Entity, filter.Grabber);
+            frame.Events.Thrown(filter.Entity, held, velocity, airborne);
+        }
+
+        /// <summary>
+        /// Empties the grabber's hands and hands the block back to gravity, keeping whatever velocity it has.
+        /// </summary>
+        private void Release(Frame frame, EntityRef holder, Grabber* grabber)
+        {
+            EntityRef held = grabber->Held;
+            grabber->Held = EntityRef.None;
+            if (frame.Exists(held))
+            {
+                DetachHeld(frame, held);
+            }
+        }
+
+        /// <summary>
+        /// Sets the held block's velocity and slows a carrier driving into it, scaled by the block's mass.
+        /// </summary>
+        private void ApplyCarryVelocity(GrabConfig config, PhysicsBody3D* carrierBody,
+            PhysicsBody3D* heldBody, FPVector3 targetVelocity, FPVector3 pivotToHeld)
+        {
+            FPVector3 deltaVelocity = targetVelocity - heldBody->Velocity;
+            heldBody->Velocity = targetVelocity;
+
+            FPVector3 armDirection = pivotToHeld;
+            armDirection.Y = FP._0;
+            FP reach = armDirection.Magnitude;
+            if (reach <= FP._0)
+                return;
+
+            armDirection /= reach;
+
+            FPVector3 flatDelta = deltaVelocity;
+            flatDelta.Y = FP._0;
+            FP push = FPVector3.Dot(flatDelta, armDirection);
+            if (push <= FP._0)
+                return;
+
+            FP approach = FPVector3.Dot(carrierBody->Velocity, armDirection);
+            if (approach <= FP._0)
+                return;
+
+            FP drop = FPMath.Min(push * heldBody->Mass * config.CarryReactionScale, approach);
+            carrierBody->Velocity -= armDirection * drop;
+        }
+
+        /// <summary>
+        /// Enables the leash once the block first sits within its length range, and returns true while it is enabled.
+        /// </summary>
+        private bool UpdateLeashEngagement(Frame frame, EntityRef held, GrabConfig config, FPVector3 pivotToHeld)
+        {
+            if (frame.Unsafe.TryGetPointer(held, out PhysicsJoints3D* joints) == false)
+                return false;
+
+            Joint3D* buffer = joints->GetJoints(frame, out int count);
+            for (int i = 0; i < count; i++)
+            {
+                if (buffer[i].UserTag != (int)EGrabJointTag.Leash)
+                    continue;
+
+                if (buffer[i].Enabled)
+                    return true;
+
+                FP min = config.LeashMinDistance;
+                FP max = config.HoldRadius + config.LeashSlack;
+                FP distanceSqr = pivotToHeld.SqrMagnitude;
+                if (distanceSqr >= min * min && distanceSqr <= max * max)
+                {
+                    buffer[i].Enabled = true;
+                    return true;
+                }
+
+                return false;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the hand position, limited to how far the block can swing around the pivot this tick.
+        /// </summary>
+        private FPVector3 GetSwingLimitedTarget(Frame frame, GrabConfig config, FPVector3 pivot,
+            FPVector3 pivotToHeld, FPVector3 handPosition)
+        {
+            if (pivotToHeld.SqrMagnitude < FP.EN4)
+                return handPosition;
+
+            FPVector3 desired = handPosition - pivot;
+            FP desiredDistance = desired.Magnitude;
+            FPVector3 currentDirection = pivotToHeld.Normalized;
+            FPQuaternion fullSwing = FPQuaternion.FromToRotation(currentDirection, desired / desiredDistance);
+            FPQuaternion limitedSwing = FPQuaternion.RotateTowards(FPQuaternion.Identity, fullSwing,
+                config.HoldSwingSpeed * frame.DeltaTime);
+            return pivot + limitedSwing * currentDirection * desiredDistance;
+        }
+
+        /// <summary>
+        /// Returns true if level geometry lies between the pivot and the held block.
+        /// </summary>
+        private bool IsHeldBlockBlocked(Frame frame, FPVector3 origin, FPVector3 blockPosition)
+        {
+            FPVector3 toBlock = blockPosition - origin;
+            FP distance = toBlock.Magnitude;
+            if (distance <= FP._0)
+                return false;
+
+            return frame.Physics3D.Raycast(origin, toBlock / distance, distance, -1, QueryOptions.HitStatics).HasValue;
+        }
+
+        /// <summary>
+        /// Returns the hold pivot inside the character.
+        /// </summary>
+        private static FPVector3 GetPivot(Transform3D* transform, GrabConfig config)
+        {
+            return transform->Position + FPVector3.Up * config.PivotHeight;
+        }
+
+        /// <summary>
+        /// Returns the character's facing as a rotation about world up only.
+        /// </summary>
+        private static FPQuaternion GetBodyYaw(Transform3D* transform)
+        {
+            FPVector3 forward = transform->Rotation * FPVector3.Forward;
+            return FPQuaternion.AngleAxis(FPMath.Atan2(forward.X, forward.Z) * FP.Rad2Deg, FPVector3.Up);
+        }
+
+        /// <summary>
+        /// Returns the rotation from the character's facing to the swing direction; positive pitch swings up.
+        /// </summary>
+        private static FPQuaternion GetSwingRotation(Transform3D* transform, Grabber* grabber)
+        {
+            return GetBodyYaw(transform) * FPQuaternion.Euler(-grabber->SwingPitch, grabber->SwingYaw, FP._0);
+        }
+
+        /// <summary>
+        /// Returns true unless the character is staggered.
+        /// </summary>
+        private static bool IsInControl(Frame frame, EntityRef entity)
+        {
+            return frame.TryGet(entity, out MovementData movement) == false || movement.Tier == ControlTier.InControl;
+        }
+
+        /// <summary>
+        /// Clears the block's holder, disables its leash and hands it back to gravity.
+        /// </summary>
+        private void DetachHeld(Frame frame, EntityRef held)
+        {
+            frame.Unsafe.GetPointer<Grabbable>(held)->Holder = EntityRef.None;
+
+            DisableLeash(frame, held);
+
+            PhysicsBody3D* body = frame.Unsafe.GetPointer<PhysicsBody3D>(held);
+            body->GravityScale = FP._1;
+            body->IsKinematic = false;
+            body->AllowSleeping = true;
+        }
+
+        /// <summary>
+        /// Disables the block's leash, if it has one; safe inside physics callbacks.
+        /// </summary>
+        private void DisableLeash(Frame frame, EntityRef held)
+        {
+            if (frame.Unsafe.TryGetPointer(held, out PhysicsJoints3D* joints) == false)
+                return;
+
+            if (joints->TryGetJoints(frame, out Joint3D* buffer, out int count) == false)
+                return;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (buffer[i].UserTag == (int)EGrabJointTag.Leash)
+                {
+                    buffer[i].Enabled = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Makes the holder let go of what it carries, keeping the block's velocity, and raises the Dropped event.
+        /// </summary>
+        void ISignalDropHeld.DropHeld(Frame frame, EntityRef holder)
+        {
+            if (frame.Unsafe.TryGetPointer(holder, out Grabber* grabber) == false)
+                return;
+
+            EntityRef held = grabber->Held;
+            if (held == EntityRef.None)
+                return;
+
+            Release(frame, holder, grabber);
+            frame.Events.Dropped(holder, held);
+        }
+
+        /// <summary>
+        /// Empties the holder's hands when a held block stops being grabbable, restoring its gravity unless it is
+        /// being destroyed.
+        /// </summary>
+        void ISignalOnComponentRemoved<Grabbable>.OnRemoved(Frame frame, EntityRef entity, Grabbable* component)
+        {
+            EntityRef holder = component->Holder;
+            if (holder == EntityRef.None)
+                return;
+
+            if (frame.Unsafe.TryGetPointer(holder, out Grabber* grabber) && grabber->Held == entity)
+            {
+                grabber->Held = EntityRef.None;
+                frame.Events.Dropped(holder, entity);
+            }
+
+            if (frame.DestroyPending(entity))
+                return;
+
+            DisableLeash(frame, entity);
+
+            PhysicsBody3D* body = frame.Unsafe.GetPointer<PhysicsBody3D>(entity);
+            body->GravityScale = FP._1;
+            body->AllowSleeping = true;
+        }
+
+        /// <summary>
+        /// Releases what a holder carried when it loses its grabber, for example on being destroyed.
+        /// </summary>
+        void ISignalOnComponentRemoved<Grabber>.OnRemoved(Frame frame, EntityRef entity, Grabber* component)
+        {
+            EntityRef held = component->Held;
+            if (held == EntityRef.None || frame.Exists(held) == false)
+                return;
+
+            DetachHeld(frame, held);
+        }
+    }
+}

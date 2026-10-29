@@ -107,6 +107,8 @@ GameObject:
   - component: {fileID: 1290400751494869202}
   - component: {fileID: 6518522048697401732}
   - component: {fileID: 1726779439632145356}
+  - component: {fileID: 8063538699393008057}
+  - component: {fileID: 5043075200545265310}
   m_Layer: 0
   m_Name: PH_PlayerCapsule
   m_TagString: Untagged
@@ -155,7 +157,7 @@ MonoBehaviour:
     IsTrigger: 0
     Material:
       Id:
-        Value: 0
+        Value: 499946901545633019
     SourceCollider: {fileID: 0}
     SourceColliders: []
     Shape2D:
@@ -236,7 +238,7 @@ MonoBehaviour:
     Mass:
       RawValue: 65536
     Drag:
-      RawValue: 32768
+      RawValue: 0
     AngularDrag:
       RawValue: 32768
     ExplicitInertia2D:
@@ -466,10 +468,26 @@ MonoBehaviour:
     Config:
       Id:
         Value: 516922185290165381
-    MovementLockTimer:
+    Tier:
+      Value: 0
+    StaggerTimer:
       Mode: 0
       Frames: 0
       Seconds:
+        RawValue: 0
+    IsCrouching:
+      Value: 0
+    IsSliding:
+      Value: 0
+    SlideTimer:
+      Mode: 0
+      Frames: 0
+      Seconds:
+        RawValue: 0
+    SlideDirection:
+      X:
+        RawValue: 0
+      Y:
         RawValue: 0
 --- !u!114 &6518522048697401732
 MonoBehaviour:
@@ -516,6 +534,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b49faf1a8389c7d468fc059e0e529e04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.LocalPlayerView
+--- !u!114 &8063538699393008057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4830101896938081584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 714998f5737e9af4389c4d28c043b6da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QPrototypeGrabber
+  Prototype:
+    Config:
+      Id:
+        Value: 499509218805318175
+    Held: {fileID: 0}
+    HeldRotationOffset:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+    SwingYaw:
+      RawValue: 0
+    SwingPitch:
+      RawValue: 0
+--- !u!114 &5043075200545265310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4830101896938081584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 522cfd6f70f2a5a4585689eb89286a86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QPrototypeKnockbackable
+  Prototype:
+    Config:
+      Id:
+        Value: 305904877395740238
 --- !u!1 &6939438412846394903
 GameObject:
   m_ObjectHideFlags: 0

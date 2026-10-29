@@ -26,6 +26,59 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## 2026-10-28: Phase 1, plan and asset pass
+
+### Phase 1 plan
+
+**Build order** (each step ends in a commit and a play-mode check):
+
+1. **Movement tiers.**
+   - Crouch: a shorter capsule and lower speed.
+   - Slide: crouch while running and grounded. A forward impulse, low braking, no steering, and a timer (a simulation timer, sized to the clip later).
+   - `ControlState` on the player: InControl or Staggered. Staggered cuts steering force for a timer, so the body slides on its momentum. Ragdoll arrives in Phase 3.
+2. **Knockback through one impulse path.**
+   - Every hit goes through a single `ApplyKnockback(target, impulse, source)` signal, handled by one `KnockbackSystem`.
+   - It applies the impulse and, above a threshold, starts Staggered.
+   - Block hits (thrown, swung or falling) and body checks all call it. In Phase 2, unlocking reads the same contact impulse.
+3. **Blocks.**
+   - The `PH_Block` entity: a 0.8 m box with `Team`, `Grabbable` and `Block`. 12 free blocks in the Lobby.
+   - Grab is adapted from Friendslop's `GrabSystem`: the velocity chase toward a hand point, swing limit, leash, carry load and drop.
+   - **Hold-and-swing:** the hand point orbits a pivot inside the player (Guy's `prop` offset) at a swing angle that the right stick drives. The block keeps its orientation relative to the player. Because the block is moved by velocity, a swing physically hits players and blocks.
+   - **Place:** Grab while holding. Sets the block down gently, square to the player's facing.
+   - **Throw:** an impulse along the aim plus the carried velocity.
+   - **Jumpshot:** Throw while airborne. Its own speed and arc.
+   - Ported as-is: `GrabbableCollisionSystem`, `GrabJointCleanupSystem`, `ObjectImpactSystem`.
+4. **Camera.** While holding, the right stick and mouse feed `Input.Swing`, and the orbit camera stops taking look input and follows behind the character.
+5. **Stacking test.** Towers of 3 plain blocks under the 3.1 solver (Friendslop's tuning). Record whether they stand unaided after being placed and after a nudge.
+6. **Ragdoll stress test.** A minimal humanoid skeleton of empty transforms at Guy's proportions, baked with `QuantumRagdoll` (no Friendslop art; manual bone slots, Generic-style). Eight of them dropped onto block towers online. Read simulation time and rollback cost with Quantum's stats.
+7. **Verification.** Up to 8 clients online (MPPM caps at 4 local players, plus extra standalone builds if needed). Report.
+
+**Risks**
+
+- Swing feel is the core mechanic and depends on design answers (questions below). Every number is config, so retuning doesn't mean rewriting.
+- Block-on-block stacking under fixed-point physics may creep. The test in step 5 decides how heavy Phase 2's "locked" physics must be.
+- 8 ragdolls under rollback may be costly. Step 6 measures it early, as the plan asks.
+- "Feels fun" is Jackson's call. The agent can verify that the mechanics work, not that they're fun.
+
+**Questions for Jackson (defaults the agent builds until answered)**
+
+1. **Turning while holding.** The right stick swings the block and left/right on the left stick strafes, so what turns the character?
+   - Default: horizontal swing moves the block around the player within ±150° of facing. The body turns toward the block whenever it's more than 45° off, and the camera follows behind. So a big swing also turns you.
+2. **Place.** Default: Grab while holding sets the block down where it is, square to your facing. Do you want snapping to the tower below (aligned on top), or free placement?
+3. **Jumpshot.** Default: Throw while airborne. 30% faster, and aimed down by up to 20° when you're above the target height, for "dunking" onto towers. Or did you have a different jumpshot in mind?
+4. **Grab range and targeting.** Default: the nearest block within 2 m in a 60° cone in front of the character.
+
+### Session log
+
+- Did: Phase 1 plan; asset pass.
+- Assets:
+  - A-005 and A-011 are now *Needed soon*.
+  - A-012 stays *Start now*.
+  - A-001 moved to *Next phase*.
+  - New: A-013 (block owner tint and readability, Phase 2 look-ahead) and A-014 (SFX placeholder list, *Nice to have*).
+- Blocked / questions for Jackson: the four questions above (not blocking; defaults in use).
+- Next: movement tiers.
+
 ## Phase 0 report: Foundations
 
 - Built:
