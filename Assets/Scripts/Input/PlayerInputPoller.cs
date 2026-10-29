@@ -11,12 +11,12 @@ namespace BlockSauce
     /// </summary>
     public class PlayerInputPoller : MonoBehaviour
     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         /// <summary>
-        /// Editor-only test hook: when set, rewrites each tick's input before it is sent. Automated play tests drive
-        /// the game through this, because an unfocused editor drops or resets synthetic device input.
+        /// Test hook for the editor and development builds: when set, rewrites each tick's input before it is sent.
+        /// Automated play tests and the dev autoplay drive the game through this; it does not exist in release builds.
         /// </summary>
-        public static System.Func<QInput, QInput> EditorInputOverride;
+        public static System.Func<QInput, QInput> TestInputOverride;
 #endif
 
         private void OnEnable()
@@ -52,10 +52,10 @@ namespace BlockSauce
             input.Grab = controls.Grab.IsPressed();
             input.Throw = controls.Throw.IsPressed();
 
-#if UNITY_EDITOR
-            if (EditorInputOverride != null)
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (TestInputOverride != null)
             {
-                input = EditorInputOverride(input);
+                input = TestInputOverride(input);
             }
 #endif
 

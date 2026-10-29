@@ -122,7 +122,7 @@ namespace Quantum {
       FPVector2.Serialize(&p->Swing, serializer);
     }
     static partial void GetMaxCountCodeGen(ref int maxCount) {
-      maxCount = 6;
+      maxCount = 8;
     }
     public Boolean IsDown(InputButtons button) {
       switch (button) {
@@ -147,7 +147,7 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct _globals_ {
-    public const Int32 SIZE = 1224;
+    public const Int32 SIZE = 1416;
     public const Int32 ALIGNMENT = 8;
     [FieldOffset(0)]
     public Int32 PlayerConnectedCount;
@@ -170,13 +170,13 @@ namespace Quantum {
     [FieldOffset(296)]
     public PhysicsSceneSettings PhysicsSettings;
     [FieldOffset(640)]
-    [FramePrinter.FixedArrayAttribute(typeof(Input), 6)]
-    private fixed Byte _input_[576];
-    [FieldOffset(1216)]
-    public BitSet6 PlayerLastConnectionState;
+    [FramePrinter.FixedArrayAttribute(typeof(Input), 8)]
+    private fixed Byte _input_[768];
+    [FieldOffset(1408)]
+    public BitSet8 PlayerLastConnectionState;
     public readonly FixedArray<Input> input {
       get {
-        fixed (byte* p = _input_) { return new FixedArray<Input>(p, 96, 6); }
+        fixed (byte* p = _input_) { return new FixedArray<Input>(p, 96, 8); }
       }
     }
     public override readonly Int32 GetHashCode() {
@@ -210,7 +210,7 @@ namespace Quantum {
       Quantum.BitSet1024.Serialize(&p->Systems, serializer);
       PhysicsSceneSettings.Serialize(&p->PhysicsSettings, serializer);
       FixedArray.Serialize(p->input, serializer, Statics.SerializeInput);
-      Quantum.BitSet6.Serialize(&p->PlayerLastConnectionState, serializer);
+      Quantum.BitSet8.Serialize(&p->PlayerLastConnectionState, serializer);
     }
   }
   [StructLayout(LayoutKind.Explicit)]
@@ -656,7 +656,7 @@ namespace Quantum {
         registry.Register<Quantum.BitSet256>(Quantum.BitSet256.SIZE);
         registry.Register<Quantum.BitSet4096>(Quantum.BitSet4096.SIZE);
         registry.Register<Quantum.BitSet512>(Quantum.BitSet512.SIZE);
-        registry.Register<Quantum.BitSet6>(Quantum.BitSet6.SIZE);
+        registry.Register<Quantum.BitSet8>(Quantum.BitSet8.SIZE);
         registry.Register<Quantum.Block>(Quantum.Block.SIZE);
         registry.Register<Button>(Button.SIZE);
         registry.Register<CallbackFlags>(4);
@@ -1142,30 +1142,30 @@ namespace Quantum {
     }
   }
   [StructLayout(LayoutKind.Explicit)]
-  public unsafe partial struct BitSet6 {
+  public unsafe partial struct BitSet8 {
     public const Int32 SIZE = 8;
     public const Int32 ALIGNMENT = 8;
     [FieldOffset(0)]
     public fixed UInt64 Bits[1];
-    public const Int32 BitsSize = 6;
+    public const Int32 BitsSize = 8;
     public readonly Int32 Length {
       get {
-        return 6;
+        return 8;
       }
     }
     public static void Serialize(void* ptr, FrameSerializer serializer) {
-      var p = (BitSet6*)ptr;
+      var p = (BitSet8*)ptr;
       serializer.Stream.SerializeBuffer(&p->Bits[0], 1);
     }
     public static void Print(void* ptr, FramePrinter printer) {
-      var p = (BitSet6*)ptr;
+      var p = (BitSet8*)ptr;
       printer.ScopeBegin();
-      UnmanagedUtils.PrintBytesBits((byte*)&p->Bits, 6, 64, printer);
+      UnmanagedUtils.PrintBytesBits((byte*)&p->Bits, 8, 64, printer);
       printer.ScopeEnd();
     }
-    public static BitSet6 FromArray(UInt64[] values) {
+    public static BitSet8 FromArray(UInt64[] values) {
       Assert.Always(1 == values.Length, "Invalid array size", values.Length);
-      BitSet6 result = default;
+      BitSet8 result = default;
       for (int i = 0; i < 1; ++i) {
         result.Bits[i] = values[i];
       }
@@ -1173,12 +1173,12 @@ namespace Quantum {
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Set(Int32 bit) {
-      Assert.Check(bit >= 0 && bit < 6);
+      Assert.Check(bit >= 0 && bit < 8);
       fixed (UInt64* p = Bits) (p[bit/64]) |= (1UL<<(bit%64));
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear(Int32 bit) {
-      Assert.Check(bit >= 0 && bit < 6);
+      Assert.Check(bit >= 0 && bit < 8);
       fixed (UInt64* p = Bits) (p[bit/64]) &= ~(1UL<<(bit%64));
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1193,20 +1193,20 @@ namespace Quantum {
     public readonly Int32 GetSetCount() {
       fixed (UInt64* p = Bits) {
         int result = 0;
-        result += Maths.CountSetBits(p[0] & 0x3FUL);
+        result += Maths.CountSetBits(p[0] & 0xFFUL);
         return result;
       }
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Boolean IsAnySet() {
       fixed (UInt64* p = Bits) {
-        if ((p[0] & 0x3FUL) != 0) return true;
+        if ((p[0] & 0xFFUL) != 0) return true;
         return false;
       }
     }
     public override readonly Int32 GetHashCode() {
       unchecked { 
-        var hash = 13669;
+        var hash = 13681;
         fixed (UInt64* p = Bits) hash = hash * 31 + HashCodeUtils.GetArrayHashCode(p, 1);
         return hash;
       }

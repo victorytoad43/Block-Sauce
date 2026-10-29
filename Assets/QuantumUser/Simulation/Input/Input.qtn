@@ -1,3 +1,5 @@
+#pragma max_players 8
+
 input
 {
     button Jump;
