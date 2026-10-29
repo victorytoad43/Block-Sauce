@@ -21,6 +21,9 @@ namespace Quantum
             systems.Add(new GrabbableCollisionSystem());
             systems.Add(new KnockbackSystem());
             systems.Add(new ObjectImpactSystem());
+
+            // Test-only: does nothing unless a scene contains a RagdollStressTest entity.
+            systems.Add(new RagdollStressTestSystem());
         }
     }
 }

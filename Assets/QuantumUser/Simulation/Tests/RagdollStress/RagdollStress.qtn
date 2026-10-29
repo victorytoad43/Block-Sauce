@@ -1,0 +1,11 @@
+component RagdollStressTest
+{
+    asset_ref<EntityPrototype> Ragdoll;
+    int Count;
+    FP StartDelay;
+    FP DropHeight;
+    FP VerticalSpacing;
+    FP Jitter;
+    FP Spin;
+    [HideInInspector] bool Spawned;
+}

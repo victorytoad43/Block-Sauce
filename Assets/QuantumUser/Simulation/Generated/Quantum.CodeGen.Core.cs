@@ -456,6 +456,53 @@ namespace Quantum {
     }
   }
   [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct RagdollStressTest : Quantum.IComponent {
+    public const Int32 SIZE = 56;
+    public const Int32 ALIGNMENT = 8;
+    [FieldOffset(8)]
+    public AssetRef<EntityPrototype> Ragdoll;
+    [FieldOffset(0)]
+    public Int32 Count;
+    [FieldOffset(40)]
+    public FP StartDelay;
+    [FieldOffset(16)]
+    public FP DropHeight;
+    [FieldOffset(48)]
+    public FP VerticalSpacing;
+    [FieldOffset(24)]
+    public FP Jitter;
+    [FieldOffset(32)]
+    public FP Spin;
+    [FieldOffset(4)]
+    [HideInInspector()]
+    public QBoolean Spawned;
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 18047;
+        hash = hash * 31 + Ragdoll.GetHashCode();
+        hash = hash * 31 + Count.GetHashCode();
+        hash = hash * 31 + StartDelay.GetHashCode();
+        hash = hash * 31 + DropHeight.GetHashCode();
+        hash = hash * 31 + VerticalSpacing.GetHashCode();
+        hash = hash * 31 + Jitter.GetHashCode();
+        hash = hash * 31 + Spin.GetHashCode();
+        hash = hash * 31 + Spawned.GetHashCode();
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (RagdollStressTest*)ptr;
+      serializer.Stream.Serialize(&p->Count);
+      QBoolean.Serialize(&p->Spawned, serializer);
+      AssetRef.Serialize(&p->Ragdoll, serializer);
+      FP.Serialize(&p->DropHeight, serializer);
+      FP.Serialize(&p->Jitter, serializer);
+      FP.Serialize(&p->Spin, serializer);
+      FP.Serialize(&p->StartDelay, serializer);
+      FP.Serialize(&p->VerticalSpacing, serializer);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Team : Quantum.IComponent {
     public const Int32 SIZE = 4;
     public const Int32 ALIGNMENT = 1;
@@ -558,6 +605,7 @@ namespace Quantum {
       private ComponentSignals _componentSignals_Player = CreateComponentSignals<Quantum.Player>(frame);
       private ComponentSignals _componentSignals_PlayerLook = CreateComponentSignals<Quantum.PlayerLook>(frame);
       private ComponentSignals _componentSignals_PlayerSpawnPoint = CreateComponentSignals<Quantum.PlayerSpawnPoint>(frame);
+      private ComponentSignals _componentSignals_RagdollStressTest = CreateComponentSignals<Quantum.RagdollStressTest>(frame);
       private ComponentSignals _componentSignals_Team = CreateComponentSignals<Quantum.Team>(frame);
       private ComponentSignals _componentSignals_Transform2D = CreateComponentSignals<Transform2D>(frame);
       private ComponentSignals _componentSignals_Transform2DVertical = CreateComponentSignals<Transform2DVertical>(frame);
@@ -686,6 +734,7 @@ namespace Quantum {
         registry.Register<Quantum.Ptr>(Quantum.Ptr.SIZE);
         registry.Register<QueryOptions>(2);
         registry.Register<RNGSession>(RNGSession.SIZE);
+        registry.Register<Quantum.RagdollStressTest>(Quantum.RagdollStressTest.SIZE);
         registry.Register<Shape2D>(Shape2D.SIZE);
         registry.Register<Shape3D>(Shape3D.SIZE);
         registry.Register<SpringJoint>(SpringJoint.SIZE);
@@ -711,6 +760,7 @@ namespace Quantum {
         registry.Register<Quantum.Player>(Quantum.Player.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.PlayerLook>(Quantum.PlayerLook.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.PlayerSpawnPoint>(Quantum.PlayerSpawnPoint.Serialize, null, null, ComponentFlags.None);
+        registry.Register<Quantum.RagdollStressTest>(Quantum.RagdollStressTest.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.Team>(Quantum.Team.Serialize, null, null, ComponentFlags.None);
         return registry;
       }
