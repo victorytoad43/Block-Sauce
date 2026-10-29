@@ -126,12 +126,12 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - **Done when:** up to 8 online players toss blocks around and it feels fun. **Mechanics verified 2026-10-28 with 8 online clients (see the Phase 1 report in PROGRESS.md); "feels fun" waits on Jackson's play-test.**
 
 ### Phase 2: Stack & Lock mode
-- [ ] 3 owned blocks per player; lock progress, dither shader, reset on hit
-- [ ] Locked physics; unlock on impact over threshold, cascading upward
-- [ ] Foreign blocks as obstacles on rival towers
-- [ ] Match flow state machine; mode config asset; team IDs; win check
-- [ ] Minimal HUD: tower progress per player, countdown, results
-- **Done when:** a gray-box match runs from lobby to a winner and back to the lobby.
+- [x] 3 owned blocks per player; lock progress, dither shader, reset on hit
+- [x] Locked physics; unlock on impact over threshold, cascading upward
+- [x] Foreign blocks as obstacles on rival towers
+- [x] Match flow state machine; mode config asset; team IDs; win check
+- [x] Minimal HUD: tower progress per player, countdown, results
+- **Done when:** a gray-box match runs from lobby to a winner and back to the lobby. **Verified 2026-10-29 with 2 online clients (see the Phase 2 report in PROGRESS.md); waiting on Jackson's play-test.**
 
 ### Phase 3: Knockdown
 - [ ] Knockdown thresholds and staggered tier tuning
@@ -186,8 +186,12 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - Grab targeting: the nearest free block within 2 m in front of the character. Once Guy has arms (Phase 4), a grabbed block should turn to align straight with the character's facing instead of keeping its current rotation. (Jackson, 2026-10-29.)
 - Phase 1 approved after play-testing. Feel numbers (aim angle, sensitivity, throw speed) stay as built until the plan's polish phase. (Jackson, 2026-10-29.)
 - Locomotion animation: the walk clip covers slow movement (low stick pressure) and a run clip covers faster movement; the walk may be sped up to fit. The throw clip releases on frame 5 of 7. (Jackson, 2026-10-29.)
+- After Phase 2, work pauses so art can catch up before Phase 3. (Jackson, 2026-10-29.)
 - Art delivery: `Assets/Art/_Incoming/` is Jackson's only drop-off, under any file name; the agent handles naming, placement and import settings. (Jackson, 2026-10-29.)
 
 ## Open questions
 
 - (Agent: add questions here as they come up; move them to Decisions once Jackson answers.)
+- Lock feel: 3 s lock time; unlock needs a striker at 4 m/s or more and speed × mass of 8 or more (throws, swings and running body checks unlock; walking into a tower doesn't). Right numbers? (Phase 2 play-test.)
+- Should picking up a block be able to knock your own tower loose when the pickup swing passes through it, or should a block's own pickup be ignored? (Phase 2 play-test.)
+- A block only locks after a player has placed it (picked it up at least once since it spawned or was knocked loose). A thrown block that lands level in a valid slot also locks. OK?

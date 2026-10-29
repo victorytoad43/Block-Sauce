@@ -680,6 +680,8 @@ MonoBehaviour:
     - rid: 3442151234574745604
     - rid: 3442151234574745605
     - rid: 3442151234574745606
+  - Components:
+    - rid: 4278626708522795008
   SerializedTriangleDataUncompressedSize: 8
   references:
     version: 2
@@ -842,7 +844,13 @@ MonoBehaviour:
     - rid: 422447260190638084
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 422447260190638085
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -991,7 +999,13 @@ MonoBehaviour:
     - rid: 980903904726220804
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 980903904726220805
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1161,7 +1175,13 @@ MonoBehaviour:
     - rid: 1622321297885233156
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 1622321297885233157
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1310,7 +1330,13 @@ MonoBehaviour:
     - rid: 1643830092524158980
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 1643830092524158981
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1459,7 +1485,13 @@ MonoBehaviour:
     - rid: 2569740089236127748
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 2569740089236127749
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1629,7 +1661,13 @@ MonoBehaviour:
     - rid: 2665276532167016452
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 2665276532167016453
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1799,7 +1837,13 @@ MonoBehaviour:
     - rid: 3136458786265366532
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 3136458786265366533
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1948,7 +1992,13 @@ MonoBehaviour:
     - rid: 3442151234574745604
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 3442151234574745605
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2097,7 +2147,13 @@ MonoBehaviour:
     - rid: 3546496818638487556
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 3546496818638487557
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2246,7 +2302,13 @@ MonoBehaviour:
     - rid: 3886416335923576836
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 3886416335923576837
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2395,7 +2457,13 @@ MonoBehaviour:
     - rid: 4089721299381780484
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 4089721299381780485
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2407,6 +2475,24 @@ MonoBehaviour:
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Id: 255
+    - rid: 4278626708522795008
+      type: {class: MatchPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        Mode:
+          Id:
+            Value: 508111579562996528
+        State:
+          Value: 0
+        Timer:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        Winner:
+          _index: 0
+        SandboxRecorded:
+          Value: 0
+        SandboxBlocks: []
     - rid: 4412084783509667840
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
@@ -2544,7 +2630,13 @@ MonoBehaviour:
     - rid: 4412084783509667844
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 4412084783509667845
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2693,7 +2785,13 @@ MonoBehaviour:
     - rid: 5508389762932670468
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 5508389762932670469
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2884,7 +2982,13 @@ MonoBehaviour:
     - rid: 6072031854628700164
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 6072031854628700165
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -3033,7 +3137,13 @@ MonoBehaviour:
     - rid: 6214135097486999556
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 6214135097486999557
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -3182,7 +3292,13 @@ MonoBehaviour:
     - rid: 6962280660572569604
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 6962280660572569605
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -3373,7 +3489,13 @@ MonoBehaviour:
     - rid: 7368364295081426948
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 7368364295081426949
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -3522,7 +3644,13 @@ MonoBehaviour:
     - rid: 8272629982346346500
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Lock:
+          Value: 0
+        LockProgress:
+          RawValue: 0
+        TowerLevel: 0
     - rid: 8272629982346346501
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:

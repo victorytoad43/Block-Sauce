@@ -34,6 +34,24 @@ namespace Quantum
             {
                 player->Input.Camera = previousCamera;
             }
+
+            if (MatchSystem.IsInputFrozen(frame))
+            {
+                InputPitchYaw camera = player->Input.Camera;
+                player->Input = default;
+                player->Input.HasCamera = true;
+                player->Input.Camera = camera;
+            }
+        }
+
+        /// <summary>
+        /// Returns the spawn point at the player's index, if the map has one.
+        /// </summary>
+        public static bool TryGetSpawn(Frame frame, PlayerRef player, out Transform3D spawn)
+        {
+            Transform3D* transform = FindSpawnTransform(frame, (int)player);
+            spawn = transform != null ? *transform : default;
+            return transform != null;
         }
 
         /// <summary>
@@ -92,7 +110,7 @@ namespace Quantum
         /// <summary>
         /// Returns the transform of the spawn point at <paramref name="index"/>, or null when the map has fewer spawn points.
         /// </summary>
-        private Transform3D* FindSpawnTransform(Frame frame, int index)
+        private static Transform3D* FindSpawnTransform(Frame frame, int index)
         {
             int count = 0;
 

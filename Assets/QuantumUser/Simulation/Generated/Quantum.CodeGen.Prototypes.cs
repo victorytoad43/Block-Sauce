@@ -53,7 +53,15 @@ namespace Quantum.Prototypes {
   [Quantum.Prototypes.Prototype(typeof(Quantum.Block))]
   public unsafe partial class BlockPrototype : ComponentPrototype<Quantum.Block> {
     [HideInInspector()]
-    public Int32 _empty_prototype_dummy_field_;
+    public PlayerRef Owner;
+    [HideInInspector()]
+    public Quantum.QEnum32<LockState> Lock;
+    [HideInInspector()]
+    public FP LockProgress;
+    [HideInInspector()]
+    public Byte TowerLevel;
+    [HideInInspector()]
+    public QBoolean Handled;
     partial void MaterializeUser(Frame frame, ref Quantum.Block result, in PrototypeMaterializationContext context);
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
       Quantum.Block component = default;
@@ -61,6 +69,11 @@ namespace Quantum.Prototypes {
       return f.Set(entity, component) == SetResult.ComponentAdded;
     }
     public void Materialize(Frame frame, ref Quantum.Block result, in PrototypeMaterializationContext context = default) {
+      result.Owner = this.Owner;
+      result.Lock = this.Lock;
+      result.LockProgress = this.LockProgress;
+      result.TowerLevel = this.TowerLevel;
+      result.Handled = this.Handled;
       MaterializeUser(frame, ref result, in context);
     }
   }
@@ -181,6 +194,46 @@ namespace Quantum.Prototypes {
     }
   }
   [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.Match))]
+  public unsafe partial class MatchPrototype : ComponentPrototype<Quantum.Match> {
+    public AssetRef<GameModeConfig> Mode;
+    [HideInInspector()]
+    public Quantum.QEnum32<MatchState> State;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype Timer;
+    [HideInInspector()]
+    public PlayerRef Winner;
+    [HideInInspector()]
+    public QBoolean SandboxRecorded;
+    [HideInInspector()]
+    [DynamicCollectionAttribute()]
+    public Quantum.Prototypes.SandboxBlockHomePrototype[] SandboxBlocks = {};
+    partial void MaterializeUser(Frame frame, ref Quantum.Match result, in PrototypeMaterializationContext context);
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.Match component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.Match result, in PrototypeMaterializationContext context = default) {
+      result.Mode = this.Mode;
+      result.State = this.State;
+      this.Timer.Materialize(frame, ref result.Timer, in context);
+      result.Winner = this.Winner;
+      result.SandboxRecorded = this.SandboxRecorded;
+      if (this.SandboxBlocks.Length == 0) {
+        result.SandboxBlocks = default;
+      } else {
+        var list = frame.AllocateList(out result.SandboxBlocks, this.SandboxBlocks.Length);
+        for (int i = 0; i < this.SandboxBlocks.Length; ++i) {
+          Quantum.SandboxBlockHome tmp = default;
+          this.SandboxBlocks[i].Materialize(frame, ref tmp, in context);
+          list.Add(tmp);
+        }
+      }
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
   [Quantum.Prototypes.Prototype(typeof(Quantum.MovementData))]
   public unsafe partial class MovementDataPrototype : ComponentPrototype<Quantum.MovementData> {
     public AssetRef<MovementConfig> Config;
@@ -287,6 +340,19 @@ namespace Quantum.Prototypes {
       result.Jitter = this.Jitter;
       result.Spin = this.Spin;
       result.Spawned = this.Spawned;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.SandboxBlockHome))]
+  public unsafe partial class SandboxBlockHomePrototype : StructPrototype {
+    public FPVector3 Position;
+    [UnitAttribute(Units.Degrees)]
+    public FPVector3 Rotation;
+    partial void MaterializeUser(Frame frame, ref Quantum.SandboxBlockHome result, in PrototypeMaterializationContext context);
+    public void Materialize(Frame frame, ref Quantum.SandboxBlockHome result, in PrototypeMaterializationContext context = default) {
+      result.Position = this.Position;
+      result.Rotation = FPQuaternion.Euler(this.Rotation);
       MaterializeUser(frame, ref result, in context);
     }
   }

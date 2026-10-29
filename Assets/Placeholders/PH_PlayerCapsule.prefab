@@ -111,6 +111,7 @@ GameObject:
   - component: {fileID: 5043075200545265310}
   - component: {fileID: 1127897408115431833}
   - component: {fileID: 5601955013440887320}
+  - component: {fileID: 5824487416855064166}
   m_Layer: 0
   m_Name: PH_PlayerCapsule
   m_TagString: Untagged
@@ -616,6 +617,21 @@ MonoBehaviour:
   _animator: {fileID: 6532893055267455855}
   _walkClipSpeed: 0.3
   _maxWalkRate: 4
+--- !u!114 &5824487416855064166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4830101896938081584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1831dcb333366454291dc347f571465e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.PlayerColorView
+  _palette: {fileID: 11400000, guid: 6417543b1dfd5b248be0190ca041e87b, type: 2}
+  _renderers:
+  - {fileID: 8594539242631816414}
 --- !u!1 &6939438412846394903
 GameObject:
   m_ObjectHideFlags: 0
@@ -804,5 +820,10 @@ Animator:
 --- !u!4 &4076254961857187087 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8486315476ce2ee4cad3a57c76c1635f, type: 3}
+  m_PrefabInstance: {fileID: 4547365924102384356}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &8594539242631816414 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -4008605192824041926, guid: 8486315476ce2ee4cad3a57c76c1635f, type: 3}
   m_PrefabInstance: {fileID: 4547365924102384356}
   m_PrefabAsset: {fileID: 0}

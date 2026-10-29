@@ -1,0 +1,30 @@
+enum MatchState
+{
+    Lobby,
+    Countdown,
+    Playing,
+    RoundEnd,
+    Results
+}
+
+struct SandboxBlockHome
+{
+    FPVector3 Position;
+    FPQuaternion Rotation;
+}
+
+singleton component Match
+{
+    asset_ref<GameModeConfig> Mode;
+    [HideInInspector] MatchState State;
+    [HideInInspector] FrameTimer Timer;
+    [HideInInspector] PlayerRef Winner;
+    [HideInInspector] bool SandboxRecorded;
+    [HideInInspector] list<SandboxBlockHome> SandboxBlocks;
+}
+
+event MatchStateChanged
+{
+    MatchState State;
+    PlayerRef Winner;
+}

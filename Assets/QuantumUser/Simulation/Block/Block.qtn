@@ -1,3 +1,43 @@
+enum LockState
+{
+    Free,
+    Locking,
+    Locked
+}
+
 component Block
 {
+    [HideInInspector] PlayerRef Owner;
+    [HideInInspector] LockState Lock;
+    [HideInInspector] FP LockProgress;
+    [HideInInspector] byte TowerLevel;
+    // Picked up since it spawned or was last knocked loose; only such (placed) blocks can lock.
+    [HideInInspector] bool Handled;
 }
+
+event BlockLockStarted
+{
+    EntityRef Block;
+    PlayerRef Owner;
+}
+
+event BlockLockReset
+{
+    EntityRef Block;
+    PlayerRef Owner;
+}
+
+event BlockLocked
+{
+    EntityRef Block;
+    PlayerRef Owner;
+    byte TowerLevel;
+}
+
+event BlockUnlocked
+{
+    EntityRef Block;
+    PlayerRef Owner;
+    EntityRef Striker;
+}
+

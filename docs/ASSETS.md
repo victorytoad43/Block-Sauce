@@ -9,20 +9,21 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 
 | ID | Asset | Needed by | Priority | Status | Placeholder in use |
 |---|---|---|---|---|---|
-| A-001 | Player color palette (8 colors) | Phase 2 | Next phase | Requested | Unity default colors |
+| A-001 | Player color palette (8 colors) | Phase 2 | Needed soon | Requested | `PH_PlayerColors` |
 | A-002 | Lobby + main menu UI mock-ups | Phase 1 | Next phase | Requested | Default UI |
 | A-003 | Guy character model + rig | Phase 0 (import test) | Needed soon | Integrated | Guy on `PH_PlayerCapsule` (capsule collider stays) |
 | A-004 | Guy animation set (first pass) | Phase 4 (walk needed soon for Phase 0) | Start now | In progress | None |
 | A-005 | Block mesh | Draft for Phase 1; final by Phase 5 | Needed soon | Requested (draft seen) | `PH_Block` |
-| A-006 | Match HUD + results screen mock-ups | Phase 2 | Next phase | Requested | Default UI |
-| A-007 | Lock effect art direction | Phase 2 | Next phase | Requested | Agent's shader defaults |
+| A-006 | Match HUD + results screen mock-ups | Phase 2 | Needed soon | Requested | IMGUI text HUD (`MatchHud`) |
+| A-007 | Lock effect art direction | Phase 2 | Needed soon | Requested | `PH_LockDither` shader |
 | A-008 | Arena layout sketch | Phase 6 (graybox from Phase 0) | Nice to have | Requested | Graybox terrain |
 | A-009 | Sauce vat model + sauce look references | Phase 5 | Nice to have | Requested | Cylinder |
 | A-010 | Block Sauce logo / wordmark | Phase 6 | Nice to have | Requested | Text |
 | A-011 | Movement feel targets (design input) | Phase 1 | Needed soon | Requested | Friendslop defaults |
 | A-012 | Guy hold-block pose + throw timing | Phase 1 timings; Phase 4 clip | Start now | Requested | None |
-| A-013 | Block owner tint and team readability | Phase 2 | Next phase | Requested | Flat team color on `PH_Block` |
+| A-013 | Block owner tint and team readability | Phase 2 | Needed soon | Requested | Flat owner color on `PH_Block` |
 | A-014 | SFX placeholder list | Phase 6 (temp SFX any time) | Nice to have | Requested | Silent |
+| A-015 | Knockdown + get-up clips (slice of A-004) | Phase 3 | Next phase | Requested | None (ragdoll only) |
 
 ## Request format (agent: use this for every new request)
 
@@ -150,7 +151,8 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Priority: Next phase
 - Purpose: Countdown, each player's tower progress (3 slots: empty, locking, locked), round end and results.
 - Spec: Mock-ups at 1920×1080 for 2 and 8 players.
-- Placeholder: Default UI
+- Must match (Phase 2 build): match states are Lobby (press Start / Enter to begin), Countdown (3 s), Playing, Round end (3 s, winner shown), Results (6 s), then back to Lobby. Per player the HUD shows their color and 3 tower slots, each empty, locking (0–100%) or locked.
+- Placeholder: IMGUI text HUD, `Assets/Scripts/Match/MatchHud.cs`
 - Status: Requested
 
 ### A-007: Lock effect art direction
@@ -158,7 +160,8 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Priority: Next phase
 - Purpose: The dither overlay climbing a placed block, and the "locked" pop when it reaches the top. The agent builds the shader; this is the look to aim for.
 - Spec: A few frames or a short reference clip; dither pattern and scale; the pop (flash, ring, particles, sound idea).
-- Placeholder: Agent's default shader
+- Must match (Phase 2 build): lock progress is a 0–1 value that fills over 3 s (mode setting) and drops to 0 on any hit; the shader climbs bottom to top with it. Locked blocks stay frozen until knocked loose, and then fall back to the plain owner color.
+- Placeholder: `Assets/Placeholders/PH_LockDither.shader` (4×4 screen-space dither in the owner's darker shade; locked = solid darker shade)
 - Status: Requested
 
 ### A-008: Arena layout sketch
@@ -212,7 +215,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Purpose: Every block shows whose it is at a glance, from across the arena and while tumbling, and later under a sauce coat (A-009).
 - Spec: How ownership shows on the block: a full tint, a colored edge or bevel, a stripe or icon, or a combination. One reference image or a quick paint-over of the A-005 draft is enough.
 - Must match: The player palette in A-001. The lock dither (A-007) climbs the block in the owner's darker shade, so the base treatment must leave room for that overlay.
-- Placeholder: `PH_Block` with a flat team color
+- Placeholder: `PH_Block` with a flat owner color (`PH_LockDither` shader, colors from `PH_PlayerColors`); unowned sandbox blocks stay gray
 - Status: Requested
 
 ### A-014: SFX placeholder list
@@ -220,6 +223,15 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Priority: Nice to have
 - Purpose: The simulation raises events for jump, grab, drop, throw, block impact (with impact speed) and knockback. The view can play a sound on each as soon as one exists.
 - Spec: WAV 48 kHz mono, short. For each event, one sound or a pointer to a free/CC0 pack you like. Impacts benefit from 2-3 variations, plus a light and a heavy version.
-- Must match: Event names in code: `Jumped`, `Grabbed`, `Dropped`, `Thrown`, `ObjectImpact` (speed), `KnockedBack`.
+- Must match: Event names in code: `Jumped`, `Grabbed`, `Dropped`, `Thrown`, `ObjectImpact` (speed), `KnockedBack`. Phase 2 adds `BlockLockStarted`, `BlockLockReset`, `BlockLocked` (the lock pop), `BlockUnlocked`, and `MatchStateChanged` (countdown beeps, round start, win fanfare).
 - Placeholder: Silent
+- Status: Requested
+
+### A-015: Knockdown + get-up clips
+- Phase / needed by: Phase 3, the get-up after a ragdoll; long lead
+- Priority: Next phase
+- Purpose: The slice of A-004 that Phase 3 needs first. When a knocked-down player recovers, the ragdoll is removed and Guy stands up where his hips came to rest; the view blends from the ragdoll pose into a get-up clip.
+- Spec: two clips, in place: get up from lying face down, and from lying face up. Start each from a relaxed lying pose (it doesn't have to match any particular ragdoll pose; the view blends into frame 0). About 0.6–1.0 s each at game speed. Same export as Guy (`CH_Guy.fbx`, two or more keyframes per action).
+- Must match: the hips end where they started horizontally (no root motion); the last frame matches the idle/stand pose.
+- Placeholder: None (ragdoll pops back to standing)
 - Status: Requested

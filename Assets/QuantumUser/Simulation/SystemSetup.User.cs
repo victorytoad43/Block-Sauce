@@ -12,6 +12,7 @@ namespace Quantum
         /// </summary>
         static partial void AddSystemsUser(ICollection<SystemBase> systems, RuntimeConfig gameConfig, SimulationConfig simulationConfig, SystemsConfig systemsConfig)
         {
+            systems.Add(new MatchSystem());
             systems.Add(new PlayerSystem());
             systems.Add(new PlayerLookSystem());
             systems.Add(new GroundedTrackerSystem());
@@ -21,9 +22,12 @@ namespace Quantum
             systems.Add(new GrabbableCollisionSystem());
             systems.Add(new KnockbackSystem());
             systems.Add(new ObjectImpactSystem());
+            systems.Add(new BlockLockSystem());
 
             // Test-only: does nothing unless a scene contains a RagdollStressTest entity.
             systems.Add(new RagdollStressTestSystem());
+            // Test-only: acts on dev commands in debug builds only.
+            systems.Add(new DevCommandSystem());
         }
     }
 }

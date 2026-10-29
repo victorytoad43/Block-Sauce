@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 614db8c48afeb5643b667f082b8bb831, type: 3}
+  m_Name: StackAndLockMode
+  m_EditorClassIdentifier: Quantum.Simulation::Quantum.GameModeConfig
+  Identifier:
+    Path: QuantumUser/Resources/Configs/StackAndLockMode
+    Guid:
+      Value: 508111579562996528
+  BlockPrototype:
+    Id:
+      Value: 1486130621875712326
+  BlocksPerPlayer: 3
+  TowerHeight: 3
+  BlockSize:
+    RawValue: 52428
+  LockSeconds:
+    RawValue: 196608
+  RestSpeed:
+    RawValue: 19660
+  RestAngularSpeed:
+    RawValue: 65536
+  MaxTiltDegrees:
+    RawValue: 786432
+  MaxStackOffset:
+    RawValue: 32768
+  LockResetSpeed:
+    RawValue: 65536
+  MinUnlockSpeed:
+    RawValue: 262144
+  UnlockImpulse:
+    RawValue: 524288
+  CountdownSeconds:
+    RawValue: 196608
+  RoundEndSeconds:
+    RawValue: 196608
+  ResultsSeconds:
+    RawValue: 393216
+  MinPlayers: 1
+  SpawnRadiusScale:
+    RawValue: 117964
+  BlockSpawnDistance:
+    RawValue: 117964
+  BlockSpawnSpacing:
+    RawValue: 78643

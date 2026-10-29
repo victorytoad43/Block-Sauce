@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8796058203235613389}
   - component: {fileID: 8240129676438692450}
   - component: {fileID: 3363681044359866268}
+  - component: {fileID: 9118534043987482391}
   m_Layer: 0
   m_Name: PH_Block
   m_TagString: Untagged
@@ -323,7 +324,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Quantum.Unity::Quantum.QPrototypeBlock
   Prototype:
-    _empty_prototype_dummy_field_: 0
+    Owner:
+      _index: 0
+    Lock:
+      Value: 0
+    LockProgress:
+      RawValue: 0
+    TowerLevel: 0
 --- !u!114 &8240129676438692450
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -353,6 +360,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Quantum.Unity::Quantum.QPrototypeTeam
   Prototype:
     Id: 255
+--- !u!114 &9118534043987482391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 737171309673966063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02bcbe6dafb54234d94cc034914128b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.BlockView
+  _palette: {fileID: 11400000, guid: 6417543b1dfd5b248be0190ca041e87b, type: 2}
+  _renderer: {fileID: 7859214607670676757}
 --- !u!1 &4513924175352004827
 GameObject:
   m_ObjectHideFlags: 0
@@ -419,7 +440,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 7404d62a1ebae8248abbfde2226450a7, type: 2}
+  - {fileID: 2100000, guid: 4ba2654ea41c7cf48b9910606cf866cc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

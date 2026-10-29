@@ -26,6 +26,53 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## Phase 2 report: Stack & Lock mode
+
+- Built:
+  - **Mode config:** `GameModeConfig` (`StackAndLockMode.asset`) holds blocks per player 3, tower height 3, lock time 3 s, rest/tilt/offset tolerances, the unlock threshold, timers and spawn layout. Its virtual hooks are `OnMatchStarted`, `OnBlockLocked`, `OnBlockUnlocked`, `CanLock` and `CheckWinner`; a new mode subclasses it.
+  - **Match flow:** a `Match` singleton on a map entity in the Lobby scene runs Lobby → Countdown (3 s, movement frozen, looking allowed) → Playing → RoundEnd (3 s) → Results (6 s) → Lobby. `CommandStartMatch` (Enter or gamepad Start) begins it.
+  - **Match start:** the 18 sandbox blocks are removed (their home poses are kept), players move to their spawn points pushed out ×1.8, and each gets 3 blocks in their color and team. **Return:** match blocks go, the sandbox comes back, and players return to the lobby spawns.
+  - **Locking (`BlockLockSystem`):** a block that has been placed (picked up since it spawned or was last knocked loose) and rests level, not held, in its owner's next slot fills its lock progress over 3 s. The first block goes on the ground; later ones go squarely on the owner's top locked block, one locking at a time. A hit at 1 m/s or more resets the progress to 0. Locked blocks are frozen (kinematic) and can't be grabbed.
+  - **Unlocking:** a striker moving at 4 m/s or more into a locked block, with speed × mass of 8 or more, unlocks it and every locked block above it. That covers throws, swings, and running body checks; walking into a tower or leaning on it doesn't count. A knocked-loose block must be picked up again before it can relock.
+  - **Foreign blocks:** a rival's block on top of a tower stops the owner's next block from locking there. It's emergent: the next block's support isn't the owner's top block.
+  - **Win:** the base mode's `CheckWinner` picks the first player with 3 locked blocks.
+  - **View:** `PH_LockDither` shader (owner color; a 4×4 dither in the darker shade climbs with progress; solid darker shade when locked). `BlockView` feeds it from the predicted frame, `PlayerColorView` tints Guy, and `PH_PlayerColors` is the placeholder palette.
+  - **HUD:** placeholder IMGUI `MatchHud` shows the state and countdown, each player's color and 3 slots (empty, filling, locked), the winner, and the results timer.
+  - **Dev tool:** `CommandDevStackTower` (F9 in editor and development builds; only debug simulation builds act on it) drops your next block onto a tower; it can target a rival's tower.
+- Verified (play mode, Lobby, online):
+  - **Solo, real input:** grab and place locked a base after 3 s, and a Grab press with only the locked block in reach grabbed nothing.
+  - **Solo, hit reset:** picking up the neighbouring block swung it through a base at 75% and reset it to unlocked with 0 progress.
+  - **Solo, throw unlock:** a throw (12 m/s) at a two-level locked tower unlocked both levels in one cascade.
+  - **Full solo match (dev stacking):** Lobby → Countdown → Playing → 3 locks → RoundEnd with player 1 as winner → Results → Lobby, with the 18 sandbox blocks restored at their homes.
+  - **Two clients (MPPM), foreign block:** player 1 locked a base, player 2 put their block on it, and player 1's next block landed on top of that. Neither locked, and both clients agreed on every block.
+  - **Two clients, full match:** player 2 built a tower of 3 and won; both clients showed RoundEnd/Results with winner player 2 and returned to the Lobby, sandbox restored, players at the lobby spawns.
+  - **Visual check:** a game-view capture shows Guy tinted per player, owner-colored blocks, the dither climbing a locking block, and the HUD slots.
+  - **Console:** clean on the main client. The clone's only errors came from my test harness's own eval code, not the game.
+- Known issues / play-test items:
+  - Lock time 3 s, unlock speed 4 m/s and impulse 8, and reset speed 1 m/s are first guesses (feel items).
+  - **Grab swings can hit your own tower:** picking up a block on the far side of your own tower swings it through the tower and can knock your base loose. It's physically correct, but may feel unfair.
+  - Matches run in the Lobby scene; Arena_Graybox has no Match yet (Phase 6 arena).
+  - One dev command sent from the clone was lost once and worked on retry. That's the test harness, not gameplay input.
+  - A player who joins mid-match gets no blocks until the next round.
+- Placeholders still in use: `PH_PlayerCapsule` (Guy view on the capsule collider), `PH_Block` with `PH_BlockLock`/`PH_LockDither`, `PH_PlayerColors`, the IMGUI `MatchHud`.
+- Ready for review: yes
+
+## 2026-10-29: Phase 2, plan
+
+### Phase 2 plan: Stack & Lock mode
+
+Build order:
+1. **Mode config + match flow (simulation).** `GameModeConfig` asset (blocks per player, tower height, lock time, unlock threshold, timers, win rule) with virtual rule hooks; the base class plays Stack & Lock (`StackAndLockMode.asset`), and new modes subclass it. A `Match` singleton on a map entity in the Lobby scene holds the mode, the state (Lobby → Countdown → Playing → RoundEnd → Results → Lobby), a timer and the winner. A `StartMatch` command (Enter / gamepad Start) begins the countdown.
+2. **Owned blocks.** `Block` gains an owner and lock state. At match start the sandbox blocks are cleared (their home poses are kept), players move to match spawns, and each gets 3 blocks in their team. Returning to the lobby removes match blocks and restores the sandbox ones.
+3. **Locking.** A block locks when it rests, upright and not held, in its owner's next tower slot: on the ground for the first block, directly on the owner's top locked block after that. Progress fills over the lock time; any hit resets it. A locked block is frozen (kinematic) and can't be grabbed.
+4. **Unlocking.** A hit on a locked block above the unlock threshold (striker speed × mass, with a minimum speed so walking into a tower doesn't count) makes it dynamic again, along with every locked block above it.
+5. **Foreign blocks** need no extra code: a rival's block sitting on the top locked block stops the owner's next block from resting there.
+6. **View.** `PH_LockDither` shader (owner color, dither climbing with progress, locked shade); a block view that feeds it; player tint; a placeholder `PH_PlayerColors` palette.
+7. **HUD.** Placeholder IMGUI: state and countdown, each player's tower slots (empty / locking / locked), winner and results, and the start prompt in the lobby.
+8. **Verify** with 2+ clients: a full match from lobby to a winner and back. A dev-only command that stacks a player's blocks speeds up the test; real placement and hits are tested by hand-scripted input.
+
+Risks: kinematic locked blocks must still report collisions with dynamic bodies (needed for unlock and reset); spawning and destroying blocks mid-session under rollback; lock-time and unlock-threshold numbers are feel items for Jackson's play-test.
+
 ## 2026-10-29: Guy re-export integrated (Phase 0 import test done)
 
 - Jackson set up a collection exporter in `guy.blend` and re-exported. The new file was copied over `CH_Guy.fbx`, so its GUID is kept, and removed from `_Incoming`.
