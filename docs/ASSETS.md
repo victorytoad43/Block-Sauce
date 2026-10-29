@@ -114,7 +114,12 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
   - Upper-body layer (used with an avatar mask): hold-block idle pose, grab, place/stack, throw, jumpshot throw
   - Reactions: stagger flinches (front, back, left, right), get-up from face-down and from face-up
   - Round end: win, lose
-- Must match: The agent records throw release frame, slide duration and jump timings here once the simulation timers are tuned in Phase 1. Hands on the held block are IK, so the hold pose only needs to be close.
+- Must match: Hands on the held block are IK, so the hold pose only needs to be close. Phase 1 timings (seconds at game speed):
+  - Slide: 0.75 s, starting at 7.5 m/s.
+  - Jump: about 0.4 s up and 0.25 s down (about 1 m peak).
+  - Throw: no release delay yet (the block leaves on the press).
+  - Stagger: 0.25–1.2 s depending on the hit.
+  - Walk 3 m/s, run 6 m/s, crouch-walk 1.5 m/s. Locomotion cycles should match these speeds without foot sliding.
 - Placeholder: None (capsule)
 - Status: In progress
 - Notes: the file has three actions named `Guy.WalkBasic`, `.001` and `.002`; only `.002` has keyframes (frames 0–96) and it has no fake user. 2026-10-28: Jackson says none of these is a real walk yet; animation work continues. **Delivery format: one animated FBX** (`CH_Guy.fbx` with mesh, deform skeleton and all actions, using clean action names). The Phase 0 import test (height, `prop` bone, squash-and-stretch bone scale, a clip playing in place) runs when the first export lands in `_Incoming`. Until then, Phase 0 uses the capsule at the confirmed 1.66 m.
@@ -127,6 +132,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Must match: Draft block is 2 m at authoring scale (0.8 m in game). The agent records the final block size and mass here after Phase 1 tuning.
 - Placeholder: Unity cube, `PH_Block`
 - Status: Requested
+- Phase 1 result: the game uses a 0.8 m block (2 m at authoring scale) with mass 2; grab range, hold radius and stacking were tuned at that size. Keep the final block at 2 m in Blender, pivot at the center.
 - Notes: `guy.blend` contains a `Cube` (2 m, 104 verts, geometry nodes modifier) that looks like a block draft. If so, export it as `BL_Block.fbx` with the geometry nodes applied. An early draft export helps Phase 1: grab, swing and stacking get tuned at the block's real size, so a size change after Phase 1 means retuning.
 
 ### A-006: Match HUD + results screen mock-ups
@@ -185,6 +191,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Purpose: Where the block sits relative to Guy while held, and when a throw lets go. The simulation's swing orbit and throw release timer are built around these.
 - Spec: A static hold-block pose (one frame is enough for now) with the `prop` bone at the block's center. Plus a rough throw: the frame count from start to release and the total length at 24 fps. Blocking-out quality is fine.
 - Must match: Block draft size from A-005 (0.8 m in game); the `prop` bone's rest position (about 0.84 m forward and 0.84 m up from the root at game scale) is the current default hold point.
+- Phase 1 values in the simulation: the hold pivot is 0.84 m above the feet, and the block's center sits 0.9 m from it, so the hands meet the block about 0.5 m in front of the chest. Throw: the block leaves instantly on the press, at 12 m/s, angled 15° up; a release delay can be added to match the clip. Jumpshot: thrown while airborne, about 0.3 s after takeoff in testing.
 - Placeholder: None (capsule; the block floats at the `prop` offset)
 - Status: Requested
 

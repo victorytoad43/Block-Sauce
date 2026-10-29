@@ -26,6 +26,75 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## Phase 1 report: Sandbox lobby
+
+- Built:
+  - **Movement** (adapted from Friendslop's `MovementSystem`):
+    - Camera-relative walk (3 m/s) and run (6 m/s). Jump: about 1 m peak, faster fall.
+    - Crouch: a 1.10 m capsule at 1.5 m/s, standing back up only with headroom.
+    - Slide: crouch while running and grounded. 7.5 m/s for 0.75 s, carries about 4 m.
+    - Control tiers InControl and Staggered. Staggered has no steering and light braking, and drops the held block.
+    - While holding a block the body doesn't turn to its move direction, so left/right strafes.
+  - **Knockback:** one `ApplyKnockback` signal and `KnockbackSystem`.
+    - Hits from moving blocks (swung, thrown, falling) and running body checks feed it. Strength is the striker's own speed toward the target, scaled by mass share.
+    - Stagger at a 2.5 m/s speed change or more, lasting 0.12 s per m/s, clamped to 0.25–1.2 s.
+  - **Blocks** (`PH_Block`): 0.8 m, mass 2, neutral team (255), grippy low-bounce material. 12 loose in each scene, plus two towers of 3 in the Lobby.
+  - **Grab** (adapted from Friendslop's `GrabSystem`: velocity chase, swing limit, leash, carry load):
+    - Grab: the nearest free block within 2 m in a 60° cone in front of the character.
+    - Hold: the block orbits a pivot at Guy's `prop` offset (0.84 m up, 0.9 m out), driven by the right stick or mouse (`Input.Swing`).
+    - Swing: the body turns to follow a swing past 45°; limits ±150° yaw, −25° to 60° pitch.
+    - Place (Grab while holding): the block is set down where it is, square to the facing.
+    - Throw: 12 m/s, 15° up. Jumpshot (throwing while airborne): ×1.3 speed, −10°.
+    - Ported as-is: `GrabbableCollision`, `GrabJointCleanup`, `ObjectImpact`.
+  - **Camera:** while holding, the look input becomes swing, and the camera eases round behind the character. It starts behind the spawn facing.
+  - **Physics materials:** frictionless player (as Friendslop's), so speeds reach their targets exactly.
+  - **Rooms:** hold 8 players (`#pragma max_players 8`).
+  - **Test tooling:**
+    - An input hook on the poller (editor and development builds only).
+    - A dev launcher (`-autojoin ROOM`, `-autoplay`, development builds only).
+    - A test-only `RagdollStressTestSystem` and the `Scenes/Tests/Test_RagdollStress` scene.
+    - `PH_RagdollTest`: an empty-transform skeleton at Guy's scale, baked with `QuantumRagdoll` (11 limbs, bones assigned manually, no Animator).
+- Done-when verification: "up to 8 online players toss blocks around and it feels fun".
+  - **8 players online:** the main editor plus 7 development builds with `-autoplay`, all in one Photon room (region us, ping about 30 ms).
+    - All 8 simulated together.
+    - In about 65 s the autoplay players produced 9 grabs, 52 jumps, 29 knockbacks (some staggering), a placement and a jumpshot.
+    - Console clean in the editor; no errors in any build log.
+    - Simulation cost about 80–115 ms per second in the editor (1.3–1.8 ms per frame); worst update about 3 ms.
+  - **Each mechanic, with two clients through MPPM** (both clients agreed on every position):
+    - A swung block staggered the other player (2.8 m/s hit).
+    - A running body check staggered the target (4.4 m/s) and not the runner.
+    - Running into a resting held block no longer counts as a hit (fixed after the first test showed it did).
+  - **Single client:**
+    - Walk, run, crouch and slide hit their target speeds.
+    - Grab, swing past the body-turn threshold, place, throw and jumpshot all behaved as specified and fired their events.
+    - Measured from per-tick simulation logs.
+  - **"Feels fun":** not something the agent can verify. Needs Jackson's play-test.
+- Stacking test (3.1 solver, Friendslop's physics tuning):
+  - Towers of 3 placed blocks stood perfectly still for 10 s.
+  - A player walking into the base slid the whole tower 7 cm as one piece. It stayed upright (tilt 1.0000), went back to sleep, and didn't move by even a millimetre over the next 20 s.
+  - **Plain towers stand unaided**, so Phase 2's locked state can be light: heavy damping rather than freezing, as the plan allows.
+- Ragdoll stress test (8 ragdolls, 88 limbs, dropped onto the two towers; 2 clients through MPPM, ping about 30 ms, 2–3 predicted frames):
+  - Simulation cost rose from about 45–50 ms per second (about 0.75 ms per frame) to about 180–280 ms per second (3.0–4.4 ms per frame). Worst update about 6 ms, with a 12 ms spike on the spawn frame. No desyncs.
+  - The limbs knocked both towers down.
+  - **The limbs never went to sleep** in 30 s, so the cost doesn't fall off after they land.
+  - These are editor (Mono) numbers; a release build is typically several times faster. Rollback cost scales with ping, so at 100–150 ms ping expect roughly 3× the per-second cost.
+  - Phase 3 levers: get limbs to sleep, a short knockdown timer, prediction culling, fewer limbs.
+- Known issues:
+  1. **Ragdoll limbs don't sleep** (stress test above). Phase 3.
+  2. **Swing input is sent as per-tick deltas.** If the server repeats a lost input, a swing repeats one tick's worth. Harmless at normal loss rates; revisit if swings feel jumpy online.
+  3. **The camera has no wall collision**, and controls are placeholder bindings (LMB/RB grab, RMB/RT throw, Shift/L3 run, Ctrl/B crouch, Space/A jump).
+  4. **Automated tests can't use synthetic keyboard or mouse input** in an unfocused editor. They use the input hook instead; real play is unaffected.
+  5. **Assets made by script must be force-reimported and Quantum's asset database refreshed** before they reach the simulation. Noted for future tooling.
+  6. **Guy import test (Phase 0)** still waits on his FBX.
+- Placeholders still in use:
+  - `PH_PlayerCapsule` (A-003).
+  - `PH_Block` and `PH_Block.mat` (A-005, A-013).
+  - `PH_` terrain (A-008).
+  - `PH_RagdollTest` (test only; Guy's rig replaces it in Phase 3/4).
+  - The stock Quantum start UI (A-002).
+- Defaults still awaiting Jackson's answers (questions in the Phase 1 plan below): turning while holding, place behaviour, jumpshot, grab targeting. One change since: grab targeting uses the character's facing, not the camera's.
+- Ready for review: yes
+
 ## 2026-10-28: Phase 1, plan and asset pass
 
 ### Phase 1 plan
@@ -78,6 +147,21 @@ The agent adds an entry at the top for each work session, and a phase report whe
   - New: A-013 (block owner tint and readability, Phase 2 look-ahead) and A-014 (SFX placeholder list, *Nice to have*).
 - Blocked / questions for Jackson: the four questions above (not blocking; defaults in use).
 - Next: movement tiers.
+
+### Session log (build)
+
+- Did: everything in the Phase 1 report above.
+- Decided:
+  - Player linear drag 0 and a frictionless player material, so speeds reach their targets.
+  - Slide deceleration 0.8 (2 bled the slide in 0.4 s).
+  - Knockback strength uses the striker's own speed toward the target.
+  - Grab cone follows the character's facing.
+  - Block mass 2 and friction 0.8.
+  - Rooms hold 8 players.
+  - Dev launcher and input hook exist only in the editor and development builds.
+- Assets: none delivered. A-003, A-004, A-005 and A-012 updated with the sizes and timings the art must match.
+- Blocked / questions for Jackson: play-test for "feels fun"; the four design questions above.
+- Next: Jackson's review of Phase 1, then Phase 2.
 
 ## Phase 0 report: Foundations
 

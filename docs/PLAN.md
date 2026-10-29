@@ -117,13 +117,13 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - **Done when:** two clients join a room and move capsules sized to Guy. **Verified 2026-10-28** (see the Phase 0 report in PROGRESS.md). Guy import test still open, waiting on his first FBX.
 
 ### Phase 1: Sandbox lobby
-- [ ] Physics-capsule movement adapted from Friendslop's `MovementSystem`: run, jump, crouch, slide; control tiers (in control, staggered)
-- [ ] Third-person orbit camera; right stick switches to swing while holding
-- [ ] Knockback on hit through one impulse path
-- [ ] Blocks: grab, carry, hold-and-swing, place, throw, jumpshot with plain cubes (adapt Friendslop's `GrabSystem`)
-- [ ] Stacking test: towers of 3 plain blocks under the 3.1 solver; note in PROGRESS.md whether they stand unaided
-- [ ] Early stress test: 8 Quantum ragdolls (Friendslop's prefab is fine) piling onto block towers, to read rollback cost early
-- **Done when:** up to 8 online players toss blocks around and it feels fun.
+- [x] Physics-capsule movement adapted from Friendslop's `MovementSystem`: run, jump, crouch, slide; control tiers (in control, staggered)
+- [x] Third-person orbit camera; right stick switches to swing while holding
+- [x] Knockback on hit through one impulse path
+- [x] Blocks: grab, carry, hold-and-swing, place, throw, jumpshot with plain cubes (adapt Friendslop's `GrabSystem`)
+- [x] Stacking test: towers of 3 plain blocks under the 3.1 solver; note in PROGRESS.md whether they stand unaided
+- [x] Early stress test: 8 Quantum ragdolls (Friendslop's prefab is fine) piling onto block towers, to read rollback cost early
+- **Done when:** up to 8 online players toss blocks around and it feels fun. **Mechanics verified 2026-10-28 with 8 online clients (see the Phase 1 report in PROGRESS.md); "feels fun" waits on Jackson's play-test.**
 
 ### Phase 2: Stack & Lock mode
 - [ ] 3 owned blocks per player; lock progress, dither shader, reset on hit
