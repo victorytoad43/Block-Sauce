@@ -26,6 +26,15 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## 2026-10-29: Guy re-export integrated (Phase 0 import test done)
+
+- Jackson set up a collection exporter in `guy.blend` and re-exported. The new file was copied over `CH_Guy.fbx`, so its GUID is kept, and removed from `_Incoming`.
+- Did: Guy's model is now on `PH_PlayerCapsule`, under the entity view with the `Body` capsule and `FacingMarker` hidden. The draft `Circle`/`Cube` that came along in the export are hidden. New `AC_Guy` controller has two states: Idle (rest pose) and Walk (`WalkBasic`, rate from a parameter). It switches to Walk above 0.25 m/s and back below 0.2 m/s. New view component `CharacterAnimationView` sets Speed and WalkRate from the predicted `PhysicsBody3D` velocity. The walk plays at speed ÷ 0.3 m/s, capped at 4×.
+- Verified in play mode (Lobby, online): stick at 0.2 → 0.59 m/s, Walk at 1.96×; stick at 0.6 → 1.79 m/s, Walk at the 4× cap; stopped → Idle; Guy faces the movement direction. A game-view capture shows him at the right scale next to the blocks. Console: only the expected zero-length-clip warnings for `RunBasic`/`ThrowPose`.
+- Decided: the physics capsule stays 0.35 m (Guy measures about 0.40 m); widening it changes Phase 1 reach, so it's revisited in Phase 4. Player prefab keeps its `PH_` name until Phase 4 replaces the view setup.
+- Assets: A-003 Integrated. A-004/A-012 notes updated (walk for slow movement, run for fast, throw releases on frame 5).
+- Next: Phase 2 when Jackson says go.
+
 ## 2026-10-29: Phase 1 approved; first Guy FBX delivery (import test)
 
 - Jackson play-tested Phase 1: hold-to-aim is good, minor tuning waits for the plan's polish phase. Phase 2 not started (waiting for his go).

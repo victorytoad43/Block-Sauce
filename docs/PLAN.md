@@ -185,6 +185,7 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - Throwing is hold-to-aim: holding Throw shows a trajectory line and a landing circle, releasing throws. A jumpshot aims the same way and is a bit more powerful. (Jackson, 2026-10-29.)
 - Grab targeting: the nearest free block within 2 m in front of the character. Once Guy has arms (Phase 4), a grabbed block should turn to align straight with the character's facing instead of keeping its current rotation. (Jackson, 2026-10-29.)
 - Phase 1 approved after play-testing. Feel numbers (aim angle, sensitivity, throw speed) stay as built until the plan's polish phase. (Jackson, 2026-10-29.)
+- Locomotion animation: the walk clip covers slow movement (low stick pressure) and a run clip covers faster movement; the walk may be sped up to fit. The throw clip releases on frame 5 of 7. (Jackson, 2026-10-29.)
 - Art delivery: `Assets/Art/_Incoming/` is Jackson's only drop-off, under any file name; the agent handles naming, placement and import settings. (Jackson, 2026-10-29.)
 
 ## Open questions

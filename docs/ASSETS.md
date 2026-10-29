@@ -11,7 +11,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 |---|---|---|---|---|---|
 | A-001 | Player color palette (8 colors) | Phase 2 | Next phase | Requested | Unity default colors |
 | A-002 | Lobby + main menu UI mock-ups | Phase 1 | Next phase | Requested | Default UI |
-| A-003 | Guy character model + rig | Phase 0 (import test) | Needed soon | Needs changes | `PH_PlayerCapsule` |
+| A-003 | Guy character model + rig | Phase 0 (import test) | Needed soon | Integrated | Guy on `PH_PlayerCapsule` (capsule collider stays) |
 | A-004 | Guy animation set (first pass) | Phase 4 (walk needed soon for Phase 0) | Start now | In progress | None |
 | A-005 | Block mesh | Draft for Phase 1; final by Phase 5 | Needed soon | Requested (draft seen) | `PH_Block` |
 | A-006 | Match HUD + results screen mock-ups | Phase 2 | Next phase | Requested | Default UI |
@@ -102,8 +102,10 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Must match: the subdivision modifier should be applied or set to export at the level you want in game; budget is fine either way for 8 players. The `prop` bone is the hold point for blocks; keep it.
 - Phase 0 export needed now: `CH_Guy.fbx` (mesh + deform skeleton, per the Characters spec above) dropped in `Assets/Art/_Incoming/`. Either Jackson exports it, or Jackson approves the agent running a headless Blender export that writes only the FBX and never saves `guy.blend`.
 - Placeholder: `PH_PlayerCapsule` (agent sizes it from Guy's measurements in Phase 0). Until the import test, the capsule is 1.66 m tall with a 0.35 m radius, based on 4.15 m × 0.4.
-- Status: Needs changes
-- 2026-10-29 delivery (`guy.fbx`, now `Assets/Art/Characters/CH_Guy.fbx`): the rig imports correctly but **the mesh is missing** (the FBX holds only the armature). Re-export with `mesh_guy` included (Object Types: Armature + Mesh, and Selected Objects off or the mesh selected too). Also: the export has all 100 bones plus `_end` leaf bones; turn on Only Deform Bones and turn off Add Leaf Bones. Measured at game scale: faces +Z, `prop` bone 0.838 m up and 0.840 m forward of the root (matches the simulation's hold pivot), `head` bone 1.17 m. Full height and capsule radius get measured from the mesh on the re-export.
+- Status: Integrated
+- 2026-10-29 re-export (collection exporter): integrated. Mesh 8,758 verts with subdivision applied, 31 deform bones, no leaf bones, scale 1 on every node. At game scale Guy is **1.62 m tall**; his body is about **0.40 m in radius** (0.41 at the belly, feet reach 0.49). Guy now renders on the player prefab, with the capsule and facing marker hidden, and walks in play mode. The physics capsule stays 0.35 m × 1.66 m for now, so Guy overlaps walls and blocks by about 5 cm; widening it changes the reach Phase 1 was tuned at, so it waits for Phase 4.
+  - Small cleanups for the next export: the draft vat (`Circle`) and block (`Cube`) are in the exporter's collection and came along (the agent hides them in game). Move them to their own collection, ideally with their own exporters for A-005 and A-009. Nice to have: rename `Material.001` to `M_Guy`.
+- 2026-10-29 first delivery (`guy.fbx`, now `Assets/Art/Characters/CH_Guy.fbx`): the rig imports correctly but **the mesh is missing** (the FBX holds only the armature). Re-export with `mesh_guy` included (Object Types: Armature + Mesh, and Selected Objects off or the mesh selected too). Also: the export has all 100 bones plus `_end` leaf bones; turn on Only Deform Bones and turn off Add Leaf Bones. Measured at game scale: faces +Z, `prop` bone 0.838 m up and 0.840 m forward of the root (matches the simulation's hold pivot), `head` bone 1.17 m. Full height and capsule radius get measured from the mesh on the re-export.
 - Notes: Placeholder `Assets/Placeholders/PH_PlayerCapsule.prefab` is in use: height 1.66 m, radius 0.35 m, origin at the feet. The radius is a guess; the import test replaces it with Guy's measured width. (agent: record game-scale height, capsule radius and `prop` offset here after the import test.)
 
 ### A-004: Guy animation set (first pass)
@@ -128,8 +130,9 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Notes: the file has three actions named `Guy.WalkBasic`, `.001` and `.002`; only `.002` has keyframes (frames 0–96) and it has no fake user. 2026-10-28: Jackson says none of these is a real walk yet; animation work continues. **Delivery format: one animated FBX** (`CH_Guy.fbx` with mesh, deform skeleton and all actions, using clean action names). The Phase 0 import test (height, `prop` bone, squash-and-stretch bone scale, a clip playing in place) runs when the first export lands in `_Incoming`. Until then, Phase 0 uses the capsule at the confirmed 1.66 m.
 - 2026-10-29 delivery, four actions in `CH_Guy.fbx`:
   - `WalkBasic` (48 frames, 2 s): imports and loops cleanly (seam 2.8°), animated in place, squash-and-stretch scale curves come through. Its planted foot moves backward at about 0.3 m/s at game scale, but the game walks at 3 m/s, so the feet would slide about 10×. For no sliding, a planted foot must move back about 0.31 m per frame in Blender units (3 m/s × 2.5 ÷ 24 fps) for walk, and 0.63 m per frame for run (6 m/s). If strides that long look wrong on Guy, the game's walk speed can come down instead; decide when tuning locomotion in Phase 4.
-  - `Throw` (7 frames, 0.29 s): imports fine. Which frame does the block leave on? The simulation releases on the button release; the view can delay the visual if needed.
-  - `RunBasic` and `ThrowPose`: one keyframe each, so they export with zero length and import empty. Key them on at least two frames.
+  - `Throw` (7 frames, 0.29 s): imports fine. The block leaves on **frame 5** (0.21 s), per Jackson.
+  - `RunBasic` and `ThrowPose`: one keyframe each, so they export with zero length and import empty. Key them on at least two frames. (Still one keyframe in the 2026-10-29 re-export.)
+  - In game (2026-10-29): `AC_Guy` plays `WalkBasic` whenever Guy moves, sped up to match ground speed (its stride matches about 0.3 m/s) up to 4×, and the rest pose when standing still. Per Jackson, the walk is for slow movement (low stick pressure) and a Run clip covers faster movement; the walk can be sped up if needed. Until `RunBasic` has keys, the walk plays at 4× above 1.2 m/s and the feet slide.
 
 ### A-005: Block mesh
 - Phase / needed by: draft now (Phase 1 tunes grab, swing and stacking at its size); final topology by Phase 5 for sauce displacement
@@ -199,6 +202,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Spec: A static hold-block pose (one frame is enough for now) with the `prop` bone at the block's center. Plus a rough throw: the frame count from start to release and the total length at 24 fps. Blocking-out quality is fine.
 - Must match: Block draft size from A-005 (0.8 m in game); the `prop` bone's rest position (about 0.84 m forward and 0.84 m up from the root at game scale) is the current default hold point.
 - Phase 1 values in the simulation: the hold pivot is 0.84 m above the feet, and the block's center sits 0.9 m from it, so the hands meet the block about 0.5 m in front of the chest. Throwing is hold-to-aim (decided 2026-10-29). While Throw is held, the block is raised to a ready position (30° above the hold line, centered in front), and the character turns to aim. The block leaves on release at 12 m/s (a jumpshot at 15.6 m/s, while airborne). So the throw needs an aim/hold-ready pose (looping, any length) and a short release (the block leaves on its first frame, unless we add a release delay to match). The jumpshot needs the same pair, airborne.
+- 2026-10-29: `ThrowPose` (aim pose) and `Throw` (release on frame 5 of 7, 0.21 s) delivered in `CH_Guy.fbx`; `ThrowPose` still needs a second keyframe to import. In the simulation the block leaves when Throw is released; Phase 4 lines the clip up so frame 5 lands on that moment.
 - Placeholder: None (capsule; the block floats at the `prop` offset)
 - Status: Requested
 
