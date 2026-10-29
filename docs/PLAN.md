@@ -144,6 +144,7 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - [ ] Integrate Guy's full clip set (deform skeleton exported from Jackson's control rig, Generic)
 - [ ] Locomotion blend tree driven by simulation speed, direction and state; upper-body carry layer (avatar mask)
 - [ ] Foot IK on uneven terrain; hand IK on the held block, anchored at the `prop` bone
+- [ ] A grabbed block turns to align straight with the character's facing (decided 2026-10-29)
 - [ ] Ragdoll limb views mapped to Guy; get-up blends; eyes and jaw driven for expressions if clips use them
 - **Done when:** Guy plays a full match on uneven test terrain.
 
@@ -179,6 +180,10 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - The character is Guy (`modelling/guy/guy.blend`).
 - Game scale: every FBX from Jackson imports at scale factor 0.4 (Guy about 1.66 m, block about 0.8 m); Jackson keeps authoring at the current Blender scale. (Confirmed 2026-10-28.)
 - Guy's clips arrive as one animated FBX (mesh, skeleton and actions together) rather than one file per clip. (Confirmed 2026-10-28.)
+- Turning while holding: a big swing turns the body (past 45°), the camera follows behind. Final numbers come from play-testing. (Jackson, 2026-10-29.)
+- Placing: free placement where the block is held, square to the facing; no snapping to the tower below. (Jackson, 2026-10-29.)
+- Throwing is hold-to-aim: holding Throw shows a trajectory line and a landing circle, releasing throws. A jumpshot aims the same way and is a bit more powerful. (Jackson, 2026-10-29.)
+- Grab targeting: the nearest free block within 2 m in front of the character. Once Guy has arms (Phase 4), a grabbed block should turn to align straight with the character's facing instead of keeping its current rotation. (Jackson, 2026-10-29.)
 
 ## Open questions
 

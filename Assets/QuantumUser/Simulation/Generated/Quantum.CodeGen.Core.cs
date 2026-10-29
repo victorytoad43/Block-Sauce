@@ -255,21 +255,27 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Grabber : Quantum.IComponent {
-    public const Int32 SIZE = 64;
+    public const Int32 SIZE = 80;
     public const Int32 ALIGNMENT = 8;
-    [FieldOffset(0)]
-    public AssetRef<GrabConfig> Config;
     [FieldOffset(8)]
+    public AssetRef<GrabConfig> Config;
+    [FieldOffset(16)]
     public EntityRef Held;
-    [FieldOffset(32)]
+    [FieldOffset(48)]
     [HideInInspector()]
     public FPQuaternion HeldRotationOffset;
-    [FieldOffset(24)]
+    [FieldOffset(40)]
     [HideInInspector()]
     public FP SwingYaw;
-    [FieldOffset(16)]
+    [FieldOffset(32)]
     [HideInInspector()]
     public FP SwingPitch;
+    [FieldOffset(0)]
+    [HideInInspector()]
+    public QBoolean IsAiming;
+    [FieldOffset(24)]
+    [HideInInspector()]
+    public FP AimPitch;
     public override readonly Int32 GetHashCode() {
       unchecked { 
         var hash = 8447;
@@ -278,13 +284,17 @@ namespace Quantum {
         hash = hash * 31 + HeldRotationOffset.GetHashCode();
         hash = hash * 31 + SwingYaw.GetHashCode();
         hash = hash * 31 + SwingPitch.GetHashCode();
+        hash = hash * 31 + IsAiming.GetHashCode();
+        hash = hash * 31 + AimPitch.GetHashCode();
         return hash;
       }
     }
     public static void Serialize(void* ptr, FrameSerializer serializer) {
       var p = (Grabber*)ptr;
+      QBoolean.Serialize(&p->IsAiming, serializer);
       AssetRef.Serialize(&p->Config, serializer);
       EntityRef.Serialize(&p->Held, serializer);
+      FP.Serialize(&p->AimPitch, serializer);
       FP.Serialize(&p->SwingPitch, serializer);
       FP.Serialize(&p->SwingYaw, serializer);
       FPQuaternion.Serialize(&p->HeldRotationOffset, serializer);

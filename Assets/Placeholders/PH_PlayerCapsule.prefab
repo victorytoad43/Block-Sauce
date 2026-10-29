@@ -109,6 +109,7 @@ GameObject:
   - component: {fileID: 1726779439632145356}
   - component: {fileID: 8063538699393008057}
   - component: {fileID: 5043075200545265310}
+  - component: {fileID: 1127897408115431833}
   m_Layer: 0
   m_Name: PH_PlayerCapsule
   m_TagString: Untagged
@@ -562,6 +563,10 @@ MonoBehaviour:
       RawValue: 0
     SwingPitch:
       RawValue: 0
+    IsAiming:
+      Value: 0
+    AimPitch:
+      RawValue: 0
 --- !u!114 &5043075200545265310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -578,6 +583,22 @@ MonoBehaviour:
     Config:
       Id:
         Value: 305904877395740238
+--- !u!114 &1127897408115431833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4830101896938081584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 883f4e2b47e6ed24a9fe063a766de780, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.ThrowAimView
+  _material: {fileID: 2100000, guid: 4e55ba1febd30e947850b7c73e80bdd1, type: 2}
+  _lineWidth: 0.05
+  _circleRadius: 0.5
+  _maxFlightSeconds: 3
 --- !u!1 &6939438412846394903
 GameObject:
   m_ObjectHideFlags: 0

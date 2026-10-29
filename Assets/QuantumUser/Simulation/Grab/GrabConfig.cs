@@ -92,16 +92,28 @@ namespace Quantum
         [Header("Throw")]
         public FP ThrowSpeed = 12;
         /// <summary>
-        /// The throw's upward angle, in degrees, above the character's facing.
+        /// The aim angle a throw starts at when aiming begins, in degrees above the character's facing.
         /// </summary>
-        public FP ThrowPitch = 15;
+        public FP AimPitchStart = 15;
         /// <summary>
-        /// The jumpshot's speed as a multiple of the throw speed.
+        /// The lowest aim angle, in degrees; negative aims downward.
+        /// </summary>
+        public FP AimPitchMin = -20;
+        /// <summary>
+        /// The highest aim angle, in degrees.
+        /// </summary>
+        public FP AimPitchMax = 60;
+        /// <summary>
+        /// Degrees of aim pitch per degree of vertical swing input while aiming.
+        /// </summary>
+        public FP AimPitchSensitivity = FP._0_50;
+        /// <summary>
+        /// The swing pitch, in degrees, the held block is raised to while aiming, ready to throw.
+        /// </summary>
+        public FP AimReadyPitch = 30;
+        /// <summary>
+        /// The jumpshot's speed as a multiple of the throw speed; a jumpshot aims like a throw.
         /// </summary>
         public FP JumpshotSpeedScale = (FP)13 / 10;
-        /// <summary>
-        /// The jumpshot's angle, in degrees above the character's facing; negative throws downward.
-        /// </summary>
-        public FP JumpshotPitch = -10;
     }
 }

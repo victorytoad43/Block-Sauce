@@ -142,7 +142,7 @@ MonoBehaviour:
     Mass:
       RawValue: 131072
     Drag:
-      RawValue: 32768
+      RawValue: 0
     AngularDrag:
       RawValue: 32768
     ExplicitInertia2D:

@@ -93,6 +93,10 @@ namespace Quantum.Prototypes {
     public FP SwingYaw;
     [HideInInspector()]
     public FP SwingPitch;
+    [HideInInspector()]
+    public QBoolean IsAiming;
+    [HideInInspector()]
+    public FP AimPitch;
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
       Quantum.Grabber component = default;
       Materialize((Frame)f, ref component, in context);
@@ -104,6 +108,8 @@ namespace Quantum.Prototypes {
       result.HeldRotationOffset = FPQuaternion.Euler(this.HeldRotationOffset);
       result.SwingYaw = this.SwingYaw;
       result.SwingPitch = this.SwingPitch;
+      result.IsAiming = this.IsAiming;
+      result.AimPitch = this.AimPitch;
     }
   }
   [System.SerializableAttribute()]

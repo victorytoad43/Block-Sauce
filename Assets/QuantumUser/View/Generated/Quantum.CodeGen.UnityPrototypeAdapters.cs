@@ -75,6 +75,10 @@ namespace Quantum.Prototypes.Unity {
     public FP SwingYaw;
     [HideInInspector()]
     public FP SwingPitch;
+    [HideInInspector()]
+    public QBoolean IsAiming;
+    [HideInInspector()]
+    public FP AimPitch;
     partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.GrabberPrototype prototype);
     public override Quantum.Prototypes.GrabberPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
       var result = new Quantum.Prototypes.GrabberPrototype();
@@ -83,6 +87,8 @@ namespace Quantum.Prototypes.Unity {
       converter.Convert(this.HeldRotationOffset, out result.HeldRotationOffset);
       converter.Convert(this.SwingYaw, out result.SwingYaw);
       converter.Convert(this.SwingPitch, out result.SwingPitch);
+      converter.Convert(this.IsAiming, out result.IsAiming);
+      converter.Convert(this.AimPitch, out result.AimPitch);
       ConvertUser(converter, ref result);
       return result;
     }

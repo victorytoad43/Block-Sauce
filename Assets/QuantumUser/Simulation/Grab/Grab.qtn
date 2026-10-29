@@ -5,6 +5,8 @@ component Grabber
     [HideInInspector] FPQuaternion HeldRotationOffset;
     [HideInInspector] FP SwingYaw;
     [HideInInspector] FP SwingPitch;
+    [HideInInspector] bool IsAiming;
+    [HideInInspector] FP AimPitch;
 }
 
 component Grabbable

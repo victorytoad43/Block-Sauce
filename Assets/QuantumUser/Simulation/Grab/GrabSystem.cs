@@ -23,8 +23,9 @@ namespace Quantum
     /// Adapted from Friendslop's GrabSystem: the held block chases a hand point by velocity each tick, swing-limited
     /// and leashed, so a swing physically hits players and towers. Block Sauce replaces Friendslop's look-driven hand
     /// with a swing angle the right stick drives: the hand orbits a pivot inside the character, and the body turns to
-    /// follow a swing that goes far enough round. Grab while holding places the block; Throw throws it, and throwing
-    /// while airborne is the jumpshot.
+    /// follow a swing that goes far enough round. Grab while holding places the block. Throw is hold-to-aim: holding it
+    /// raises the block ready and turns the swing input into aim (yaw turns the body, pitch sets the throw angle);
+    /// releasing it throws, and releasing while airborne is the jumpshot.
     /// </summary>
     public unsafe class GrabSystem : SystemMainThreadFilter<GrabSystem.Filter>, ISignalDropHeld,
         ISignalOnComponentRemoved<Grabbable>, ISignalOnComponentRemoved<Grabber>
@@ -43,8 +44,8 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Grabs on a grab press with empty hands. While holding: a grab press places the block, a throw press throws it,
-        /// and otherwise the swing input moves it around the character.
+        /// Grabs on a grab press with empty hands. While holding: a grab press places the block, holding throw aims and
+        /// releasing it throws, and otherwise the swing input moves the block around the character.
         /// </summary>
         public override void Update(Frame frame, ref Filter filter)
         {
@@ -73,13 +74,26 @@ namespace Quantum
                 return;
             }
 
-            if (input->Throw.WasPressed)
+            if (filter.Grabber->IsAiming)
             {
-                Throw(frame, ref filter, config);
-                return;
+                if (input->Throw.IsDown == false)
+                {
+                    Throw(frame, ref filter, config);
+                    return;
+                }
+
+                UpdateAim(frame, ref filter, config, input->Swing);
+            }
+            else if (input->Throw.WasPressed)
+            {
+                filter.Grabber->IsAiming = true;
+                filter.Grabber->AimPitch = config.AimPitchStart;
+            }
+            else
+            {
+                UpdateSwing(frame, ref filter, config, input->Swing);
             }
 
-            UpdateSwing(frame, ref filter, config, input->Swing);
             UpdateHeld(frame, ref filter, config);
         }
 
@@ -205,6 +219,24 @@ namespace Quantum
         }
 
         /// <summary>
+        /// While aiming, horizontal swing input turns the body directly and vertical input raises or lowers the aim, and
+        /// the block is held centered and raised, ready to throw.
+        /// </summary>
+        private void UpdateAim(Frame frame, ref Filter filter, GrabConfig config, FPVector2 swing)
+        {
+            Grabber* grabber = filter.Grabber;
+            grabber->AimPitch = FPMath.Clamp(grabber->AimPitch + swing.Y * config.AimPitchSensitivity,
+                config.AimPitchMin, config.AimPitchMax);
+            grabber->SwingYaw = FP._0;
+            grabber->SwingPitch = config.AimReadyPitch;
+
+            if (swing.X != FP._0)
+            {
+                filter.Transform->Rotation = FPQuaternion.AngleAxis(swing.X, FPVector3.Up) * GetBodyYaw(filter.Transform);
+            }
+        }
+
+        /// <summary>
         /// Steers the held block toward the hand point on top of the carrier's velocity and turns it with the swing.
         /// Drops it when an engaged leash stretches too far or level geometry comes between it and the pivot.
         /// </summary>
@@ -285,24 +317,17 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Throws the held block along the character's facing, raised by the throw pitch, on top of the carrier's
-        /// velocity. Throwing while airborne is the jumpshot: faster, and aimed by the jumpshot pitch instead.
+        /// Throws the held block along the aim (see <see cref="ThrowHelper.GetThrowVelocity"/>); thrown while airborne it
+        /// is a jumpshot.
         /// </summary>
         private void Throw(Frame frame, ref Filter filter, GrabConfig config)
         {
             EntityRef held = filter.Grabber->Held;
-            bool airborne = frame.TryGet(filter.Entity, out GroundedTracker grounded) && grounded.IsGrounded == false;
-
-            FP pitch = airborne ? config.JumpshotPitch : config.ThrowPitch;
-            FP speed = airborne ? config.ThrowSpeed * config.JumpshotSpeedScale : config.ThrowSpeed;
-            FPVector3 direction = GetBodyYaw(filter.Transform) * FPQuaternion.Euler(-pitch, FP._0, FP._0) * FPVector3.Forward;
-
-            PhysicsBody3D* body = frame.Unsafe.GetPointer<PhysicsBody3D>(held);
-            FPVector3 velocity = filter.PhysicsBody->Velocity + direction * speed;
-            body->Velocity = velocity;
+            FPVector3 velocity = ThrowHelper.GetThrowVelocity(frame, filter.Entity, config, out bool isJumpshot);
+            frame.Unsafe.GetPointer<PhysicsBody3D>(held)->Velocity = velocity;
 
             Release(frame, filter.Entity, filter.Grabber);
-            frame.Events.Thrown(filter.Entity, held, velocity, airborne);
+            frame.Events.Thrown(filter.Entity, held, velocity, isJumpshot);
         }
 
         /// <summary>
@@ -312,6 +337,7 @@ namespace Quantum
         {
             EntityRef held = grabber->Held;
             grabber->Held = EntityRef.None;
+            grabber->IsAiming = false;
             if (frame.Exists(held))
             {
                 DetachHeld(frame, held);
@@ -425,8 +451,7 @@ namespace Quantum
         /// </summary>
         private static FPQuaternion GetBodyYaw(Transform3D* transform)
         {
-            FPVector3 forward = transform->Rotation * FPVector3.Forward;
-            return FPQuaternion.AngleAxis(FPMath.Atan2(forward.X, forward.Z) * FP.Rad2Deg, FPVector3.Up);
+            return ThrowHelper.GetBodyYaw(transform->Rotation);
         }
 
         /// <summary>

@@ -26,6 +26,29 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## 2026-10-29: Phase 1 review follow-up, hold-to-aim throwing
+
+- Jackson's answers to the four Phase 1 questions are in PLAN.md Decisions: turning while holding stays as built (tune in play-tests), free placement stays, throwing becomes hold-to-aim, grab targeting stays, and in Phase 4 a grabbed block will align with the character's facing.
+- Did:
+  - **Hold-to-aim throwing.**
+    - Holding Throw while holding a block starts aiming. The block rises to a ready position (swing pitch 30°) centered in front.
+    - Horizontal look input turns the body; vertical input raises or lowers the throw angle (−20° to 60°, starts at 15°, 0.5° per degree of input).
+    - Releasing Throw throws. Released while airborne it's a jumpshot: the same aim, 1.3× speed. The jumpshot's own downward angle is gone.
+    - Grab while aiming still places the block. A stagger drops it and ends the aim.
+  - **The throw velocity lives in one shared function**, `ThrowHelper.GetThrowVelocity`. The grab system throws with it; the view's preview reads it.
+  - **Aim preview** (`ThrowAimView`, local player only):
+    - A yellow trajectory line, stepped at the simulation's 64 Hz with its gravity.
+    - A circle lying on the surface it lands on, found with read-only Quantum raycasts that skip the thrower and the held block.
+  - **Block linear drag set to 0**, so blocks fly ballistically and the preview is exact.
+- Verified (single client, Lobby):
+  - **Aim:** aiming raised the pitch from 15° to 33.8°, and the preview drew an 83-point arc ending on the south wall.
+  - **Throw:** on release the block hit that wall 79 ticks later. The preview's arc reaches the wall face in about 81 ticks; the block's center arrives about 2.5 ticks early because of its 0.4 m half-size.
+  - **Jumpshot:** released in the air at 15.97 m/s, against 15.6 expected (12 × 1.3), plus the jump's upward speed.
+  - Console clean.
+- Decided: block linear drag 0; aim starts at 15° and turns at 0.5° per degree of input (tune in play-tests).
+- Assets: A-012 now also asks for an aim pose (block raised and held ready) and a release.
+- Next: Jackson's play-test of Phase 1, then Phase 2.
+
 ## Phase 1 report: Sandbox lobby
 
 - Built:
