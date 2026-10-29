@@ -1,0 +1,1274 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1722638350, guid: b156eeaae3f741b40af66649a4748430, type: 3}
+  m_Name: Arena_GrayboxMap
+  m_EditorClassIdentifier: Quantum.Engine.dll::Quantum.Map
+  Identifier:
+    Path: Scenes/Arena_Graybox/Arena_GrayboxMap
+    Guid:
+      Value: 269773098747763472
+  UserAsset:
+    Id:
+      Value: 0
+  Scene: Arena_Graybox
+  ScenePath: Assets/Scenes/Arena_Graybox.unity
+  SceneGuid: 27cc36b8c5f4abd4f84635cc2510b0d7
+  WorldSize: 256
+  BucketsCount: 16
+  BucketsSubdivisions: 8
+  BucketingAxis: 0
+  SortingAxis: 1
+  SceneMeshCellSize:
+    RawValue: 262144
+  TriangleMeshCellSize: -1
+  StaticColliders3DTrianglesData:
+    Id:
+      Value: 325159108081001485
+  SerializeTrianglesMetadata: 0
+  GridSizeX: 64
+  GridSizeY: 64
+  GridNodeSize: 4
+  NavMeshAssets: []
+  Regions: []
+  StaticColliders2D: []
+  StaticColliders3D:
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 65536
+    Position:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: -32768
+      Z:
+        RawValue: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 1966080
+      Y:
+        RawValue: 32768
+      Z:
+        RawValue: 1966080
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Floor
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 0
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: -5711
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 65286
+    Position:
+      X:
+        RawValue: -917504
+      Y:
+        RawValue: 19660
+      Z:
+        RawValue: 786432
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 131072
+      Y:
+        RawValue: 13107
+      Z:
+        RawValue: 262144
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Ramp_10deg
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 1
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: -11380
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 64540
+    Position:
+      X:
+        RawValue: -458752
+      Y:
+        RawValue: 58982
+      Z:
+        RawValue: 786432
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 131072
+      Y:
+        RawValue: 13107
+      Z:
+        RawValue: 196608
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Ramp_20deg
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 2
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: -19707
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 62502
+    Position:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 91750
+      Z:
+        RawValue: 786432
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 131072
+      Y:
+        RawValue: 13107
+      Z:
+        RawValue: 163840
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Ramp_35deg
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 3
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 11380
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 64540
+    Position:
+      X:
+        RawValue: 917504
+      Y:
+        RawValue: 32768
+      Z:
+        RawValue: 786432
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 327680
+      Y:
+        RawValue: 32768
+      Z:
+        RawValue: 327680
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Hill_Base
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 4
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 19707
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 62502
+    Position:
+      X:
+        RawValue: 917504
+      Y:
+        RawValue: 81920
+      Z:
+        RawValue: 786432
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 196608
+      Y:
+        RawValue: 49152
+      Z:
+        RawValue: 196608
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Hill_Mid
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 5
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 6850
+      W:
+        RawValue: 65176
+    Position:
+      X:
+        RawValue: 1343488
+      Y:
+        RawValue: 26214
+      Z:
+        RawValue: 786432
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 163840
+      Y:
+        RawValue: 16384
+      Z:
+        RawValue: 262144
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Hill_SlopeE
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 6
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: -6850
+      W:
+        RawValue: 65176
+    Position:
+      X:
+        RawValue: 491520
+      Y:
+        RawValue: 26214
+      Z:
+        RawValue: 786432
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 163840
+      Y:
+        RawValue: 16384
+      Z:
+        RawValue: 262144
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Hill_SlopeW
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 7
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 65536
+    Position:
+      X:
+        RawValue: -917504
+      Y:
+        RawValue: 6553
+      Z:
+        RawValue: -655360
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 131072
+      Y:
+        RawValue: 6554
+      Z:
+        RawValue: 49152
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Stair_0.2
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 8
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 65536
+    Position:
+      X:
+        RawValue: -917504
+      Y:
+        RawValue: 13107
+      Z:
+        RawValue: -753664
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 131072
+      Y:
+        RawValue: 13107
+      Z:
+        RawValue: 49152
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Stair_0.4
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 9
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 65536
+    Position:
+      X:
+        RawValue: -917504
+      Y:
+        RawValue: 19660
+      Z:
+        RawValue: -851968
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 131072
+      Y:
+        RawValue: 19661
+      Z:
+        RawValue: 49152
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Stair_0.6
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 10
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 65536
+    Position:
+      X:
+        RawValue: -917504
+      Y:
+        RawValue: 26214
+      Z:
+        RawValue: -950272
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 131072
+      Y:
+        RawValue: 26214
+      Z:
+        RawValue: 49152
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Stair_0.8
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 11
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 23170
+      Y:
+        RawValue: -9597
+      Z:
+        RawValue: 23170
+      W:
+        RawValue: 55938
+    Position:
+      X:
+        RawValue: 262144
+      Y:
+        RawValue: -22937
+      Z:
+        RawValue: -655360
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 45875
+      Y:
+        RawValue: 45875
+      Z:
+        RawValue: 45875
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Bump_0
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 12
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 28377
+      Y:
+        RawValue: 5207
+      Z:
+        RawValue: 16384
+      W:
+        RawValue: 56516
+    Position:
+      X:
+        RawValue: 425984
+      Y:
+        RawValue: -22937
+      Z:
+        RawValue: -524288
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 45875
+      Y:
+        RawValue: 45875
+      Z:
+        RawValue: 45875
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Bump_1
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 13
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 31651
+      Y:
+        RawValue: 19657
+      Z:
+        RawValue: 8480
+      W:
+        RawValue: 53242
+    Position:
+      X:
+        RawValue: 589824
+      Y:
+        RawValue: -22937
+      Z:
+        RawValue: -655360
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 45875
+      Y:
+        RawValue: 45875
+      Z:
+        RawValue: 45875
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Bump_2
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 14
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 32768
+      Y:
+        RawValue: 32767
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 46340
+    Position:
+      X:
+        RawValue: 753664
+      Y:
+        RawValue: -22937
+      Z:
+        RawValue: -524288
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 45875
+      Y:
+        RawValue: 45875
+      Z:
+        RawValue: 45875
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Bump_3
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 15
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 31651
+      Y:
+        RawValue: 43645
+      Z:
+        RawValue: -8480
+      W:
+        RawValue: 36280
+    Position:
+      X:
+        RawValue: 917504
+      Y:
+        RawValue: -22937
+      Z:
+        RawValue: -655360
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 45875
+      Y:
+        RawValue: 45875
+      Z:
+        RawValue: 45875
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Bump_4
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 16
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 28377
+      Y:
+        RawValue: 51548
+      Z:
+        RawValue: -16384
+      W:
+        RawValue: 23748
+    Position:
+      X:
+        RawValue: 1081344
+      Y:
+        RawValue: -22937
+      Z:
+        RawValue: -524288
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 45875
+      Y:
+        RawValue: 45875
+      Z:
+        RawValue: 45875
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Bump_5
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 17
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 65536
+    Position:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 98304
+      Z:
+        RawValue: 1998848
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 1998848
+      Y:
+        RawValue: 98304
+      Z:
+        RawValue: 32768
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_N
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 18
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 65536
+    Position:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 98304
+      Z:
+        RawValue: -1998848
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 1998848
+      Y:
+        RawValue: 98304
+      Z:
+        RawValue: 32768
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_S
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 19
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 65536
+    Position:
+      X:
+        RawValue: 1998848
+      Y:
+        RawValue: 98304
+      Z:
+        RawValue: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 32768
+      Y:
+        RawValue: 98304
+      Z:
+        RawValue: 1998848
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_E
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 20
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 65536
+    Position:
+      X:
+        RawValue: -1998848
+      Y:
+        RawValue: 98304
+      Z:
+        RawValue: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 32768
+      Y:
+        RawValue: 98304
+      Z:
+        RawValue: 1998848
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_W
+      Tag: Untagged
+      Layer: 0
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 21
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  MapEntities:
+  - Components:
+    - rid: 3765389655080435712
+    - rid: 3765389655080435713
+  - Components:
+    - rid: 1331809617641996288
+    - rid: 1331809617641996289
+  - Components:
+    - rid: 1134138826642423808
+    - rid: 1134138826642423809
+  - Components:
+    - rid: 2043750036646395904
+    - rid: 2043750036646395905
+  - Components:
+    - rid: 8588170352578789376
+    - rid: 8588170352578789377
+  - Components:
+    - rid: 1668572155723382784
+    - rid: 1668572155723382785
+  - Components:
+    - rid: 2482636833918287872
+    - rid: 2482636833918287873
+  - Components:
+    - rid: 6888955226548600832
+    - rid: 6888955226548600833
+  SerializedTriangleDataUncompressedSize: 8
+  references:
+    version: 2
+    RefIds:
+    - rid: 1134138826642423808
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: 327680
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 0
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 17694720
+          Z:
+            RawValue: 0
+    - rid: 1134138826642423809
+      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        _empty_prototype_dummy_field_: 0
+    - rid: 1331809617641996288
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: 231704
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 231704
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 14745600
+          Z:
+            RawValue: 0
+    - rid: 1331809617641996289
+      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        _empty_prototype_dummy_field_: 0
+    - rid: 1668572155723382784
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: -231704
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: -231704
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 2949120
+          Z:
+            RawValue: 0
+    - rid: 1668572155723382785
+      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        _empty_prototype_dummy_field_: 0
+    - rid: 2043750036646395904
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: 231704
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: -231704
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 20643840
+          Z:
+            RawValue: 0
+    - rid: 2043750036646395905
+      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        _empty_prototype_dummy_field_: 0
+    - rid: 2482636833918287872
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: -327680
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 0
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 5898240
+          Z:
+            RawValue: 0
+    - rid: 2482636833918287873
+      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        _empty_prototype_dummy_field_: 0
+    - rid: 3765389655080435712
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 327680
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 11796480
+          Z:
+            RawValue: 0
+    - rid: 3765389655080435713
+      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        _empty_prototype_dummy_field_: 0
+    - rid: 6888955226548600832
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: -231704
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 231704
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 8847361
+          Z:
+            RawValue: 0
+    - rid: 6888955226548600833
+      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        _empty_prototype_dummy_field_: 0
+    - rid: 8588170352578789376
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: -327680
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 0
+    - rid: 8588170352578789377
+      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        _empty_prototype_dummy_field_: 0

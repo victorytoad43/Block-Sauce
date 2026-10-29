@@ -17,7 +17,7 @@ MonoBehaviour:
     UpdateFPS: 64
     LockstepSimulation: 0
     RollbackWindow: 64
-    ChecksumInterval: 60
+    ChecksumInterval: 64
     ChecksumCrossPlatformDeterminism: 0
     InputDeltaCompression: 1
     InputDelayMin: 0

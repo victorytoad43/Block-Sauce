@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a24083280d4caa24d9db41f7cbbe0261, type: 3}
+  m_Name: PlayerMovementConfig
+  m_EditorClassIdentifier: Quantum.Simulation::Quantum.MovementConfig
+  Identifier:
+    Path: QuantumUser/Resources/Configs/PlayerMovementConfig
+    Guid:
+      Value: 516922185290165381
+  WalkSpeedMax:
+    RawValue: 196608
+  RunSpeedMax:
+    RawValue: 393216
+  Acceleration:
+    RawValue: 327680
+  Deceleration:
+    RawValue: 327680
+  TurnSpeed:
+    RawValue: 47185920
+  JumpForce:
+    RawValue: 327680
+  FallGravityScale:
+    RawValue: 163840
+  MaxStepHeight:
+    RawValue: 32768
+  StepCheckForward:
+    RawValue: 32768
+  StepFootOffset:
+    RawValue: 6554
+  StepUpVelocityFactor:
+    RawValue: 393216
+  DebugStepUp: 0
