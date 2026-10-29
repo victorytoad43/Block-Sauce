@@ -26,6 +26,17 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## 2026-10-29: Phase 1 approved; first Guy FBX delivery (import test)
+
+- Jackson play-tested Phase 1: hold-to-aim is good, minor tuning waits for the plan's polish phase. Phase 2 not started (waiting for his go).
+- Did: `_Incoming/guy.fbx` moved to `Assets/Art/Characters/CH_Guy.fbx` (GUID kept). New `Assets/Scripts/Editor/ArtImportPostprocessor.cs` applies the pipeline import settings to every model under `Assets/Art/`: scale 0.4, Generic, no cameras/lights, bone-scale curves kept, clip names stripped to the action name (`armature_guy|Guy.WalkBasic` → `WalkBasic`), and clips named Idle/Walk/Run/Loop/Pose/Hold loop. This replaces the "import preset" the pipeline spec mentioned.
+- Import test results (game scale): rig faces +Z; `prop` bone 0.838 m up and 0.840 m forward (matches the simulation's 0.84 m hold pivot); `head` bone at 1.17 m; 36 deform-bone scale curves per clip came through (squash and stretch works); no root motion (root travel 0, hips sway ≤ 0.10 m).
+- Clips: `WalkBasic` 48 frames, loops (seam 2.8°), but its planted foot moves at about 0.3 m/s against the game's 3 m/s walk; `Throw` 7 frames (0.29 s); `RunBasic` and `ThrowPose` are single-keyframe actions and import empty (Unity: "length of 0 frames").
+- Not integrated: the FBX has no mesh (only the armature, including all 100 control/mechanism bones plus `_end` leaf bones), so `PH_PlayerCapsule` stays. A-003 set to `Needs changes`.
+- Decided: axis-conversion baking stays off (with Blender's default axes it turned Guy to face -Z). The FBX root keeps a -90° X rotation and ×100 scale from Blender's export; harmless, because the model will sit under the player view's own transform.
+- Blocked / questions for Jackson: re-export with the mesh; which frame of `Throw` the block leaves on.
+- Next: integrate the re-export (mesh measurements, swap the capsule's view for Guy, test a clip in play mode), then Phase 2 when Jackson says go.
+
 ## 2026-10-29: Phase 1 review follow-up, hold-to-aim throwing
 
 - Jackson's answers to the four Phase 1 questions are in PLAN.md Decisions: turning while holding stays as built (tune in play-tests), free placement stays, throwing becomes hold-to-aim, grab targeting stays, and in Phase 4 a grabbed block will align with the character's facing.

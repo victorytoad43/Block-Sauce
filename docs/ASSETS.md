@@ -11,7 +11,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 |---|---|---|---|---|---|
 | A-001 | Player color palette (8 colors) | Phase 2 | Next phase | Requested | Unity default colors |
 | A-002 | Lobby + main menu UI mock-ups | Phase 1 | Next phase | Requested | Default UI |
-| A-003 | Guy character model + rig | Phase 0 (import test) | Needed soon | In progress | `PH_PlayerCapsule` |
+| A-003 | Guy character model + rig | Phase 0 (import test) | Needed soon | Needs changes | `PH_PlayerCapsule` |
 | A-004 | Guy animation set (first pass) | Phase 4 (walk needed soon for Phase 0) | Start now | In progress | None |
 | A-005 | Block mesh | Draft for Phase 1; final by Phase 5 | Needed soon | Requested (draft seen) | `PH_Block` |
 | A-006 | Match HUD + results screen mock-ups | Phase 2 | Next phase | Requested | Default UI |
@@ -40,13 +40,13 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 
 ## Pipeline spec
 
-**Drop zone:** `Assets/Art/_Incoming/`. The agent moves files to `Assets/Art/<Category>/` on integration.
+**Drop zone:** `Assets/Art/_Incoming/` is the only place Jackson puts files, under any file name. The agent renames each file to the naming convention below, moves it to `Assets/Art/<Category>/`, and, for a re-export of something already in the game, copies it over the existing asset so every reference keeps working. Import settings are applied automatically by `Assets/Scripts/Editor/ArtImportPostprocessor.cs` for everything under `Assets/Art/`.
 
 **Source files:** Jackson's Blender files live in `C:/Users/victo/Desktop/Games/BlockSauce/modelling/` (outside the repo). Only exported FBX/PNG files enter the project, through the drop zone.
 
 **Naming:** `<Prefix>_<Name>[_<Variant>]`. Prefixes: `CH_` character, `BL_` block, `EN_` environment, `UI_`, `FX_`, `SFX_`, `MUS_`. The character is `CH_Guy`; animation clips are `CH_Guy@<ClipName>.fbx` (Unity's `@` convention).
 
-**Scale:** Jackson authors at about 2.5× real-world scale (Guy is 4.15 m tall in Blender; the draft block is 2 m). Physics must run at real-world scale, so every FBX from him is imported with **Scale Factor 0.4** (confirmed by Jackson 2026-10-28). Keep all Blender art at this same authoring scale so one factor covers everything. The agent sets this in a Unity import preset for `Assets/Art/`.
+**Scale:** Jackson authors at about 2.5× real-world scale (Guy is 4.15 m tall in Blender; the draft block is 2 m). Physics must run at real-world scale, so every FBX from him is imported with **Scale Factor 0.4** (confirmed by Jackson 2026-10-28). Keep all Blender art at this same authoring scale so one factor covers everything. The import postprocessor sets this for everything under `Assets/Art/`.
 
 **Models (Blender → FBX):**
 - Metric units, unit scale 1.0, object transforms applied, object origin at the intended pivot.
@@ -56,7 +56,9 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 **Characters:**
 - **Generic** rig. A `root` bone at the origin; keep bone scale animatable (squash and stretch).
 - Export the armature and the character mesh only: **Only Deform Bones** on, **Add Leaf Bones** off, and leave out the `WGT_*` widget objects and any draft props in the file.
-- Mesh + skeleton in `CH_Guy.fbx`; one clip per file as `CH_Guy@Clip.fbx`, or all actions in one file with clean action names. Pick one and note it in A-004.
+- Easiest setup (Blender 4.2+): put `armature_guy` and `mesh_guy` in their own collection, add an FBX exporter to it in Collection Properties > Exporters, point it at `Assets/Art/_Incoming/`, and set it once: Object Types Armature + Mesh; Apply Scalings: FBX All; Forward -Z, Up Y; Apply Modifiers on; Only Deform Bones on; Add Leaf Bones off; Bake Animation on with All Actions on, NLA Strips off, Force Start/End Keying on. The settings are saved in the .blend, and every later export is one click.
+- Mesh, skeleton and all actions in one file (decided 2026-10-28). Action names like `Guy.WalkBasic` are fine; the import strips the prefixes. Clips whose names contain Idle, Walk, Run, Loop, Pose or Hold are set to loop.
+- A single-pose action (aim pose, hold pose) needs **at least two keyframes** (the same pose on frames 0 and 1); a one-keyframe action exports with zero length and imports empty.
 - No root motion in clips: animate in place. The simulation moves the body.
 - Loops must loop cleanly; first and last frames match.
 - Clips are authored at 24 fps; that's fine (Unity resamples, and the simulation runs at 64 Hz independently).
@@ -100,7 +102,8 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Must match: the subdivision modifier should be applied or set to export at the level you want in game; budget is fine either way for 8 players. The `prop` bone is the hold point for blocks; keep it.
 - Phase 0 export needed now: `CH_Guy.fbx` (mesh + deform skeleton, per the Characters spec above) dropped in `Assets/Art/_Incoming/`. Either Jackson exports it, or Jackson approves the agent running a headless Blender export that writes only the FBX and never saves `guy.blend`.
 - Placeholder: `PH_PlayerCapsule` (agent sizes it from Guy's measurements in Phase 0). Until the import test, the capsule is 1.66 m tall with a 0.35 m radius, based on 4.15 m × 0.4.
-- Status: In progress
+- Status: Needs changes
+- 2026-10-29 delivery (`guy.fbx`, now `Assets/Art/Characters/CH_Guy.fbx`): the rig imports correctly but **the mesh is missing** (the FBX holds only the armature). Re-export with `mesh_guy` included (Object Types: Armature + Mesh, and Selected Objects off or the mesh selected too). Also: the export has all 100 bones plus `_end` leaf bones; turn on Only Deform Bones and turn off Add Leaf Bones. Measured at game scale: faces +Z, `prop` bone 0.838 m up and 0.840 m forward of the root (matches the simulation's hold pivot), `head` bone 1.17 m. Full height and capsule radius get measured from the mesh on the re-export.
 - Notes: Placeholder `Assets/Placeholders/PH_PlayerCapsule.prefab` is in use: height 1.66 m, radius 0.35 m, origin at the feet. The radius is a guess; the import test replaces it with Guy's measured width. (agent: record game-scale height, capsule radius and `prop` offset here after the import test.)
 
 ### A-004: Guy animation set (first pass)
@@ -123,6 +126,10 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Placeholder: None (capsule)
 - Status: In progress
 - Notes: the file has three actions named `Guy.WalkBasic`, `.001` and `.002`; only `.002` has keyframes (frames 0–96) and it has no fake user. 2026-10-28: Jackson says none of these is a real walk yet; animation work continues. **Delivery format: one animated FBX** (`CH_Guy.fbx` with mesh, deform skeleton and all actions, using clean action names). The Phase 0 import test (height, `prop` bone, squash-and-stretch bone scale, a clip playing in place) runs when the first export lands in `_Incoming`. Until then, Phase 0 uses the capsule at the confirmed 1.66 m.
+- 2026-10-29 delivery, four actions in `CH_Guy.fbx`:
+  - `WalkBasic` (48 frames, 2 s): imports and loops cleanly (seam 2.8°), animated in place, squash-and-stretch scale curves come through. Its planted foot moves backward at about 0.3 m/s at game scale, but the game walks at 3 m/s, so the feet would slide about 10×. For no sliding, a planted foot must move back about 0.31 m per frame in Blender units (3 m/s × 2.5 ÷ 24 fps) for walk, and 0.63 m per frame for run (6 m/s). If strides that long look wrong on Guy, the game's walk speed can come down instead; decide when tuning locomotion in Phase 4.
+  - `Throw` (7 frames, 0.29 s): imports fine. Which frame does the block leave on? The simulation releases on the button release; the view can delay the visual if needed.
+  - `RunBasic` and `ThrowPose`: one keyframe each, so they export with zero length and import empty. Key them on at least two frames.
 
 ### A-005: Block mesh
 - Phase / needed by: draft now (Phase 1 tunes grab, swing and stacking at its size); final topology by Phase 5 for sauce displacement
