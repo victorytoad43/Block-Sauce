@@ -1,43 +1,46 @@
-enum LockState
+enum StackState
 {
-    Free,
-    Locking,
-    Locked
+    Loose,
+    Settling,
+    Counted
 }
 
 component Block
 {
     [HideInInspector] PlayerRef Owner;
-    [HideInInspector] LockState Lock;
-    [HideInInspector] FP LockProgress;
-    [HideInInspector] byte TowerLevel;
-    // Picked up since it spawned or was last knocked loose; only such (placed) blocks can lock.
-    [HideInInspector] bool Handled;
+    [HideInInspector] StackState Stack;
+    // 0..1 while settling; a block counts toward its owner's score when it reaches 1.
+    [HideInInspector] FP StackProgress;
+    // 0 = resting on the ground; NotStacked when the block isn't part of an owned stack.
+    [HideInInspector] byte StackLevel;
+    // The owned block this one rests on (none for a ground block), and the ground block of its stack.
+    [HideInInspector] EntityRef Below;
+    [HideInInspector] EntityRef Base;
+    [HideInInspector] bool Supported;
+    [HideInInspector] bool HasAbove;
 }
 
-event BlockLockStarted
+event BlockSettleStarted
 {
     EntityRef Block;
     PlayerRef Owner;
 }
 
-event BlockLockReset
+event BlockSettleReset
 {
     EntityRef Block;
     PlayerRef Owner;
 }
 
-event BlockLocked
+event BlockCounted
 {
     EntityRef Block;
     PlayerRef Owner;
-    byte TowerLevel;
+    byte StackLevel;
 }
 
-event BlockUnlocked
+event BlockUncounted
 {
     EntityRef Block;
     PlayerRef Owner;
-    EntityRef Striker;
 }
-

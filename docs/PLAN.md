@@ -4,7 +4,7 @@ Human-readable version with diagrams: https://claude.ai/artifact/3hSpV9BQ7hB3bYk
 
 ## Overview
 
-The first playable target is an online match where 2–8 players each stack their own 3 blocks into a locked tower of 3, entered through a sandbox lobby where blocks can be played with freely.
+The first playable target is an online match where 2–8 players each stack their own 3 blocks into a tower of 3, entered through a sandbox lobby where blocks can be played with freely.
 
 Block Sauce is a third-person physics party game: build your tower, wreck everyone else's. There is no health and no death. Players only get knocked around, and stacks only fall when something hits them. Every feature should either help a player build or help them wreck; sauces tilt a block toward one or the other.
 
@@ -23,9 +23,9 @@ Anything that decides who wins lives in the Quantum simulation; anything that on
 | Quantum simulation (deterministic, rolled back) | Unity view (local, cosmetic) |
 |---|---|
 | Player controller: physics capsule, control tiers, grab, swing, throw, knockback | Character animation: locomotion blend tree, upper-body carry layer |
-| Blocks: bodies, ownership, lock state, unlock on impact threshold | IK: foot grounder on uneven terrain, hands on the held block |
+| Blocks: bodies, ownership, stack detection, settle progress, counting | IK: foot grounder on uneven terrain, hands on the held block |
 | Game mode: match flow, rules, win check, team IDs | Ragdoll visuals: limb views, get-up blend, cosmetic flinches |
-| Sauce state: dip planes, sauce type, effect hooks | Shaders and VFX: lock dither, sauce coat, explosions, lock pop |
+| Sauce state: dip planes, sauce type, effect hooks | Shaders and VFX: settle dither, sauce coat, explosions, count pop |
 | Knockdown: down state, timers, jointed-limb ragdoll that hits blocks | Camera, UI, audio driven by simulation events |
 
 Reference: Quantum's [Friendslop sample](https://doc.photonengine.com/quantum/v3/game-samples/friendslop/overview) covers grab, carry and throw, deterministic ragdolls built from jointed limbs, and stacked physics objects.
@@ -58,28 +58,28 @@ The simulation owns a force-driven physics capsule; the view plays Blender anima
 
 ## Base game mode: Stack & Lock
 
-A player wins the round when all three of their blocks are locked into one tower of 3.
+A player wins the round when all three of their blocks stand stacked, and counted, in one tower of 3.
 
 1. Each player owns 3 blocks in their color. Towers can be built anywhere in the arena.
-2. A placed block starts locking. A dither color overlay climbs it from bottom to top over the lock time. Any hit during the dither resets its progress to zero.
-3. When the dither reaches the top, a lock effect plays and the block counts.
-4. The next block must go on top of the player's locked block; this repeats twice, for 3 locked blocks.
-5. A locked block runs simplified physics (frozen or heavily damped) until an impact above the unlock threshold. Then it turns dynamic again, and every locked block above it unlocks too.
-6. The first player with 3 locked blocks in one tower wins.
+2. Blocks are always ordinary physics bodies: nothing is frozen or locked together, and any block can be grabbed at any time.
+3. A block is stacked when it rests level and squarely on another block of its owner, or is a ground block with one of its owner's blocks on top. A lone block on the ground isn't stacked.
+4. A stacked block at rest settles: a dither in the owner's darker shade climbs it over the settle time, and any hit restarts it. When it reaches the top, the block counts (shown solid) for as long as it stays stacked.
+5. A block that stops being stacked (knocked off, grabbed, tipped over) stops counting, and so does any block that was only stacked because of it.
+6. The first player whose tower holds 3 counted blocks wins.
 
-**Interference:** any player can grab and throw any block, including rivals' blocks, and can place blocks on a rival's tower. A block only locks on its owner's tower; a foreign block sits on top as an obstacle that stops the owner's next placement until it is knocked off.
+**Interference:** any player can grab and throw any block, including rivals' blocks and blocks out of a tower, and can place blocks on a rival's tower. A block only counts in its owner's stack; a foreign block on top is an obstacle the owner's next block can't count on until it is knocked off.
 
-**Stacking stability:** test plain stacked blocks under Quantum 3.1's default solver early in Phase 1, before building lock physics. If unlocked towers already stand reliably, the locked state can be lighter (heavy damping instead of freezing); if they creep or jitter, freeze them.
+**Stacking stability:** plain stacked blocks stand reliably under Quantum 3.1's default solver (Phase 1 test). The only physics change for stacking is a performance one: a counted block that comes to rest is put to sleep at once, so a finished stack leaves the solver until something touches it.
 
-**Sim vs view:** lock progress is a 0–1 value in the simulation; the dither shader only reads it. Impact strength is contact impulse (relative velocity × mass) checked against the threshold. Throws, swings, body checks, ragdoll limbs, explosions and sauce effects all unlock through that same path.
+**Sim vs view:** stack detection and settle progress (0–1) live in the simulation; the dither shader only reads them. Detection uses what each block rests on (a ray straight down, its owner, the offset from the block below) and which way its faces point.
 
 **Built as a baseplate for future modes:**
 
 - Match flow as a state machine: Lobby → Countdown → Playing → Round end → Results → Lobby.
 - The lobby is a mode with the win rule off: free blocks to throw around while players join.
-- A mode is a config asset: blocks per player, tower height, lock time, unlock threshold, team size, allowed sauces, win rule.
+- A mode is a config asset: blocks per player, tower height, settle time, stacking tolerances, team size, allowed sauces, win rule.
 - Every player and block carries a team ID. Free-for-all is teams of one.
-- Rules hook into named events (block placed, locked, unlocked, win check). New modes override hooks instead of forking code.
+- Rules hook into named events (match started, block counted, block uncounted, win check). New modes override hooks instead of forking code.
 
 ## Sauce system
 
@@ -104,7 +104,7 @@ Each dip stores a plane in the block's local space, and the shader turns those p
 
 ## Phases
 
-Phases 0–2 build the whole game in gray-box before final art, so the first playable match proves the fun early. Art spikes (lock dither shader, sauce coat shader) can run any time. Guy's rig is already well along in Blender, so his import test moves up to Phase 0, and his real proportions set the physics capsule from the start.
+Phases 0–2 build the whole game in gray-box before final art, so the first playable match proves the fun early. Art spikes (settle dither shader, sauce coat shader) can run any time. Guy's rig is already well along in Blender, so his import test moves up to Phase 0, and his real proportions set the physics capsule from the start.
 
 ### Phase 0: Foundations
 - [x] **Upgrade Quantum to 3.1 Preview.** Default source: the SDK bundled in the Friendslop sample (3.1.0 Preview build 2189), which keeps exact parity with the reference code. Copy `Assets/Photon/Quantum`, `Assets/Photon/PhotonLibs` and `Assets/Photon/PhotonRealtime` with their `.meta` files; skip PhotonVoice, PhotonChat and QuantumDemoInput unless a later phase needs them. If Jackson has downloaded a newer 3.1 build instead, use that. Back up `PhotonServerSettings.asset` first, follow Photon's 3.1 migration guide, regenerate Quantum code, and confirm the AppId survived and the console is clean.
@@ -126,8 +126,8 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - **Done when:** up to 8 online players toss blocks around and it feels fun. **Mechanics verified 2026-10-28 with 8 online clients (see the Phase 1 report in PROGRESS.md); "feels fun" waits on Jackson's play-test.**
 
 ### Phase 2: Stack & Lock mode
-- [x] 3 owned blocks per player; lock progress, dither shader, reset on hit
-- [x] Locked physics; unlock on impact over threshold, cascading upward
+- [x] 3 owned blocks per player; settle progress, dither shader, reset on hit
+- [x] Stack detection and counting; blocks stay fully physical and always grabbable; counted blocks sleep at rest (revised 2026-10-29, replacing locked/frozen blocks and unlock thresholds)
 - [x] Foreign blocks as obstacles on rival towers
 - [x] Match flow state machine; mode config asset; team IDs; win check
 - [x] Minimal HUD: tower progress per player, countdown, results
@@ -135,7 +135,7 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 
 ### Phase 3: Knockdown
 - [ ] Knockdown thresholds and staggered tier tuning
-- [ ] Deterministic ragdoll built with `QuantumRagdoll` from Guy's bones (about 11 limbs); limbs collide with and unlock blocks
+- [ ] Deterministic ragdoll built with `QuantumRagdoll` from Guy's bones (about 11 limbs); limbs collide with and topple blocks
 - [ ] Get-up: ragdoll destroyed, character stands at the hips; view blends to a get-up clip
 - [ ] Profile 8 players down at once beside 24 blocks; trim limbs only if needed
 - **Done when:** a tumbling body topples a tower, and 8 players down at once holds frame rate online.
@@ -157,7 +157,7 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 ### Phase 6: Arena and polish
 - [ ] Final arena with uneven terrain and room for towers
 - [ ] Camera, menu UI, HUD, audio
-- [ ] Juice: shake, particles, squash and stretch, lock pop
+- [ ] Juice: shake, particles, squash and stretch, count pop
 - **Done when:** a new player finishes a round without explanation.
 
 ### Phase 7: Expansion (ongoing)
@@ -168,7 +168,7 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 ## Decisions
 
 - Towers can be built anywhere.
-- A hit during the dither resets lock progress.
+- A hit during the dither restarts the block's settle progress.
 - Players can grab and throw rivals' blocks and place blocks on rivals' towers; a foreign block is an obstacle until knocked off.
 - Holding a block: the right stick swings it instead of turning the camera; left/right on the left stick always strafe.
 - Characters: force-driven physics capsule with three control tiers; authored animation layered in the view.
@@ -186,12 +186,12 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - Grab targeting: the nearest free block within 2 m in front of the character. Once Guy has arms (Phase 4), a grabbed block should turn to align straight with the character's facing instead of keeping its current rotation. (Jackson, 2026-10-29.)
 - Phase 1 approved after play-testing. Feel numbers (aim angle, sensitivity, throw speed) stay as built until the plan's polish phase. (Jackson, 2026-10-29.)
 - Locomotion animation: the walk clip covers slow movement (low stick pressure) and a run clip covers faster movement; the walk may be sped up to fit. The throw clip releases on frame 5 of 7. (Jackson, 2026-10-29.)
+- Stacking, revised after the Phase 2 play-test: no locking. Blocks stay physical and always grabbable; stacked blocks only count for the score (a lone ground block doesn't), and the only physics change is putting counted blocks to sleep for performance. The gamepad Start button starts a match and no longer opens the menu (Escape still does). (Jackson, 2026-10-29.)
 - After Phase 2, work pauses so art can catch up before Phase 3. (Jackson, 2026-10-29.)
 - Art delivery: `Assets/Art/_Incoming/` is Jackson's only drop-off, under any file name; the agent handles naming, placement and import settings. (Jackson, 2026-10-29.)
 
 ## Open questions
 
 - (Agent: add questions here as they come up; move them to Decisions once Jackson answers.)
-- Lock feel: 3 s lock time; unlock needs a striker at 4 m/s or more and speed × mass of 8 or more (throws, swings and running body checks unlock; walking into a tower doesn't). Right numbers? (Phase 2 play-test.)
-- Should picking up a block be able to knock your own tower loose when the pickup swing passes through it, or should a block's own pickup be ignored? (Phase 2 play-test.)
-- A block only locks after a player has placed it (picked it up at least once since it spawned or was knocked loose). A thrown block that lands level in a valid slot also locks. OK?
+- Settle feel: 3 s to count; a touch at 1 m/s or more restarts a settling block; a block stays stacked within half a block of center on the one below and within 12° of level. Right numbers? (Phase 2 play-test.)
+- Should picking up a block be able to knock your own tower over when the pickup swing passes through it, or should a block's own pickup be ignored? (Phase 2 play-test.)

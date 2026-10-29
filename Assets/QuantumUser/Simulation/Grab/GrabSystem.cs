@@ -113,11 +113,6 @@ namespace Quantum
             grabbable->LastHolder = filter.Entity;
             filter.Grabber->Held = target;
 
-            if (frame.Unsafe.TryGetPointer(target, out Block* block))
-            {
-                block->Handled = true;
-            }
-
             PhysicsBody3D* heldBody = frame.Unsafe.GetPointer<PhysicsBody3D>(target);
             heldBody->WakeUp();
             heldBody->AllowSleeping = false;
@@ -143,7 +138,7 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Returns the nearest grabbable, unlocked block nobody holds within grab range of the pivot and inside the cone
+        /// Returns the nearest grabbable block nobody holds within grab range of the pivot and inside the cone
         /// in front of the character, or none.
         /// </summary>
         private EntityRef FindGrabTarget(Frame frame, EntityRef grabber, FPVector3 pivot, FPQuaternion bodyYaw, GrabConfig config)
@@ -164,10 +159,6 @@ namespace Quantum
 
                 if (frame.Unsafe.TryGetPointer(candidate, out Grabbable* grabbable) == false
                     || grabbable->Holder != EntityRef.None)
-                    continue;
-
-                // A locked block has to be knocked loose before anyone can take it.
-                if (frame.TryGet(candidate, out Block block) && block.Lock == LockState.Locked)
                     continue;
 
                 FPVector3 toCandidate = frame.Get<Transform3D>(candidate).Position - pivot;

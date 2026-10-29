@@ -49,14 +49,14 @@ namespace Quantum {
   using RuntimeInitializeOnLoadMethodAttribute = UnityEngine.RuntimeInitializeOnLoadMethodAttribute;
   #endif //;
   
-  public unsafe partial class EventBlockLockStarted : EventBase {
+  public unsafe partial class EventBlockSettleStarted : EventBase {
     public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 0;
     public EntityRef Block;
     public PlayerRef Owner;
-    protected EventBlockLockStarted(Int32 id, EventFlags flags) : 
+    protected EventBlockSettleStarted(Int32 id, EventFlags flags) : 
         base(id, flags) {
     }
-    public EventBlockLockStarted() : 
+    public EventBlockSettleStarted() : 
         base(ID, EventFlags.Server|EventFlags.Client) {
     }
     public new QuantumGame Game {
@@ -69,21 +69,21 @@ namespace Quantum {
     }
     public override Int32 GetHashCode() {
       unchecked {
-        var hash = 74217174;
+        var hash = 1239522006;
         hash = hash * 31 + Block.GetHashCode();
         hash = hash * 31 + Owner.GetHashCode();
         return hash;
       }
     }
   }
-  public unsafe partial class EventBlockLockReset : EventBase {
+  public unsafe partial class EventBlockSettleReset : EventBase {
     public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 1;
     public EntityRef Block;
     public PlayerRef Owner;
-    protected EventBlockLockReset(Int32 id, EventFlags flags) : 
+    protected EventBlockSettleReset(Int32 id, EventFlags flags) : 
         base(id, flags) {
     }
-    public EventBlockLockReset() : 
+    public EventBlockSettleReset() : 
         base(ID, EventFlags.Server|EventFlags.Client) {
     }
     public new QuantumGame Game {
@@ -96,22 +96,22 @@ namespace Quantum {
     }
     public override Int32 GetHashCode() {
       unchecked {
-        var hash = 1604126872;
+        var hash = 2052885656;
         hash = hash * 31 + Block.GetHashCode();
         hash = hash * 31 + Owner.GetHashCode();
         return hash;
       }
     }
   }
-  public unsafe partial class EventBlockLocked : EventBase {
+  public unsafe partial class EventBlockCounted : EventBase {
     public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 2;
     public EntityRef Block;
     public PlayerRef Owner;
-    public Byte TowerLevel;
-    protected EventBlockLocked(Int32 id, EventFlags flags) : 
+    public Byte StackLevel;
+    protected EventBlockCounted(Int32 id, EventFlags flags) : 
         base(id, flags) {
     }
-    public EventBlockLocked() : 
+    public EventBlockCounted() : 
         base(ID, EventFlags.Server|EventFlags.Client) {
     }
     public new QuantumGame Game {
@@ -124,23 +124,22 @@ namespace Quantum {
     }
     public override Int32 GetHashCode() {
       unchecked {
-        var hash = 422222708;
+        var hash = 1743641696;
         hash = hash * 31 + Block.GetHashCode();
         hash = hash * 31 + Owner.GetHashCode();
-        hash = hash * 31 + TowerLevel.GetHashCode();
+        hash = hash * 31 + StackLevel.GetHashCode();
         return hash;
       }
     }
   }
-  public unsafe partial class EventBlockUnlocked : EventBase {
+  public unsafe partial class EventBlockUncounted : EventBase {
     public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 3;
     public EntityRef Block;
     public PlayerRef Owner;
-    public EntityRef Striker;
-    protected EventBlockUnlocked(Int32 id, EventFlags flags) : 
+    protected EventBlockUncounted(Int32 id, EventFlags flags) : 
         base(id, flags) {
     }
-    public EventBlockUnlocked() : 
+    public EventBlockUncounted() : 
         base(ID, EventFlags.Server|EventFlags.Client) {
     }
     public new QuantumGame Game {
@@ -153,10 +152,9 @@ namespace Quantum {
     }
     public override Int32 GetHashCode() {
       unchecked {
-        var hash = 155658575;
+        var hash = 1087447673;
         hash = hash * 31 + Block.GetHashCode();
         hash = hash * 31 + Owner.GetHashCode();
-        hash = hash * 31 + Striker.GetHashCode();
         return hash;
       }
     }
@@ -412,33 +410,32 @@ namespace Quantum {
   }
   public unsafe partial class Frame {
     public unsafe partial struct FrameEvents {
-      public EventBlockLockStarted BlockLockStarted(EntityRef Block, PlayerRef Owner) {
-        var ev = _f.Context.AcquireEvent<EventBlockLockStarted>(EventBlockLockStarted.ID);
+      public EventBlockSettleStarted BlockSettleStarted(EntityRef Block, PlayerRef Owner) {
+        var ev = _f.Context.AcquireEvent<EventBlockSettleStarted>(EventBlockSettleStarted.ID);
         ev.Block = Block;
         ev.Owner = Owner;
         _f.AddEvent(ev);
         return ev;
       }
-      public EventBlockLockReset BlockLockReset(EntityRef Block, PlayerRef Owner) {
-        var ev = _f.Context.AcquireEvent<EventBlockLockReset>(EventBlockLockReset.ID);
+      public EventBlockSettleReset BlockSettleReset(EntityRef Block, PlayerRef Owner) {
+        var ev = _f.Context.AcquireEvent<EventBlockSettleReset>(EventBlockSettleReset.ID);
         ev.Block = Block;
         ev.Owner = Owner;
         _f.AddEvent(ev);
         return ev;
       }
-      public EventBlockLocked BlockLocked(EntityRef Block, PlayerRef Owner, Byte TowerLevel) {
-        var ev = _f.Context.AcquireEvent<EventBlockLocked>(EventBlockLocked.ID);
+      public EventBlockCounted BlockCounted(EntityRef Block, PlayerRef Owner, Byte StackLevel) {
+        var ev = _f.Context.AcquireEvent<EventBlockCounted>(EventBlockCounted.ID);
         ev.Block = Block;
         ev.Owner = Owner;
-        ev.TowerLevel = TowerLevel;
+        ev.StackLevel = StackLevel;
         _f.AddEvent(ev);
         return ev;
       }
-      public EventBlockUnlocked BlockUnlocked(EntityRef Block, PlayerRef Owner, EntityRef Striker) {
-        var ev = _f.Context.AcquireEvent<EventBlockUnlocked>(EventBlockUnlocked.ID);
+      public EventBlockUncounted BlockUncounted(EntityRef Block, PlayerRef Owner) {
+        var ev = _f.Context.AcquireEvent<EventBlockUncounted>(EventBlockUncounted.ID);
         ev.Block = Block;
         ev.Owner = Owner;
-        ev.Striker = Striker;
         _f.AddEvent(ev);
         return ev;
       }
@@ -515,10 +512,10 @@ namespace Quantum {
       internal const Int32 CoreIdStart = 1;
       internal EventRegistry CoreRegistrations = RegisterCore(registry);
       private static EventRegistry RegisterCore(EventRegistry registry) {
-        registry.Register<EventBlockLockStarted>(EventBlockLockStarted.ID);
-        registry.Register<EventBlockLockReset>(EventBlockLockReset.ID);
-        registry.Register<EventBlockLocked>(EventBlockLocked.ID);
-        registry.Register<EventBlockUnlocked>(EventBlockUnlocked.ID);
+        registry.Register<EventBlockSettleStarted>(EventBlockSettleStarted.ID);
+        registry.Register<EventBlockSettleReset>(EventBlockSettleReset.ID);
+        registry.Register<EventBlockCounted>(EventBlockCounted.ID);
+        registry.Register<EventBlockUncounted>(EventBlockUncounted.ID);
         registry.Register<EventGrabbed>(EventGrabbed.ID);
         registry.Register<EventDropped>(EventDropped.ID);
         registry.Register<EventPlaced>(EventPlaced.ID);

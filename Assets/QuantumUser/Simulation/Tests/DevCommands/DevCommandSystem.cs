@@ -3,10 +3,10 @@ using Photon.Deterministic;
 namespace Quantum
 {
     /// <summary>
-    /// Test-only: puts the sender's next free block squarely on top of a tower, on whatever already sits there (or on
-    /// the ground in front of the sender when that tower is empty), at rest and counted as placed. The tower is the
-    /// sender's own unless TargetPlayer names a rival, which tests foreign blocks. Speeds up match tests that would
-    /// otherwise need hand-scripted placing. Only debug builds act on it.
+    /// Test-only: puts the sender's next block that isn't already in the tower squarely on top of that tower, on
+    /// whatever already sits there (or on the ground in front of the sender when there is no tower), at rest. The
+    /// tower is the sender's best stack, or a rival's when TargetPlayer names one, which tests foreign blocks. Speeds
+    /// up match tests that would otherwise need hand-scripted placing. Only debug builds act on it.
     /// </summary>
     public class CommandDevStackTower : DeterministicCommand
     {
@@ -46,11 +46,12 @@ namespace Quantum
 
         private static void StackNextBlock(Frame frame, GameModeConfig mode, PlayerRef player, PlayerRef tower)
         {
+            EntityRef towerBase = BlockTower.GetBestBase(frame, tower);
             EntityRef next = EntityRef.None;
             var blocks = frame.Filter<Block>();
             while (blocks.NextUnsafe(out EntityRef entity, out Block* block))
             {
-                if (block->Owner != player || block->Lock != LockState.Free)
+                if (block->Owner != player || (towerBase != EntityRef.None && block->Base == towerBase))
                     continue;
 
                 if (frame.TryGet(entity, out Grabbable candidateGrabbable) && candidateGrabbable.Holder != EntityRef.None)
@@ -64,7 +65,7 @@ namespace Quantum
                 return;
 
             FPVector3 position;
-            EntityRef top = BlockTower.GetTop(frame, tower);
+            EntityRef top = BlockTower.GetTop(frame, towerBase);
             if (top != EntityRef.None)
             {
                 // On the highest thing above the tower's top block, so a block already sitting there is stacked on.
@@ -90,8 +91,6 @@ namespace Quantum
             Transform3D* transform = frame.Unsafe.GetPointer<Transform3D>(next);
             transform->Position = position;
             transform->Rotation = FPQuaternion.Identity;
-            // Counts as placed by the player, as the lock system requires.
-            frame.Unsafe.GetPointer<Block>(next)->Handled = true;
 
             PhysicsBody3D* body = frame.Unsafe.GetPointer<PhysicsBody3D>(next);
             body->Velocity = FPVector3.Zero;

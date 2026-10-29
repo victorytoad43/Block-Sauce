@@ -53,17 +53,17 @@ namespace Quantum {
     InControl,
     Staggered,
   }
-  public enum LockState : int {
-    Free,
-    Locking,
-    Locked,
-  }
   public enum MatchState : int {
     Lobby,
     Countdown,
     Playing,
     RoundEnd,
     Results,
+  }
+  public enum StackState : int {
+    Loose,
+    Settling,
+    Counted,
   }
   [System.FlagsAttribute()]
   public enum InputButtons : int {
@@ -249,41 +249,56 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Block : Quantum.IComponent {
-    public const Int32 SIZE = 24;
+    public const Int32 SIZE = 48;
     public const Int32 ALIGNMENT = 8;
-    [FieldOffset(8)]
-    [HideInInspector()]
-    public PlayerRef Owner;
     [FieldOffset(4)]
     [HideInInspector()]
-    public LockState Lock;
+    public PlayerRef Owner;
     [FieldOffset(16)]
     [HideInInspector()]
-    public FP LockProgress;
+    public StackState Stack;
+    [FieldOffset(40)]
+    [HideInInspector()]
+    public FP StackProgress;
     [FieldOffset(0)]
     [HideInInspector()]
-    public Byte TowerLevel;
+    public Byte StackLevel;
+    [FieldOffset(32)]
+    [HideInInspector()]
+    public EntityRef Below;
+    [FieldOffset(24)]
+    [HideInInspector()]
+    public EntityRef Base;
     [FieldOffset(12)]
     [HideInInspector()]
-    public QBoolean Handled;
+    public QBoolean Supported;
+    [FieldOffset(8)]
+    [HideInInspector()]
+    public QBoolean HasAbove;
     public override readonly Int32 GetHashCode() {
       unchecked { 
         var hash = 14561;
         hash = hash * 31 + Owner.GetHashCode();
-        hash = hash * 31 + (Int32)Lock;
-        hash = hash * 31 + LockProgress.GetHashCode();
-        hash = hash * 31 + TowerLevel.GetHashCode();
-        hash = hash * 31 + Handled.GetHashCode();
+        hash = hash * 31 + (Int32)Stack;
+        hash = hash * 31 + StackProgress.GetHashCode();
+        hash = hash * 31 + StackLevel.GetHashCode();
+        hash = hash * 31 + Below.GetHashCode();
+        hash = hash * 31 + Base.GetHashCode();
+        hash = hash * 31 + Supported.GetHashCode();
+        hash = hash * 31 + HasAbove.GetHashCode();
         return hash;
       }
     }
     public static void Serialize(void* ptr, FrameSerializer serializer) {
       var p = (Block*)ptr;
-      serializer.Stream.Serialize(&p->TowerLevel);
-      serializer.Stream.Serialize((Int32*)&p->Lock);
+      serializer.Stream.Serialize(&p->StackLevel);
       PlayerRef.Serialize(&p->Owner, serializer);
-      QBoolean.Serialize(&p->Handled, serializer);
-      FP.Serialize(&p->LockProgress, serializer);
+      QBoolean.Serialize(&p->HasAbove, serializer);
+      QBoolean.Serialize(&p->Supported, serializer);
+      serializer.Stream.Serialize((Int32*)&p->Stack);
+      EntityRef.Serialize(&p->Base, serializer);
+      EntityRef.Serialize(&p->Below, serializer);
+      FP.Serialize(&p->StackProgress, serializer);
     }
   }
   [StructLayout(LayoutKind.Explicit)]
@@ -656,9 +671,9 @@ namespace Quantum {
       FramePrinter.EnsurePrimitiveNotStripped<CallbackFlags>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.ControlTier>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.InputButtons>();
-      FramePrinter.EnsurePrimitiveNotStripped<Quantum.LockState>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.MatchState>();
       FramePrinter.EnsurePrimitiveNotStripped<QueryOptions>();
+      FramePrinter.EnsurePrimitiveNotStripped<Quantum.StackState>();
     }
   }
   unsafe partial class Frame {
@@ -822,7 +837,6 @@ namespace Quantum {
         registry.Register<Joint3D>(Joint3D.SIZE);
         registry.Register<Quantum.Knockbackable>(Quantum.Knockbackable.SIZE);
         registry.Register<LayerMask>(LayerMask.SIZE);
-        registry.Register<Quantum.LockState>(4);
         registry.Register<MapEntityId>(MapEntityId.SIZE);
         registry.Register<MapEntityLink>(MapEntityLink.SIZE);
         registry.Register<Quantum.Match>(Quantum.Match.SIZE);
@@ -864,6 +878,7 @@ namespace Quantum {
         registry.Register<Shape3D>(Shape3D.SIZE);
         registry.Register<SpringJoint>(SpringJoint.SIZE);
         registry.Register<SpringJoint3D>(SpringJoint3D.SIZE);
+        registry.Register<Quantum.StackState>(4);
         registry.Register<Quantum.Team>(Quantum.Team.SIZE);
         registry.Register<Transform2D>(Transform2D.SIZE);
         registry.Register<Transform2DVertical>(Transform2DVertical.SIZE);

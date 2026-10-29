@@ -4,8 +4,8 @@ using UnityEngine;
 namespace Quantum
 {
     /// <summary>
-    /// A game mode: the numbers a match is played with plus rule hooks. The match and lock systems call the hooks
-    /// at named moments (match start, block locked, block unlocked, win check), so a new mode is a subclass that
+    /// A game mode: the numbers a match is played with plus rule hooks. The match and stack systems call the hooks
+    /// at named moments (match start, block counted, block uncounted, win check), so a new mode is a subclass that
     /// overrides hooks rather than a fork of the core systems. The base class plays Stack &amp; Lock.
     /// </summary>
     public class GameModeConfig : AssetObject
@@ -20,7 +20,7 @@ namespace Quantum
         /// </summary>
         public int BlocksPerPlayer = 3;
         /// <summary>
-        /// How many locked blocks make a finished tower.
+        /// How many counted blocks, stacked on one base, make a finished tower.
         /// </summary>
         public int TowerHeight = 3;
         /// <summary>
@@ -29,10 +29,10 @@ namespace Quantum
         public FP BlockSize = (FP)8 / 10;
 
         /// <summary>
-        /// Seconds a block must rest undisturbed in a tower slot to lock.
+        /// Seconds a stacked block must rest undisturbed before it counts.
         /// </summary>
-        [Header("Locking")]
-        public FP LockSeconds = 3;
+        [Header("Stacking")]
+        public FP SettleSeconds = 3;
         /// <summary>
         /// A block counts as resting below this speed, in m/s.
         /// </summary>
@@ -42,7 +42,7 @@ namespace Quantum
         /// </summary>
         public FP RestAngularSpeed = 1;
         /// <summary>
-        /// How far, in degrees, a face of the block may tilt from level and still lock.
+        /// How far, in degrees, a face of the block may tilt from level and still be stacked.
         /// </summary>
         public FP MaxTiltDegrees = 12;
         /// <summary>
@@ -50,20 +50,9 @@ namespace Quantum
         /// </summary>
         public FP MaxStackOffset = FP._0_50;
         /// <summary>
-        /// The speed into a locking block, in m/s, from which a touch counts as a hit and resets its progress.
+        /// The speed into a settling block, in m/s, from which a touch counts as a hit and restarts its settling.
         /// </summary>
-        public FP LockResetSpeed = 1;
-
-        /// <summary>
-        /// The speed into a locked block, in m/s, below which nothing unlocks it, so leaning on a tower is safe.
-        /// </summary>
-        [Header("Unlocking")]
-        public FP MinUnlockSpeed = 4;
-        /// <summary>
-        /// The impact (striker speed into the block × striker mass) that unlocks a locked block, and every locked
-        /// block above it.
-        /// </summary>
-        public FP UnlockImpulse = 8;
+        public FP SettleResetSpeed = 1;
 
         /// <summary>
         /// Seconds of countdown before play starts. Players can look around but not move.
@@ -103,29 +92,30 @@ namespace Quantum
         public virtual void OnMatchStarted(Frame frame) { }
 
         /// <summary>
-        /// Called when a block finishes locking.
+        /// Called when a stacked block has settled and starts counting.
         /// </summary>
-        public virtual void OnBlockLocked(Frame frame, EntityRef block) { }
+        public virtual void OnBlockCounted(Frame frame, EntityRef block) { }
 
         /// <summary>
-        /// Called when a block is knocked loose (once for each block in a cascade).
+        /// Called when a counted block stops being stacked (knocked off, grabbed, tipped over).
         /// </summary>
-        public virtual void OnBlockUnlocked(Frame frame, EntityRef block) { }
+        public virtual void OnBlockUncounted(Frame frame, EntityRef block) { }
 
         /// <summary>
-        /// Returns whether <paramref name="block"/> may start locking at <paramref name="level"/> of its owner's tower.
-        /// Stack &amp; Lock allows every slot the lock system found valid.
+        /// Returns whether <paramref name="block"/> may count at <paramref name="level"/> of its owner's stack.
+        /// Stack &amp; Lock counts every level the stack system found.
         /// </summary>
-        public virtual bool CanLock(Frame frame, EntityRef block, int level) => true;
+        public virtual bool CanCount(Frame frame, EntityRef block, int level) => true;
 
         /// <summary>
-        /// Returns the winning player, or none. Stack &amp; Lock: the first player with a full tower of locked blocks.
+        /// Returns the winning player, or none. Stack &amp; Lock: the first player whose best stack holds a full tower of
+        /// counted blocks.
         /// </summary>
         public virtual unsafe PlayerRef CheckWinner(Frame frame)
         {
             for (int player = 0; player < frame.MaxPlayerCount; player++)
             {
-                if (BlockTower.CountLocked(frame, player) >= TowerHeight)
+                if (BlockTower.CountBest(frame, player) >= TowerHeight)
                     return player;
             }
 

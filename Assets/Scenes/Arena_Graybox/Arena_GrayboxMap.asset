@@ -1379,7 +1379,21 @@ MonoBehaviour:
     - rid: 1471664808045576196
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Stack:
+          Value: 0
+        StackProgress:
+          RawValue: 0
+        StackLevel: 0
+        Below:
+          RawValue: 0
+        Base:
+          RawValue: 0
+        Supported:
+          Value: 0
+        HasAbove:
+          Value: 0
     - rid: 1471664808045576197
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1549,7 +1563,21 @@ MonoBehaviour:
     - rid: 1710433737373646852
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Stack:
+          Value: 0
+        StackProgress:
+          RawValue: 0
+        StackLevel: 0
+        Below:
+          RawValue: 0
+        Base:
+          RawValue: 0
+        Supported:
+          Value: 0
+        HasAbove:
+          Value: 0
     - rid: 1710433737373646853
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1719,7 +1747,21 @@ MonoBehaviour:
     - rid: 2372205534599184388
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Stack:
+          Value: 0
+        StackProgress:
+          RawValue: 0
+        StackLevel: 0
+        Below:
+          RawValue: 0
+        Base:
+          RawValue: 0
+        Supported:
+          Value: 0
+        HasAbove:
+          Value: 0
     - rid: 2372205534599184389
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1910,7 +1952,21 @@ MonoBehaviour:
     - rid: 4879585258497900548
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Stack:
+          Value: 0
+        StackProgress:
+          RawValue: 0
+        StackLevel: 0
+        Below:
+          RawValue: 0
+        Base:
+          RawValue: 0
+        Supported:
+          Value: 0
+        HasAbove:
+          Value: 0
     - rid: 4879585258497900549
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2059,7 +2115,21 @@ MonoBehaviour:
     - rid: 5607525523749076996
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Stack:
+          Value: 0
+        StackProgress:
+          RawValue: 0
+        StackLevel: 0
+        Below:
+          RawValue: 0
+        Base:
+          RawValue: 0
+        Supported:
+          Value: 0
+        HasAbove:
+          Value: 0
     - rid: 5607525523749076997
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2208,7 +2278,21 @@ MonoBehaviour:
     - rid: 5993664831226380292
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Stack:
+          Value: 0
+        StackProgress:
+          RawValue: 0
+        StackLevel: 0
+        Below:
+          RawValue: 0
+        Base:
+          RawValue: 0
+        Supported:
+          Value: 0
+        HasAbove:
+          Value: 0
     - rid: 5993664831226380293
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2357,7 +2441,21 @@ MonoBehaviour:
     - rid: 6143432204853706756
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Stack:
+          Value: 0
+        StackProgress:
+          RawValue: 0
+        StackLevel: 0
+        Below:
+          RawValue: 0
+        Base:
+          RawValue: 0
+        Supported:
+          Value: 0
+        HasAbove:
+          Value: 0
     - rid: 6143432204853706757
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2506,7 +2604,21 @@ MonoBehaviour:
     - rid: 6367048622705475588
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Stack:
+          Value: 0
+        StackProgress:
+          RawValue: 0
+        StackLevel: 0
+        Below:
+          RawValue: 0
+        Base:
+          RawValue: 0
+        Supported:
+          Value: 0
+        HasAbove:
+          Value: 0
     - rid: 6367048622705475589
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2676,7 +2788,21 @@ MonoBehaviour:
     - rid: 7030386384334487556
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Stack:
+          Value: 0
+        StackProgress:
+          RawValue: 0
+        StackLevel: 0
+        Below:
+          RawValue: 0
+        Base:
+          RawValue: 0
+        Supported:
+          Value: 0
+        HasAbove:
+          Value: 0
     - rid: 7030386384334487557
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2825,7 +2951,21 @@ MonoBehaviour:
     - rid: 7616700223259148292
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Stack:
+          Value: 0
+        StackProgress:
+          RawValue: 0
+        StackLevel: 0
+        Below:
+          RawValue: 0
+        Base:
+          RawValue: 0
+        Supported:
+          Value: 0
+        HasAbove:
+          Value: 0
     - rid: 7616700223259148293
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2974,7 +3114,21 @@ MonoBehaviour:
     - rid: 7700317749691547652
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Stack:
+          Value: 0
+        StackProgress:
+          RawValue: 0
+        StackLevel: 0
+        Below:
+          RawValue: 0
+        Base:
+          RawValue: 0
+        Supported:
+          Value: 0
+        HasAbove:
+          Value: 0
     - rid: 7700317749691547653
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -3144,7 +3298,21 @@ MonoBehaviour:
     - rid: 8635624890034028548
       type: {class: BlockPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
+        Owner:
+          _index: 0
+        Stack:
+          Value: 0
+        StackProgress:
+          RawValue: 0
+        StackLevel: 0
+        Below:
+          RawValue: 0
+        Base:
+          RawValue: 0
+        Supported:
+          Value: 0
+        HasAbove:
+          Value: 0
     - rid: 8635624890034028549
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:

@@ -5,8 +5,8 @@ using UnityEngine.InputSystem;
 namespace BlockSauce
 {
     /// <summary>
-    /// Placeholder match HUD (A-006), drawn with IMGUI: the match state and countdown, each player's tower (3 slots:
-    /// empty, locking with progress, locked), the winner, and the start prompt in the lobby. Enter or the gamepad's
+    /// Placeholder match HUD (A-006), drawn with IMGUI: the match state and countdown, each player's best stack (3 slots:
+    /// empty, settling with progress, counted), the winner, and the start prompt in the lobby. Enter or the gamepad's
     /// Start button sends the start command. View only: it reads the predicted frame and sends commands, the only way
     /// the view talks to the simulation besides input.
     /// </summary>
@@ -55,7 +55,7 @@ namespace BlockSauce
             {
                 MatchState.Lobby => "Lobby  ·  press Enter / Start to begin a match",
                 MatchState.Countdown => $"Get ready… {Mathf.CeilToInt(match.Timer.RemainingSeconds(frame).AsFloat)}",
-                MatchState.Playing => "Stack & Lock: lock 3 blocks into one tower",
+                MatchState.Playing => "Stack & Lock: stack all 3 of your blocks into one tower",
                 MatchState.RoundEnd => $"Player {(int)match.Winner + 1} wins!",
                 MatchState.Results => $"Results  ·  Player {(int)match.Winner + 1} won  ·  back to lobby in {Mathf.CeilToInt(match.Timer.RemainingSeconds(frame).AsFloat)}",
                 _ => "",
@@ -80,12 +80,13 @@ namespace BlockSauce
             DrawRect(new Rect(16, y, 20, 20), color);
             GUI.Label(new Rect(42, y, 90, 22), $"Player {(int)player + 1}{(isWinner ? "  ★" : "")}", _small);
 
+            EntityRef towerBase = BlockTower.GetBestBase(frame, player);
             for (int level = 0; level < mode.TowerHeight; level++)
             {
                 var slot = new Rect(140 + level * 30, y, 24, 20);
                 DrawRect(slot, new Color(0, 0, 0, 0.4f));
-                GetSlot(frame, player, level, out bool locked, out float progress);
-                if (locked)
+                GetSlot(frame, towerBase, level, out bool counted, out float progress);
+                if (counted)
                 {
                     DrawRect(slot, color);
                 }
@@ -98,29 +99,17 @@ namespace BlockSauce
         }
 
         /// <summary>
-        /// Reads one tower slot: locked, or locking with its progress, or empty.
+        /// Reads one slot of the player's best stack: counted, or settling with its progress, or empty.
         /// </summary>
-        private static void GetSlot(Frame frame, PlayerRef player, int level, out bool locked, out float progress)
+        private static void GetSlot(Frame frame, EntityRef towerBase, int level, out bool counted, out float progress)
         {
-            locked = false;
+            counted = false;
             progress = 0f;
-            var blocks = frame.Filter<Block>();
-            while (blocks.Next(out EntityRef _, out Block block))
-            {
-                if (block.Owner != player || block.TowerLevel != level)
-                    continue;
+            if (BlockTower.TryGetAtLevel(frame, towerBase, level, out Block block) == false)
+                return;
 
-                if (block.Lock == LockState.Locked)
-                {
-                    locked = true;
-                    return;
-                }
-
-                if (block.Lock == LockState.Locking)
-                {
-                    progress = block.LockProgress.AsFloat;
-                }
-            }
+            counted = block.Stack == StackState.Counted;
+            progress = block.Stack == StackState.Settling ? block.StackProgress.AsFloat : 0f;
         }
 
         private void DrawRect(Rect rect, Color color)

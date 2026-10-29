@@ -50,6 +50,39 @@ namespace Quantum.Prototypes.Unity {
   #endif //;
   
   [System.SerializableAttribute()]
+  public unsafe partial class BlockPrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.BlockPrototype> {
+    [HideInInspector()]
+    public PlayerRef Owner;
+    [HideInInspector()]
+    public Quantum.QEnum32<StackState> Stack;
+    [HideInInspector()]
+    public FP StackProgress;
+    [HideInInspector()]
+    public Byte StackLevel;
+    [HideInInspector()]
+    public Quantum.QuantumEntityPrototype Below;
+    [HideInInspector()]
+    public Quantum.QuantumEntityPrototype Base;
+    [HideInInspector()]
+    public QBoolean Supported;
+    [HideInInspector()]
+    public QBoolean HasAbove;
+    partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.BlockPrototype prototype);
+    public override Quantum.Prototypes.BlockPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
+      var result = new Quantum.Prototypes.BlockPrototype();
+      converter.Convert(this.Owner, out result.Owner);
+      converter.Convert(this.Stack, out result.Stack);
+      converter.Convert(this.StackProgress, out result.StackProgress);
+      converter.Convert(this.StackLevel, out result.StackLevel);
+      converter.Convert(this.Below, out result.Below);
+      converter.Convert(this.Base, out result.Base);
+      converter.Convert(this.Supported, out result.Supported);
+      converter.Convert(this.HasAbove, out result.HasAbove);
+      ConvertUser(converter, ref result);
+      return result;
+    }
+  }
+  [System.SerializableAttribute()]
   public unsafe partial class GrabbablePrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.GrabbablePrototype> {
     [HideInInspector()]
     public Quantum.QuantumEntityPrototype Holder;

@@ -23,7 +23,7 @@ MonoBehaviour:
   TowerHeight: 3
   BlockSize:
     RawValue: 52428
-  LockSeconds:
+  SettleSeconds:
     RawValue: 196608
   RestSpeed:
     RawValue: 19660
@@ -33,12 +33,8 @@ MonoBehaviour:
     RawValue: 786432
   MaxStackOffset:
     RawValue: 32768
-  LockResetSpeed:
+  SettleResetSpeed:
     RawValue: 65536
-  MinUnlockSpeed:
-    RawValue: 262144
-  UnlockImpulse:
-    RawValue: 524288
   CountdownSeconds:
     RawValue: 196608
   RoundEndSeconds:

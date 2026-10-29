@@ -26,7 +26,35 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## 2026-10-29: Phase 2 revision after Jackson's play-test (stacking replaces locking)
+
+- Jackson's play-test feedback:
+  - Pressing Start to start a match also opened the menu.
+  - Blocks that weren't stacked got locked.
+  - Locked blocks were immovable.
+  - What he asked for: no locking physics; blocks stay grabbable and only count for the score; the only physics change is a simplification for stacked blocks, for performance.
+- Did:
+  - **Start button:** `BlockSauceStartUI` (subclass of the SDK's `QuantumStartUI`, swapped in on Lobby and Arena_Graybox) toggles the menu with Escape only, so the gamepad Start button only starts a match. It's a subclass rather than an SDK edit, so SDK updates don't undo it.
+  - **Stacking:** `BlockLockSystem` is replaced by `BlockStackSystem`. Each tick of play, every owned block that isn't held and has a face pointing up (within 12°) looks straight down. On static ground it's a ground block; on a block of the same owner, centered within half a block, it sits on that block. Following supports down gives each block a level and a base. A block is stacked at level 1 or above, or as a ground block with an owned block on top, so a lone block never counts.
+  - **Counting:** a stacked block at rest settles over 3 s (the dither) and then counts. A touch at 1 m/s or more restarts a settling block. A block that stops being stacked stops counting. Nothing is frozen and every block can be grabbed. The only physics change: a counted block that's as still as the engine's own sleep check is put to sleep at once, skipping the sleep timer; any contact wakes it.
+  - **Win:** the base mode's `CheckWinner` picks the first player with 3 counted blocks on one base. Mode hooks are now `OnBlockCounted`, `OnBlockUncounted` and `CanCount`, and the mode asset has `SettleSeconds`/`SettleResetSpeed` instead of the lock and unlock numbers.
+  - **Removed:** the "placed" (`Handled`) rule. It's no longer needed, because lone blocks don't count.
+  - **HUD:** the slots show each player's best stack. The dev stack command now stacks onto the best stack.
+- Verified (play mode, Lobby, online):
+  - The spawn row and a block placed alone on the ground stay Loose.
+  - Two stacked blocks both settle and count, then sleep.
+  - Grabbing the counted top block works, and both blocks go back to Loose.
+  - A full match with dev stacking: 3 counted, then RoundEnd (player 1 wins), Results, and Lobby with the sandbox restored.
+  - **Two clients:** a rival's block on top of player 1's 2-block stack doesn't count, player 1's two stay counted, and both clients agree.
+  - The menu shows Start Game and connects with the new component.
+  - Main console clean.
+- Not verified: the gamepad Start button itself (no gamepad input can be sent to an unfocused editor). The change is that the menu now only listens to Escape.
+- Test-tool note: dropping a 4th block with the dev command onto a slightly off-center rival block toppled the stack. That came from the dev tool teleporting a block onto a block that was still wobbling, not from the stacking rules.
+- Next: stop for art (A-001, A-006, A-007, A-013, A-015, and the second keyframe on `RunBasic`/`ThrowPose`); Phase 3 after Jackson's play-test of this revision.
+
 ## Phase 2 report: Stack & Lock mode
+
+(Superseded in part by the revision above: locking, freezing, unlock thresholds and the "placed" rule are gone.)
 
 - Built:
   - **Mode config:** `GameModeConfig` (`StackAndLockMode.asset`) holds blocks per player 3, tower height 3, lock time 3 s, rest/tilt/offset tolerances, the unlock threshold, timers and spawn layout. Its virtual hooks are `OnMatchStarted`, `OnBlockLocked`, `OnBlockUnlocked`, `CanLock` and `CheckWinner`; a new mode subclasses it.

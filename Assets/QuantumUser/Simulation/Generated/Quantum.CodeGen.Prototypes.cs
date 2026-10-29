@@ -51,18 +51,23 @@ namespace Quantum.Prototypes {
   
   [System.SerializableAttribute()]
   [Quantum.Prototypes.Prototype(typeof(Quantum.Block))]
-  public unsafe partial class BlockPrototype : ComponentPrototype<Quantum.Block> {
+  public unsafe class BlockPrototype : ComponentPrototype<Quantum.Block> {
     [HideInInspector()]
     public PlayerRef Owner;
     [HideInInspector()]
-    public Quantum.QEnum32<LockState> Lock;
+    public Quantum.QEnum32<StackState> Stack;
     [HideInInspector()]
-    public FP LockProgress;
+    public FP StackProgress;
     [HideInInspector()]
-    public Byte TowerLevel;
+    public Byte StackLevel;
     [HideInInspector()]
-    public QBoolean Handled;
-    partial void MaterializeUser(Frame frame, ref Quantum.Block result, in PrototypeMaterializationContext context);
+    public MapEntityId Below;
+    [HideInInspector()]
+    public MapEntityId Base;
+    [HideInInspector()]
+    public QBoolean Supported;
+    [HideInInspector()]
+    public QBoolean HasAbove;
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
       Quantum.Block component = default;
       Materialize((Frame)f, ref component, in context);
@@ -70,11 +75,13 @@ namespace Quantum.Prototypes {
     }
     public void Materialize(Frame frame, ref Quantum.Block result, in PrototypeMaterializationContext context = default) {
       result.Owner = this.Owner;
-      result.Lock = this.Lock;
-      result.LockProgress = this.LockProgress;
-      result.TowerLevel = this.TowerLevel;
-      result.Handled = this.Handled;
-      MaterializeUser(frame, ref result, in context);
+      result.Stack = this.Stack;
+      result.StackProgress = this.StackProgress;
+      result.StackLevel = this.StackLevel;
+      PrototypeValidator.FindMapEntity(this.Below, in context, out result.Below);
+      PrototypeValidator.FindMapEntity(this.Base, in context, out result.Base);
+      result.Supported = this.Supported;
+      result.HasAbove = this.HasAbove;
     }
   }
   [System.SerializableAttribute()]

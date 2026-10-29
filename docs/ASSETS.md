@@ -15,7 +15,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 | A-004 | Guy animation set (first pass) | Phase 4 (walk needed soon for Phase 0) | Start now | In progress | None |
 | A-005 | Block mesh | Draft for Phase 1; final by Phase 5 | Needed soon | Requested (draft seen) | `PH_Block` |
 | A-006 | Match HUD + results screen mock-ups | Phase 2 | Needed soon | Requested | IMGUI text HUD (`MatchHud`) |
-| A-007 | Lock effect art direction | Phase 2 | Needed soon | Requested | `PH_LockDither` shader |
+| A-007 | Settle/count effect art direction | Phase 2 | Needed soon | Requested | `PH_LockDither` shader |
 | A-008 | Arena layout sketch | Phase 6 (graybox from Phase 0) | Nice to have | Requested | Graybox terrain |
 | A-009 | Sauce vat model + sauce look references | Phase 5 | Nice to have | Requested | Cylinder |
 | A-010 | Block Sauce logo / wordmark | Phase 6 | Nice to have | Requested | Text |
@@ -74,10 +74,10 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 ## Requests
 
 ### A-001: Player color palette
-- Phase / needed by: Phase 2, block ownership colors and the lock dither
+- Phase / needed by: Phase 2, block ownership colors and the settle dither
 - Priority: Next phase
 - Purpose: Each player's blocks, character tint and HUD use one color. Sauces must stay readable on top of every one.
-- Spec: 8 colors as hex, each with a darker shade for the lock dither and a lighter shade for highlights. Distinguishable for common color-vision deficiencies and on both light and dark terrain.
+- Spec: 8 colors as hex, each with a darker shade for the settle dither and a lighter shade for highlights. Distinguishable for common color-vision deficiencies and on both light and dark terrain.
 - Must match: Leaves room for sauce materials (A-009) to read by material, not hue.
 - Placeholder: Unity default colors in `PH_PlayerColors` config
 - Status: Requested
@@ -149,19 +149,19 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 ### A-006: Match HUD + results screen mock-ups
 - Phase / needed by: Phase 2
 - Priority: Next phase
-- Purpose: Countdown, each player's tower progress (3 slots: empty, locking, locked), round end and results.
+- Purpose: Countdown, each player's tower progress (3 slots: empty, settling, counted), round end and results.
 - Spec: Mock-ups at 1920×1080 for 2 and 8 players.
-- Must match (Phase 2 build): match states are Lobby (press Start / Enter to begin), Countdown (3 s), Playing, Round end (3 s, winner shown), Results (6 s), then back to Lobby. Per player the HUD shows their color and 3 tower slots, each empty, locking (0–100%) or locked.
+- Must match (Phase 2 build): match states are Lobby (press Start / Enter to begin), Countdown (3 s), Playing, Round end (3 s, winner shown), Results (6 s), then back to Lobby. Per player the HUD shows their color and the 3 slots of their best stack, each empty, settling (0–100%) or counted.
 - Placeholder: IMGUI text HUD, `Assets/Scripts/Match/MatchHud.cs`
 - Status: Requested
 
-### A-007: Lock effect art direction
+### A-007: Settle/count effect art direction
 - Phase / needed by: Phase 2
 - Priority: Next phase
-- Purpose: The dither overlay climbing a placed block, and the "locked" pop when it reaches the top. The agent builds the shader; this is the look to aim for.
+- Purpose: The dither overlay climbing a stacked block while it settles, and the "counted" pop when it reaches the top. The agent builds the shader; this is the look to aim for.
 - Spec: A few frames or a short reference clip; dither pattern and scale; the pop (flash, ring, particles, sound idea).
-- Must match (Phase 2 build): lock progress is a 0–1 value that fills over 3 s (mode setting) and drops to 0 on any hit; the shader climbs bottom to top with it. Locked blocks stay frozen until knocked loose, and then fall back to the plain owner color.
-- Placeholder: `Assets/Placeholders/PH_LockDither.shader` (4×4 screen-space dither in the owner's darker shade; locked = solid darker shade)
+- Must match (Phase 2 build, revised 2026-10-29): settle progress is a 0–1 value that fills over 3 s (mode setting) while a stacked block rests, and drops to 0 on any hit; the shader climbs bottom to top with it. A counted block shows the solid darker shade; nothing is frozen, so a counted block can be grabbed or knocked off at any moment and then falls back to the plain owner color. A lone block on the ground never settles.
+- Placeholder: `Assets/Placeholders/PH_LockDither.shader` (4×4 screen-space dither in the owner's darker shade; counted = solid darker shade)
 - Status: Requested
 
 ### A-008: Arena layout sketch
@@ -214,7 +214,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Priority: Next phase
 - Purpose: Every block shows whose it is at a glance, from across the arena and while tumbling, and later under a sauce coat (A-009).
 - Spec: How ownership shows on the block: a full tint, a colored edge or bevel, a stripe or icon, or a combination. One reference image or a quick paint-over of the A-005 draft is enough.
-- Must match: The player palette in A-001. The lock dither (A-007) climbs the block in the owner's darker shade, so the base treatment must leave room for that overlay.
+- Must match: The player palette in A-001. The settle dither (A-007) climbs the block in the owner's darker shade, so the base treatment must leave room for that overlay.
 - Placeholder: `PH_Block` with a flat owner color (`PH_LockDither` shader, colors from `PH_PlayerColors`); unowned sandbox blocks stay gray
 - Status: Requested
 
@@ -223,7 +223,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Priority: Nice to have
 - Purpose: The simulation raises events for jump, grab, drop, throw, block impact (with impact speed) and knockback. The view can play a sound on each as soon as one exists.
 - Spec: WAV 48 kHz mono, short. For each event, one sound or a pointer to a free/CC0 pack you like. Impacts benefit from 2-3 variations, plus a light and a heavy version.
-- Must match: Event names in code: `Jumped`, `Grabbed`, `Dropped`, `Thrown`, `ObjectImpact` (speed), `KnockedBack`. Phase 2 adds `BlockLockStarted`, `BlockLockReset`, `BlockLocked` (the lock pop), `BlockUnlocked`, and `MatchStateChanged` (countdown beeps, round start, win fanfare).
+- Must match: Event names in code: `Jumped`, `Grabbed`, `Dropped`, `Thrown`, `ObjectImpact` (speed), `KnockedBack`. Phase 2 adds `BlockSettleStarted`, `BlockSettleReset`, `BlockCounted` (the count pop), `BlockUncounted`, and `MatchStateChanged` (countdown beeps, round start, win fanfare).
 - Placeholder: Silent
 - Status: Requested
 
