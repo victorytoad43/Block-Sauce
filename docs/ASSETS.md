@@ -99,7 +99,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Phase 0 export needed now: `CH_Guy.fbx` (mesh + deform skeleton, per the Characters spec above) dropped in `Assets/Art/_Incoming/`. Either Jackson exports it, or Jackson approves the agent running a headless Blender export that writes only the FBX and never saves `guy.blend`.
 - Placeholder: `PH_PlayerCapsule` (agent sizes it from Guy's measurements in Phase 0). Until the import test, the capsule is 1.66 m tall with a 0.35 m radius, based on 4.15 m × 0.4.
 - Status: In progress
-- Notes: (agent: record game-scale height, capsule radius and `prop` offset here after the Phase 0 import test)
+- Notes: Placeholder `Assets/Placeholders/PH_PlayerCapsule.prefab` is in use: height 1.66 m, radius 0.35 m, origin at the feet. The radius is a guess; the import test replaces it with Guy's measured width. (agent: record game-scale height, capsule radius and `prop` offset here after the import test.)
 
 ### A-004: Guy animation set (first pass)
 - Phase / needed by: Phase 4; long lead, start now

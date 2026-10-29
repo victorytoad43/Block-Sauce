@@ -26,6 +26,47 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## 2026-10-28: Phase 0, upgrade and first online movement
+
+- Did:
+  - **Quantum 3.1.0 Preview build 2189** replaced 3.0.14 (Quantum, PhotonLibs, PhotonRealtime, copied from Friendslop). The AppId is intact (settings file byte-identical to the backup).
+  - Codegen was run before reopening Unity with a small .NET runner around `Quantum.CodeGen.Qtn.dll`, so the editor never hit Safe Mode. Its output is byte-identical to the in-editor `Run Qtn CodeGen`.
+  - Session config: 64 Hz, rollback window 64, checksum interval 64. Physics block copied from Friendslop (6 solver iterations, warm start, sleeping on, speculative callbacks).
+  - Simulation:
+    - `Input` (Move, Camera, Swing, HasCamera; Jump, Crouch, Run, Grab, Throw).
+    - `Player` + `PlayerLook` + `PlayerSystem`/`PlayerLookSystem`: spawn at spawn point N, free-for-all team = player index.
+    - `Team`.
+    - `GroundedTracker` (ported as-is minus the ragdoll check).
+    - `Movement`: Friendslop's minus Stamina/Attack/Launched; camera-relative; turns toward its move direction at 720°/s.
+    - Systems are registered in `SystemSetup.User.cs`.
+  - View:
+    - `BlockSauceControls` (bindings in code).
+    - `PlayerInputPoller`.
+    - `OrbitCamera`: click locks the cursor, Esc frees it.
+    - `LocalPlayerView`.
+  - `PH_PlayerCapsule` prefab plus `PlayerMovementConfig`/`PlayerGroundedTrackerConfig`.
+  - Scenes:
+    - `Lobby`: 40 m floor, ramp, platform, 3 steps, walls.
+    - `Arena_Graybox`: 60 m floor, 10°/20°/35° ramps, a stepped hill with side slopes, stairs at 0.2–0.8 m, rotated-cube bumps, walls.
+    - Each has 8 spawn points, a start UI for online play, and a local debug runner (it stands down while the start UI is present).
+  - Hygiene:
+    - Company name "Jackson Hill"; template `QuantumGameScene` and its map removed.
+    - The SDK start-UI prefab restored to stock: Friendslop had baked in its own connection component (with a `-RuhanDev` app-version postfix) and a nested settings panel that wasn't copied.
+  - Verified online (one client, Photon cloud, Lobby):
+    - The character spawns at spawn point 0 on team 0, grounded.
+    - Holding W+Shift (simulated through the Input System) drove it along the camera's forward to the north wall, stopping at the wall's face minus the capsule radius; on release it braked to zero.
+    - Camera follows. Console clean.
+- Decided:
+  - Capsule radius 0.35 m until Guy's FBX gives a real width.
+  - Mass 1, drag 0.5, rotation frozen on X/Z, as Friendslop.
+  - Spawn height offset 1 m.
+  - Default bindings are placeholders: LMB/RB = grab, RMB/RT = throw, Shift/L3 = run, Ctrl/B = crouch, Space/A = jump.
+  - The Swing input is sent as zero until holding exists (Phase 1).
+  - Each scene's start-UI connection uses the per-scene app-version postfix the SDK sets, so Lobby and Arena rooms don't mix.
+- Assets: none delivered. A-003 notes updated with the capsule placeholder size.
+- Blocked / questions for Jackson: approve adding `com.unity.multiplayer.playmode@2.0.2` for the two-client done-when check. The Guy import test waits for his first animated FBX (that task stays open; it doesn't block the done-when, which only needs capsules sized to Guy).
+- Next: add Multiplayer Play Mode, run 2 clients in one room, verify both move, then write the Phase 0 report.
+
 ## 2026-10-28: Phase 0, plan and setup
 
 ### Phase 0 plan

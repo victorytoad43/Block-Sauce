@@ -107,13 +107,13 @@ Each dip stores a plane in the block's local space, and the shader turns those p
 Phases 0–2 build the whole game in gray-box before final art, so the first playable match proves the fun early. Art spikes (lock dither shader, sauce coat shader) can run any time. Guy's rig is already well along in Blender, so his import test moves up to Phase 0, and his real proportions set the physics capsule from the start.
 
 ### Phase 0: Foundations
-- [ ] **Upgrade Quantum to 3.1 Preview.** Default source: the SDK bundled in the Friendslop sample (3.1.0 Preview build 2189), which keeps exact parity with the reference code. Copy `Assets/Photon/Quantum`, `Assets/Photon/PhotonLibs` and `Assets/Photon/PhotonRealtime` with their `.meta` files; skip PhotonVoice, PhotonChat and QuantumDemoInput unless a later phase needs them. If Jackson has downloaded a newer 3.1 build instead, use that. Back up `PhotonServerSettings.asset` first, follow Photon's 3.1 migration guide, regenerate Quantum code, and confirm the AppId survived and the console is clean.
-- [ ] **Git:** `git init`, `git lfs install`, use the provided `.gitignore` and `.gitattributes`, and make the first commit after the upgrade compiles.
+- [x] **Upgrade Quantum to 3.1 Preview.** Default source: the SDK bundled in the Friendslop sample (3.1.0 Preview build 2189), which keeps exact parity with the reference code. Copy `Assets/Photon/Quantum`, `Assets/Photon/PhotonLibs` and `Assets/Photon/PhotonRealtime` with their `.meta` files; skip PhotonVoice, PhotonChat and QuantumDemoInput unless a later phase needs them. If Jackson has downloaded a newer 3.1 build instead, use that. Back up `PhotonServerSettings.asset` first, follow Photon's 3.1 migration guide, regenerate Quantum code, and confirm the AppId survived and the console is clean.
+- [x] **Git:** `git init`, `git lfs install`, use the provided `.gitignore` and `.gitattributes`, and make the first commit after the upgrade compiles.
 - [ ] **Project hygiene:** remove the URP template's tutorial content (`Assets/TutorialInfo`, `Assets/Readme.asset`, `Assets/Scenes/SampleScene.unity`); set Player Settings › Run In Background on (it's off, and Quantum clients must keep simulating unfocused); set the company name; install Unity Multiplayer Play Mode for multi-client testing.
-- [ ] **Study Friendslop:** write notes in PROGRESS.md on its Player, Input, Movement, GroundedTracker, Grab, Attack, Ragdoll and Fall systems: what to port as-is, what to adapt, what to skip.
+- [x] **Study Friendslop:** write notes in PROGRESS.md on its Player, Input, Movement, GroundedTracker, Grab, Attack, Ragdoll and Fall systems: what to port as-is, what to adapt, what to skip.
 - [ ] **Guy import test:** export Guy from `modelling/guy/guy.blend` per the ASSETS.md spec (ask Jackson to do the export, or to approve you running the export headlessly). Import as Generic at the agreed scale factor and confirm: height matches the decision, squash-and-stretch bone scale plays, `prop` bone present, walk clip plays in place. Record Guy's game-scale height, width and `prop` offset in ASSETS.md A-003, and size the physics capsule from them.
-- [ ] **Input scheme:** move, strafe-always while holding, camera vs swing on the right stick, all buttons defined in Quantum input.
-- [ ] **Scenes:** Lobby and Arena_Graybox with uneven test terrain.
+- [x] **Input scheme:** move, strafe-always while holding, camera vs swing on the right stick, all buttons defined in Quantum input.
+- [x] **Scenes:** Lobby and Arena_Graybox with uneven test terrain.
 - **Done when:** two clients join a room and move capsules sized to Guy.
 
 ### Phase 1: Sandbox lobby
