@@ -52,7 +52,7 @@ The agent adds an entry at the top for each work session, and a phase report whe
   - **Earlier single-client run:** forward + run reached the wall and stopped at the wall face minus the capsule radius; braked to zero on release.
   - **Console:** clean on the clone; one SDK warning on the main editor (known issue 1).
 - Known issues:
-  1. **SDK warning with MPPM:** `QuantumStartUIMppmConnectCommand is being serialized by [SerializeReference], but is missing the [Serializable] attribute`. It comes from the SDK's start UI and appears only when an MPPM clone is joined. The one-line fix is adding `[Serializable]` to that SDK class; not applied, to keep the pinned SDK untouched. Jackson to decide.
+  1. ~~SDK warning with MPPM~~ Fixed 2026-10-28 with Jackson's OK. **SDK patch:** `[System.Serializable]` added to `QuantumStartUIMppmConnectCommand` and `QuantumStartUIMppmDisconnectCommand` in `Assets/Photon/Quantum/Runtime/StartUI/QuantumStartUI.Common.cs`, each marked with a "Block Sauce SDK patch" comment. **Re-apply it after any SDK update.** Verified: a two-client join and disconnect leaves both consoles free of it.
   2. **Guy import test not done:** waiting for the first animated FBX (A-003/A-004). The capsule radius (0.35 m) is a guess until then.
   3. **Placeholder controls:** default bindings, and the camera has no collision with walls yet. Phase 1 work.
   4. **Synthetic keyboard input in automated tests:** an unfocused editor drops it. Automated tests use a virtual gamepad instead. Manual play is unaffected.

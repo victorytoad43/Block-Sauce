@@ -133,6 +133,7 @@ namespace Quantum {
   /// <summary>
   /// Ask the menu to start.
   /// </summary>
+  [System.Serializable] // Block Sauce SDK patch: silences the [SerializeReference] warning when an MPPM clone joins.
   public class QuantumStartUIMppmConnectCommand : QuantumStartUIMppmCommand {
     /// <summary>
     /// The region to connect to.
@@ -147,6 +148,7 @@ namespace Quantum {
   /// <summary>
   /// Ask the menu to stop.
   /// </summary>
+  [System.Serializable] // Block Sauce SDK patch: same as the connect command above.
   public class QuantumStartUIMppmDisconnectCommand : QuantumStartUIMppmCommand {
   }
 }
