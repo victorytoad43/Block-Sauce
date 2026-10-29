@@ -851,6 +851,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 422447260190638085
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1006,6 +1008,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 980903904726220805
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1182,6 +1186,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 1622321297885233157
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1337,6 +1343,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 1643830092524158981
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1492,6 +1500,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 2569740089236127749
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1668,6 +1678,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 2665276532167016453
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1844,6 +1856,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 3136458786265366533
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1999,6 +2013,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 3442151234574745605
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2154,6 +2170,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 3546496818638487557
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2309,6 +2327,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 3886416335923576837
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2464,6 +2484,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 4089721299381780485
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2637,6 +2659,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 4412084783509667845
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2792,6 +2816,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 5508389762932670469
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2989,6 +3015,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 6072031854628700165
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -3144,6 +3172,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 6214135097486999557
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -3299,6 +3329,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 6962280660572569605
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -3496,6 +3528,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 7368364295081426949
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -3651,6 +3685,8 @@ MonoBehaviour:
         LockProgress:
           RawValue: 0
         TowerLevel: 0
+        Handled:
+          Value: 0
     - rid: 8272629982346346501
       type: {class: GrabbablePrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
