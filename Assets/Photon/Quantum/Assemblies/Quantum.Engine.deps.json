@@ -1,0 +1,40 @@
+{
+  "runtimeTarget": {
+    "name": ".NETStandard,Version=v2.1/",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETStandard,Version=v2.1": {},
+    ".NETStandard,Version=v2.1/": {
+      "Quantum.Engine/3.1.0.2103-UnityDebug": {
+        "dependencies": {
+          "Quantum.Log": "3.1.0.2103-UnityDebug"
+        },
+        "runtime": {
+          "Quantum.Engine.dll": {}
+        }
+      },
+      "Quantum.Log/3.1.0.2103-UnityDebug": {
+        "runtime": {
+          "Quantum.Log.dll": {
+            "assemblyVersion": "3.1.0.2103",
+            "fileVersion": "3.1.0.2103"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Quantum.Engine/3.1.0.2103-UnityDebug": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Quantum.Log/3.1.0.2103-UnityDebug": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

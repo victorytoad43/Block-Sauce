@@ -1,0 +1,10 @@
+component MovementData
+{
+    asset_ref<MovementConfig> Config;
+    [HideInInspector] FrameTimer MovementLockTimer;
+}
+
+event Jumped
+{
+    EntityRef Entity;
+}

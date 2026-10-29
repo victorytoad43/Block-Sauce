@@ -1,0 +1,8 @@
+component GroundedTracker
+{
+    asset_ref<GroundedTrackerConfig> Config;
+    [HideInInspector] bool IsGrounded;
+    [HideInInspector] FPVector3 LastGroundedPosition;
+    [HideInInspector] int LastGroundContactFrame;
+    [HideInInspector] FPVector3 GroundNormal;
+}

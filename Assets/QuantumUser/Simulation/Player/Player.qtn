@@ -1,0 +1,15 @@
+component Player
+{
+    PlayerRef Ref;
+    [ExcludeFromPrototype] Input Input;
+}
+
+component PlayerSpawnPoint
+{
+}
+
+component PlayerLook
+{
+    FP Yaw;
+    FP Pitch;
+}

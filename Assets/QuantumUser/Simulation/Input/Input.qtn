@@ -1,0 +1,13 @@
+input
+{
+    button Jump;
+    button Crouch;
+    button Run;
+    button Grab;
+    button Throw;
+
+    bool HasCamera;
+    InputDirectionMagnitude Move;
+    InputPitchYaw Camera;
+    FPVector2 Swing;
+}
