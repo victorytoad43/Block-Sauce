@@ -26,6 +26,43 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## Phase 0 report: Foundations
+
+- Built:
+  - **Quantum:** 3.1.0 Preview build 2189 (from Friendslop), pinned. AppId preserved. 64 Hz, checksum interval 64, Friendslop's physics tuning.
+  - **Git + LFS:** 4 commits on `main`.
+  - **Hygiene:**
+    - Template content removed; Run In Background on; company "Jackson Hill".
+    - Multiplayer Play Mode 2.0.2 installed and enabled (Project Settings › Multiplayer › Play Mode local deployment; needed one editor restart).
+    - Unity CLI connector (`com.unity.pipeline`).
+  - **Friendslop study:** notes and porting verdicts above.
+  - **Input:** the Quantum input definition covers every Phase 1 verb (move, camera, swing, jump, crouch, run, grab, throw). Unity-side bindings are in code.
+  - **Simulation:** Player, PlayerLook, Team, GroundedTracker, camera-relative force-driven Movement.
+  - **View:** orbit camera, input poller, local-player camera hookup.
+  - **Content:**
+    - `PH_PlayerCapsule` (1.66 m × 0.35 m radius).
+    - `Lobby` and `Arena_Graybox` scenes with uneven `PH_` terrain, 8 spawn points, online start UI.
+- Done-when verification: "two clients join a room and move capsules sized to Guy".
+  - **Setup:** main editor plus MPPM virtual Player 2, Lobby scene, Photon cloud, one room.
+  - **Join:** each client saw 2 connected players, itself local and the other remote, on teams 0 and 1 at spawn points 0 and 1, each camera on its own capsule.
+  - **Moving both:** gamepad left-stick input was held on each client in turn (keyboard events can't be injected into an unfocused editor, so the test used a virtual gamepad).
+    - Main client: stick forward at camera yaw −138.9° moved player 0 by (−2.10, −2.41), exactly the camera's forward direction.
+    - Clone: stick right at yaw −27.1° moved player 1 by (2.94, 1.38), along camera-right.
+    - After each move, both clients reported identical positions for both players.
+  - **Earlier single-client run:** forward + run reached the wall and stopped at the wall face minus the capsule radius; braked to zero on release.
+  - **Console:** clean on the clone; one SDK warning on the main editor (known issue 1).
+- Known issues:
+  1. **SDK warning with MPPM:** `QuantumStartUIMppmConnectCommand is being serialized by [SerializeReference], but is missing the [Serializable] attribute`. It comes from the SDK's start UI and appears only when an MPPM clone is joined. The one-line fix is adding `[Serializable]` to that SDK class; not applied, to keep the pinned SDK untouched. Jackson to decide.
+  2. **Guy import test not done:** waiting for the first animated FBX (A-003/A-004). The capsule radius (0.35 m) is a guess until then.
+  3. **Placeholder controls:** default bindings, and the camera has no collision with walls yet. Phase 1 work.
+  4. **Synthetic keyboard input in automated tests:** an unfocused editor drops it. Automated tests use a virtual gamepad instead. Manual play is unaffected.
+- Placeholders still in use:
+  - `PH_PlayerCapsule` (A-003).
+  - `PH_Gray`, `PH_GrayDark`, `PH_Ground`, `PH_Player` materials.
+  - `PH_Terrain` in both scenes (A-008).
+  - Quantum's stock start UI for the menu (A-002).
+- Ready for review: yes
+
 ## 2026-10-28: Phase 0, upgrade and first online movement
 
 - Did:
