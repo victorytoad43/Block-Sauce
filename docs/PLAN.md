@@ -188,6 +188,7 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - Locomotion animation: the walk clip covers slow movement (low stick pressure) and a run clip covers faster movement; the walk may be sped up to fit. The throw clip releases on frame 5 of 7. (Jackson, 2026-10-29.)
 - Stacking, revised after the Phase 2 play-test: no locking. Blocks stay physical and always grabbable; stacked blocks only count for the score (a lone ground block doesn't), and the only physics change is putting counted blocks to sleep for performance. The gamepad Start button starts a match and no longer opens the menu (Escape still does). (Jackson, 2026-10-29.)
 - After Phase 2, work pauses so art can catch up before Phase 3. (Jackson, 2026-10-29.)
+- Git workflow: the agent commits; Jackson pushes `main` to GitHub at milestones. (Jackson, 2026-10-29.)
 - Art delivery: `Assets/Art/_Incoming/` is Jackson's only drop-off, under any file name; the agent handles naming, placement and import settings. (Jackson, 2026-10-29.)
 
 ## Open questions
@@ -195,3 +196,7 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - (Agent: add questions here as they come up; move them to Decisions once Jackson answers.)
 - Settle feel: 3 s to count; a touch at 1 m/s or more restarts a settling block; a block stays stacked within half a block of center on the one below and within 12° of level. Right numbers? (Phase 2 play-test.)
 - Should picking up a block be able to knock your own tower over when the pickup swing passes through it, or should a block's own pickup be ignored? (Phase 2 play-test.)
+- Knockdown (Phase 3): what knocks you down? First guess: a hit worth a speed change of 6 m/s or more (a full-speed throw or jumpshot to the body, a hard swing, a running body check on a staggered player); smaller hits stagger as now.
+- Knockdown (Phase 3): how long are you down, and can you shorten it? First guess: 2.5 s, and each Jump press takes 0.3 s off (Friendslop's "struggle").
+- Knockdown (Phase 3): can players grab and throw a downed body (Friendslop allows it)? If so, it stays down while carried.
+- Knockdown (Phase 3): a short grace after getting up (first guess 1 s) during which you can be pushed or staggered but not knocked down again?

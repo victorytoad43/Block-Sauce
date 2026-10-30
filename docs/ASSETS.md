@@ -23,7 +23,8 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 | A-012 | Guy hold-block pose + throw timing | Phase 1 timings; Phase 4 clip | Start now | Requested | None |
 | A-013 | Block owner tint and team readability | Phase 2 | Needed soon | Requested | Flat owner color on `PH_Block` |
 | A-014 | SFX placeholder list | Phase 6 (temp SFX any time) | Nice to have | Requested | Silent |
-| A-015 | Knockdown + get-up clips (slice of A-004) | Phase 3 | Next phase | Requested | None (ragdoll only) |
+| A-015 | Knockdown + get-up clips (slice of A-004) | Phase 3 | Needed soon | Requested | Snap to standing with a squash-and-stretch pop |
+| A-016 | Knockdown readability (dazed indicator) | Phase 3 (final art Phase 6) | Nice to have | Requested | None |
 
 ## Request format (agent: use this for every new request)
 
@@ -223,15 +224,25 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Priority: Nice to have
 - Purpose: The simulation raises events for jump, grab, drop, throw, block impact (with impact speed) and knockback. The view can play a sound on each as soon as one exists.
 - Spec: WAV 48 kHz mono, short. For each event, one sound or a pointer to a free/CC0 pack you like. Impacts benefit from 2-3 variations, plus a light and a heavy version.
-- Must match: Event names in code: `Jumped`, `Grabbed`, `Dropped`, `Thrown`, `ObjectImpact` (speed), `KnockedBack`. Phase 2 adds `BlockSettleStarted`, `BlockSettleReset`, `BlockCounted` (the count pop), `BlockUncounted`, and `MatchStateChanged` (countdown beeps, round start, win fanfare).
+- Must match: Event names in code: `Jumped`, `Grabbed`, `Dropped`, `Thrown`, `ObjectImpact` (speed), `KnockedBack`. Phase 2 adds `BlockSettleStarted`, `BlockSettleReset`, `BlockCounted` (the count pop), `BlockUncounted`, and `MatchStateChanged` (countdown beeps, round start, win fanfare). Phase 3 adds a knockdown (thud plus a dazed loop while down), ragdoll limb impacts (soft and heavy), and a get-up.
 - Placeholder: Silent
 - Status: Requested
 
 ### A-015: Knockdown + get-up clips
 - Phase / needed by: Phase 3, the get-up after a ragdoll; long lead
-- Priority: Next phase
+- Priority: Needed soon
 - Purpose: The slice of A-004 that Phase 3 needs first. When a knocked-down player recovers, the ragdoll is removed and Guy stands up where his hips came to rest; the view blends from the ragdoll pose into a get-up clip.
 - Spec: two clips, in place: get up from lying face down, and from lying face up. Start each from a relaxed lying pose (it doesn't have to match any particular ragdoll pose; the view blends into frame 0). About 0.6–1.0 s each at game speed. Same export as Guy (`CH_Guy.fbx`, two or more keyframes per action).
 - Must match: the hips end where they started horizontally (no root motion); the last frame matches the idle/stand pose.
-- Placeholder: None (ragdoll pops back to standing)
+- Placeholder: the view snaps Guy back to standing with a short squash-and-stretch pop (Phase 3)
+- Status: Requested
+- Notes (Phase 3 prep): the ragdoll is built from the deform bones already in `CH_Guy.fbx` (hips, chest, head, upper arm, forearm, thigh, shin; hands and feet ride the last segments), so no new rig work is needed. The get-up starts wherever the ragdoll came to rest: the view will blend from the last ragdoll pose into frame 0 over about 0.15 s, so frame 0 should be a relaxed lying pose, not a precise one. Lying face down = chest facing the ground.
+
+### A-016: Knockdown readability (dazed indicator)
+- Phase / needed by: Phase 3 placeholder, final look Phase 6
+- Priority: Nice to have
+- Purpose: Players need to see at a glance who is down and roughly how long they have left, from across the arena and in a pile of bodies and blocks.
+- Spec: a small effect over a downed player's head (circling stars, a swirl, sweat drops, whatever fits Guy). A sketch or reference is enough; the agent builds it. Optionally a way to show time left (shrinking ring, fewer stars).
+- Must match: knockdown lasts a few seconds (first guess 2.5 s, Jackson to confirm); the effect follows the ragdoll's head while down and pops off on get-up.
+- Placeholder: None until Phase 3 (then a plain ring in the player's color)
 - Status: Requested

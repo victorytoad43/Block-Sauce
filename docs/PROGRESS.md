@@ -26,6 +26,49 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## 2026-10-29: Phase 3 prep (plan and asset pass; build starts when Jackson reprompts)
+
+- Jackson moved on from Phase 2 and asked for Phase 3 prep while art catches up. Git workflow from now on: the agent commits; Jackson pushes at milestones.
+
+### Phase 3 plan: Knockdown
+
+Build order:
+1. **Ragdoll tier in the simulation.**
+   - Port Friendslop's `Ragdoll.qtn`, `RagdollSystem` and `Ragdoll.User.cs` as a third control tier after InControl and Staggered.
+   - `Ragdollable` (config) on the player. `RagdollOwner` (timer, body, anchor) is added while down.
+   - Knocking down disables the capsule's body and collider and spawns the ragdoll group in the character's pose with its velocity; the hidden character rides the hips.
+   - Getting up destroys the group and stands the character where the hips lie.
+   - `KnockbackSystem` picks the tier: a speed change below the stagger threshold just pushes, a mid one staggers (as now), and a big one knocks down. All of it stays on the one knockback path. A downed character drops what it holds and can't grab, move or throw.
+2. **Guy's ragdoll.**
+   - Build `CH_Guy_Ragdoll` from the deform skeleton already in `CH_Guy.fbx`, with Quantum's `QuantumRagdoll` component. Its Animator field stays empty and the bones are assigned by hand (Generic rig).
+   - About 11 limbs: hips, chest, head, upper arm and forearm (with the hand), and thigh and shin (with the foot), each side.
+   - Bake it into an entity prototype group. It replaces `PH_RagdollTest`.
+3. **Limbs that sleep.** The Phase 1 stress test showed limbs never sleeping. Investigate in this order: the joint limits and solver settings that keep them twitching, limb damping, and, if still needed, the same trick counted blocks use (put the whole body to sleep once every limb is under the engine's sleep tolerances).
+4. **Limbs vs blocks.** The limbs are ordinary bodies, so they already topple stacks and restart settling blocks through the Phase 2 code. Check this rather than build it.
+5. **Get-up.**
+   - Stand the character at the hips, facing the hips' forward direction on the ground plane.
+   - Push the standing capsule out of any block it would overlap.
+   - Add a short grace time after getting up, during which a hit can't knock the character down again (pending Jackson's answer).
+   - Until the A-015 clips land, the view snaps Guy back to standing with a squash-and-stretch pop.
+6. **View.**
+   - While down, Guy's bones follow the simulated limbs (Quantum's ragdoll limb views), smoothed so remote ragdolls don't snap when corrected.
+   - The camera follows the hips.
+   - On get-up, the view blends from the last ragdoll pose into the get-up clip.
+7. **Falling out.** Port Friendslop's `FallSystem` (characters return to their last grounded position, blocks to a safe spot) through a mode hook, since ragdolls can be launched over walls.
+8. **Profile.**
+   - Knock all 8 players down at once beside 24 blocks with 8 online clients (editor plus 7 development builds, as in Phase 1).
+   - Record the cost per frame and the rollback cost.
+   - Levers, in order: sleep, a shorter knockdown, fewer limbs, prediction culling around the local player.
+
+Risks:
+- Rollback cost: the Phase 1 stress test measured 3–4.4 ms per frame in the editor with 8 ragdolls that never slept.
+- Joint stability with fixed-point physics.
+- Get-up placement inside geometry.
+- Remote ragdolls snapping on corrections.
+- Knockdown thresholds are a feel call for Jackson (questions in PLAN.md).
+
+Art: Phase 3 isn't blocked. The skeleton it needs is already delivered; only the get-up clips (A-015) are new art, with a placeholder pop until they arrive.
+
 ## 2026-10-29: Phase 2 revision after Jackson's play-test (stacking replaces locking)
 
 - Jackson's play-test feedback:
