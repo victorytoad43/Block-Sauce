@@ -1,4 +1,4 @@
-using Quantum;
+﻿using Quantum;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -38,6 +38,12 @@ namespace BlockSauce
             if (match.State == MatchState.Playing && Keyboard.current != null && Keyboard.current.f9Key.wasPressedThisFrame)
             {
                 game.AddCommand(new CommandDevStackTower());
+            }
+
+            // Dev shortcut: knock yourself down.
+            if (Keyboard.current != null && Keyboard.current.f10Key.wasPressedThisFrame)
+            {
+                game.AddCommand(new CommandDevKnockdown());
             }
 #endif
         }

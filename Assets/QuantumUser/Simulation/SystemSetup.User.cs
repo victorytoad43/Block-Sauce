@@ -1,4 +1,4 @@
-namespace Quantum
+﻿namespace Quantum
 {
     using System;
     using System.Collections.Generic;
@@ -23,6 +23,8 @@ namespace Quantum
             systems.Add(new KnockbackSystem());
             systems.Add(new ObjectImpactSystem());
             systems.Add(new BlockStackSystem());
+            systems.Add(new RagdollSystem());
+            systems.Add(new FallSystem());
 
             // Test-only: does nothing unless a scene contains a RagdollStressTest entity.
             systems.Add(new RagdollStressTestSystem());

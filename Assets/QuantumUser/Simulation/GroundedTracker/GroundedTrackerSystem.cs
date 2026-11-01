@@ -1,11 +1,11 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
 
 namespace Quantum
 {
     /// <summary>
     /// Decides whether an entity stands on ground, and banks the last safe spot for it to respawn on after a fall.
     /// Grounding comes from physics contacts rather than rays, so it holds on top of dynamic blocks and across seams.
-    /// Ported from Friendslop's GroundedTrackerSystem; the ragdoll check returns with knockdown in Phase 3.
+    /// Ported from Friendslop's GroundedTrackerSystem.
     /// </summary>
     public unsafe class GroundedTrackerSystem : SystemMainThreadFilter<GroundedTrackerSystem.Filter>,
         ISignalOnCollision3D
@@ -34,6 +34,10 @@ namespace Quantum
         /// </summary>
         public override void Update(Frame frame, ref Filter filter)
         {
+            // A downed character's hips carry its tracking while it is down.
+            if (frame.Has<RagdollOwner>(filter.Entity))
+                return;
+
             GroundedTracker* tracker = filter.GroundedTracker;
             GroundedTrackerConfig config = frame.FindAsset(tracker->Config);
 

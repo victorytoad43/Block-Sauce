@@ -1,4 +1,4 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
 using Quantum.Collections;
 
 namespace Quantum
@@ -144,11 +144,12 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Moves a player, standing still and empty-handed, to their spawn point pushed out from the center by
+        /// Moves a player, standing (got up if down), still and empty-handed, to their spawn point pushed out from the center by
         /// <paramref name="radiusScale"/>, facing the way the spawn faces.
         /// </summary>
         private static void MovePlayerToSpawn(Frame frame, EntityRef entity, PlayerRef player, Transform3D* transform, FP radiusScale)
         {
+            frame.Signals.SetRagdoll(entity, false);
             frame.Signals.DropHeld(entity);
 
             if (PlayerSystem.TryGetSpawn(frame, player, out Transform3D spawn) == false)

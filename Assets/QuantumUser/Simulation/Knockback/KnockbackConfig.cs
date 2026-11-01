@@ -1,4 +1,4 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
 using UnityEngine;
 
 namespace Quantum
@@ -46,8 +46,19 @@ namespace Quantum
         /// </summary>
         public FP MinStaggerSeconds = FP._0_25;
         /// <summary>
-        /// The longest stagger, in seconds. Knockdowns past this come in Phase 3.
+        /// The longest stagger, in seconds.
         /// </summary>
         public FP MaxStaggerSeconds = (FP)12 / 10;
+
+        /// <summary>
+        /// The speed change, in m/s, from which a hit knocks the character down into a ragdoll instead of staggering it:
+        /// a full-speed throw or jumpshot to the body, a hard swing, a fast-moving block.
+        /// </summary>
+        [Header("Knockdown")]
+        public FP KnockdownSpeedChange = 6;
+        /// <summary>
+        /// A running body check on a character that is already staggered knocks it down, whatever the hit's size.
+        /// </summary>
+        public bool BodyCheckKnocksDownStaggered = true;
     }
 }

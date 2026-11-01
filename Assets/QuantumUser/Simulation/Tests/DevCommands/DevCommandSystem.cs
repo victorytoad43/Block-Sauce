@@ -1,4 +1,4 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
 
 namespace Quantum
 {
@@ -22,6 +22,28 @@ namespace Quantum
     }
 
     /// <summary>
+    /// Test-only: knocks a player down with a hit from behind just over the knockdown threshold, through the normal
+    /// knockback path. Works in the lobby and in a match. Only debug builds act on it.
+    /// </summary>
+    public class CommandDevKnockdown : DeterministicCommand
+    {
+        /// <summary>
+        /// Whom to knock down, as a player index; -1 for the sender, -2 for everyone.
+        /// </summary>
+        public int TargetPlayer = -1;
+        /// <summary>
+        /// Sends the body flying at the target's own best tower, if it has one, instead of straight ahead.
+        /// </summary>
+        public bool TowardTower;
+
+        public override void Serialize(BitStream stream)
+        {
+            stream.Serialize(ref TargetPlayer);
+            stream.Serialize(ref TowardTower);
+        }
+    }
+
+    /// <summary>
     /// Test-only: runs dev commands in debug builds. Does nothing in release builds.
     /// </summary>
     public unsafe class DevCommandSystem : SystemMainThread
@@ -29,6 +51,15 @@ namespace Quantum
         public override void Update(Frame frame)
         {
 #if DEBUG
+            for (int player = 0; player < frame.MaxPlayerCount; player++)
+            {
+                foreach (CommandDevKnockdown command in frame.GetPlayerCommands<CommandDevKnockdown>(player))
+                {
+                    KnockDown(frame, command.TargetPlayer >= 0 ? (PlayerRef)command.TargetPlayer : (PlayerRef)player,
+                        command.TargetPlayer == -2, command.TowardTower);
+                }
+            }
+
             if (frame.TryGetSingleton(out Match match) == false || match.State != MatchState.Playing)
                 return;
 
@@ -42,6 +73,31 @@ namespace Quantum
                 }
             }
 #endif
+        }
+
+        private static void KnockDown(Frame frame, PlayerRef target, bool everyone, bool towardTower)
+        {
+            var players = frame.Filter<Player, Transform3D, PhysicsBody3D, Knockbackable>();
+            while (players.NextUnsafe(out EntityRef entity, out Player* player, out Transform3D* transform,
+                       out PhysicsBody3D* body, out Knockbackable* knockbackable))
+            {
+                if (everyone == false && player->Ref != target)
+                    continue;
+
+                KnockbackConfig config = frame.FindAsset(knockbackable->Config);
+                FPVector3 flat = transform->Rotation * FPVector3.Forward;
+                EntityRef tower = towardTower ? BlockTower.GetBestBase(frame, player->Ref) : EntityRef.None;
+                if (tower != EntityRef.None)
+                {
+                    flat = frame.Get<Transform3D>(tower).Position - transform->Position;
+                    flat.Y = FP._0;
+                    flat = flat.Normalized;
+                }
+
+                FPVector3 direction = flat + FPVector3.Up * config.UpBias;
+                FP speedChange = config.KnockdownSpeedChange + FP._1;
+                frame.Signals.ApplyKnockback(entity, direction.Normalized * speedChange * body->Mass, EntityRef.None);
+            }
         }
 
         private static void StackNextBlock(Frame frame, GameModeConfig mode, PlayerRef player, PlayerRef tower)

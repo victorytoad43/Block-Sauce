@@ -134,11 +134,11 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - **Done when:** a gray-box match runs from lobby to a winner and back to the lobby. **Verified 2026-10-29 with 2 online clients (see the Phase 2 report in PROGRESS.md); waiting on Jackson's play-test.**
 
 ### Phase 3: Knockdown
-- [ ] Knockdown thresholds and staggered tier tuning
-- [ ] Deterministic ragdoll built with `QuantumRagdoll` from Guy's bones (about 11 limbs); limbs collide with and topple blocks
-- [ ] Get-up: ragdoll destroyed, character stands at the hips; view blends to a get-up clip
-- [ ] Profile 8 players down at once beside 24 blocks; trim limbs only if needed
-- **Done when:** a tumbling body topples a tower, and 8 players down at once holds frame rate online.
+- [x] Knockdown thresholds and staggered tier tuning (first numbers per Jackson; tuning stays open)
+- [x] Deterministic ragdoll built with `QuantumRagdoll` from Guy's bones (11 limbs); limbs collide with and topple blocks
+- [x] Get-up: ragdoll destroyed, character stands at the hips; view blends to a get-up clip
+- [x] Profile 8 players down at once beside 24 blocks; trim limbs only if needed (not needed)
+- **Done when:** a tumbling body topples a tower, and 8 players down at once holds frame rate online. **Verified 2026-10-31 (see the Phase 3 report in PROGRESS.md); waiting on Jackson's play-test.**
 
 ### Phase 4: Character
 - [ ] Integrate Guy's full clip set (deform skeleton exported from Jackson's control rig, Generic)
@@ -190,13 +190,13 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - After Phase 2, work pauses so art can catch up before Phase 3. (Jackson, 2026-10-29.)
 - Git workflow: the agent commits; Jackson pushes `main` to GitHub at milestones. (Jackson, 2026-10-29.)
 - Art delivery: `Assets/Art/_Incoming/` is Jackson's only drop-off, under any file name; the agent handles naming, placement and import settings. (Jackson, 2026-10-29.)
+- Knockdown: a big hit knocks you down (a full-speed throw or jumpshot to the body, a hard swing, a running body check on someone already staggered); smaller hits stagger. Fast-moving blocks in general can stagger or knock down too. (Jackson, 2026-10-31.)
+- Knockdown duration: 2.5 s, each Jump press takes 0.3 s off. The numbers stay open for tuning and live on `PlayerRagdollConfig`; the knockdown threshold (6 m/s) lives on `PlayerKnockbackConfig`. (Jackson, 2026-10-31.)
+- Grabbing downed bodies: an editor toggle (Allow Grabbing Bodies on `PlayerRagdollConfig`), so both ways can be tried; on by default. (Jackson, 2026-10-31.)
+- No knockdown grace after getting up: you can be knocked down again straight away. (Jackson, 2026-10-31.)
 
 ## Open questions
 
 - (Agent: add questions here as they come up; move them to Decisions once Jackson answers.)
 - Settle feel: 3 s to count; a touch at 1 m/s or more restarts a settling block; a block stays stacked within half a block of center on the one below and within 12° of level. Right numbers? (Phase 2 play-test.)
 - Should picking up a block be able to knock your own tower over when the pickup swing passes through it, or should a block's own pickup be ignored? (Phase 2 play-test.)
-- Knockdown (Phase 3): what knocks you down? First guess: a hit worth a speed change of 6 m/s or more (a full-speed throw or jumpshot to the body, a hard swing, a running body check on a staggered player); smaller hits stagger as now.
-- Knockdown (Phase 3): how long are you down, and can you shorten it? First guess: 2.5 s, and each Jump press takes 0.3 s off (Friendslop's "struggle").
-- Knockdown (Phase 3): can players grab and throw a downed body (Friendslop allows it)? If so, it stays down while carried.
-- Knockdown (Phase 3): a short grace after getting up (first guess 1 s) during which you can be pushed or staggered but not knocked down again?

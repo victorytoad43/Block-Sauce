@@ -126,6 +126,44 @@ namespace Quantum.Prototypes.Unity {
       return result;
     }
   }
+  [System.SerializableAttribute()]
+  public unsafe partial class RagdollLimbPrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.RagdollLimbPrototype> {
+    [HideInInspector()]
+    public Quantum.QuantumEntityPrototype Owner;
+    partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.RagdollLimbPrototype prototype);
+    public override Quantum.Prototypes.RagdollLimbPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
+      var result = new Quantum.Prototypes.RagdollLimbPrototype();
+      converter.Convert(this.Owner, out result.Owner);
+      ConvertUser(converter, ref result);
+      return result;
+    }
+  }
+  [System.SerializableAttribute()]
+  public unsafe partial class RagdollOwnerPrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.RagdollOwnerPrototype> {
+    public Quantum.Prototypes.FrameTimerPrototype Timer;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype StruggleCooldownTimer;
+    [HideInInspector()]
+    public Quantum.QuantumEntityPrototype Body;
+    [HideInInspector()]
+    public Quantum.QuantumEntityPrototype Anchor;
+    [HideInInspector()]
+    public Int32 StillTicks;
+    [HideInInspector()]
+    public QBoolean Asleep;
+    partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.RagdollOwnerPrototype prototype);
+    public override Quantum.Prototypes.RagdollOwnerPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
+      var result = new Quantum.Prototypes.RagdollOwnerPrototype();
+      converter.Convert(this.Timer, out result.Timer);
+      converter.Convert(this.StruggleCooldownTimer, out result.StruggleCooldownTimer);
+      converter.Convert(this.Body, out result.Body);
+      converter.Convert(this.Anchor, out result.Anchor);
+      converter.Convert(this.StillTicks, out result.StillTicks);
+      converter.Convert(this.Asleep, out result.Asleep);
+      ConvertUser(converter, ref result);
+      return result;
+    }
+  }
 }
 #pragma warning restore 0109
 #pragma warning restore 1591

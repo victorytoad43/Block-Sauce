@@ -1,4 +1,4 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
 using Quantum.Physics3D;
 
 namespace Quantum
@@ -49,6 +49,9 @@ namespace Quantum
         /// </summary>
         public override void Update(Frame frame, ref Filter filter)
         {
+            if (frame.Has<RagdollOwner>(filter.Entity))
+                return;
+
             Input* input = &filter.Player->Input;
             GrabConfig config = frame.FindAsset(filter.Grabber->Config);
 

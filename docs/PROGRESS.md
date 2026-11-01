@@ -26,6 +26,53 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## Phase 3 report: Knockdown
+- Built:
+  - **Knockdown tier** on the one knockback path (`KnockbackSystem`): a hit worth a 6 m/s speed change or more knocks the character down (a full-speed throw or jumpshot, a hard swing, any fast block); a running body check on someone already staggered knocks them down whatever its size; smaller hits push or stagger as before. Thresholds are on `PlayerKnockbackConfig`.
+  - **Ragdoll swap** (`Ragdoll/RagdollSystem`, adapted from Friendslop): the capsule's body and collider switch off, it drops what it holds, and Guy's 11-limb ragdoll spawns in its pose moving at its velocity (plus a little tumble). Movement, grabbing and grounding skip a downed character; the hidden character rides the hips, so the camera follows them. Down for 2.5 s; each Jump press takes 0.3 s off (0.1 s cooldown between presses). A still body puts its limbs to sleep.
+  - **Carrying bodies**: limbs are grabbable when **Allow Grabbing Bodies** is ticked on `PlayerRagdollConfig` (on by default; untick to try it the other way). A carried body stays down, and gets up 1 s after it's let go.
+  - **Get-up**: the character stands facing the way the body lay, on the ground under the hips (0.37 m ahead of them, to match the clips). If a block or wall is in the way it takes the nearest clear spot on rings 0.5, 1 and 1.5 m out. No grace period, per Jackson.
+  - **Guy's ragdoll** (`CH_Guy_Ragdoll`, built by **Block Sauce › Build Guy Ragdoll**): helper transforms on Guy's rest-pose joints, baked with `QuantumRagdoll` (Animator field empty, bones by hand), with collision shapes sized to his mesh (a box each for hips and chest, a sphere head, capsule arms and legs). 8 kg in total, after 5 kg mostly shoved towers instead of toppling them.
+  - **View**: `RagdollPoseView` turns Guy's own bones to the limbs while he's down (the Animator keeps running underneath for the in-between bones), then plays `GetUpFaceDown` or `GetUpFaceUp` (chosen by which way the chest faces) and blends in from the last ragdoll pose over 0.15 s. `DazedView` shows `FX_Daze` over the head in the player's color, shrinking as time runs out. The walk/run animator now has a Run state (A-004 re-export).
+  - **Falling out** (`Fall/FallSystem`, ported from Friendslop): a character returns to its last safe ground, a downed body comes back whole, and a fallen block drops back in over its owner's spawn point.
+  - **Dev tools**, editor and development builds only: F10 knocks you down; `CommandDevKnockdown` can also target a player, everyone, or aim at your own tower.
+  - **Art integrated**: palette (A-001), draft block mesh (A-005), Guy re-export with Run, ThrowPose and both get-ups (A-004, A-015), dazed effect (A-016).
+- Done-when verification:
+  - **"A tumbling body topples a tower":** single client, online. The dev knockdown launched the player into their own 3-block tower 3 times with the 8 kg body; the tower toppled every time (top blocks ended on the ground 1–2 m away). In the mid-match run all three blocks went from counted or settling to Loose. Earlier runs at 5 kg: a 2-block tower was shoved 17 cm and a 3-block tower 27 cm without falling; both times the hit restarted their settling, as it should.
+  - **"8 players down at once holds frame rate online":** the editor plus 7 development builds (autoplay bots) in one room, ping 30–50 ms, all on this one PC. A match was started (24 blocks), then all 8 players were knocked down at once (physics bodies went from 32 to 120: 8 bodies × 11 limbs). Two runs:
+    - The simulation held 64 Hz: 179 verified frames in 2.8 s.
+    - The editor's frame rate went from 100–124 fps to 73–76 fps while everyone was down; the worst frame was 38–48 ms.
+    - Simulation cost per Unity frame (prediction plus rollback) went from 2–3 ms to about 7 ms on average, peaking at 30–41 ms on single frames. Editor (Mono) numbers on a machine running 8 clients, so a real client will do better.
+    - No limb trimming or prediction culling was needed. The limbs don't get to sleep within a 2.5 s knockdown (they're still tumbling), so the short knockdown is what keeps the cost down.
+    - No errors in the editor console or in any build log (one harmless network-cache message in one build).
+  - **Also checked:** knockdown and get-up agree on the verified frame (not just the prediction); the get-up stands Guy back in a clean pose; the dazed indicator shows and pops off.
+- Known issues:
+  1. **A block was found far out of the arena** (fallen through the world) during the 8-player run, most likely flung by a ragdoll spawning in T-pose half inside it. Blocks that fall out now come back, so a match can't become unwinnable. If launches like that show up in play, the fix is to spawn the ragdoll in a tucked pose.
+  2. **Unconfirmed:** early in testing, a dev knockdown once looked like it showed locally and was then rolled back. It didn't happen again once the verified frame was logged too. Dev command only; if F10 ever seems to do nothing, press it again.
+  3. **Idle** is the walk's first frame until a real idle clip lands (A-004).
+  4. **Knocking down mid-air or on top of a pile:** the get-up looks for ground up to 3 m under the hips; if there's none (body still airborne when the time runs out), Guy stands where the hips are and falls.
+  5. Carried over: the physics capsule (0.35 m) is narrower than Guy (about 0.40 m), Phase 4; the start menu's white banner box; don't save the Lobby scene after a play session.
+- Placeholders still in use:
+  - `PH_PlayerCapsule` (Guy on top; A-003).
+  - `PH_Block` prefab and material (mesh is now `BL_Block`; A-005 final, A-013).
+  - `PH_` terrain (A-008).
+  - `PH_LockDither` shader (A-007) and the IMGUI HUD (A-006).
+  - `PH_RagdollTest`, now only used by the stress-test scene.
+  - The stock Quantum start UI (A-002).
+- Ready for review: yes
+
+## 2026-10-31: Phase 3, build
+- Did: integrated the 2026-10-31 deliveries (palette, block, Guy re-export, dazed effect), built the knockdown (see the Phase 3 report above), verified both done-when criteria.
+- Decided:
+  - Guy's own model is posed from the ragdoll rather than swapping in a second model (Friendslop's way), so the get-up can blend from the exact last pose.
+  - The knockdown impulse goes straight into the body's velocity before the swap, because Quantum applies impulses on the next physics step, after the body is already switched off.
+  - Grabbing bodies is a toggle on the ragdoll config, not the mode config: it belongs with the other knockdown numbers.
+  - The ragdoll is 8 kg (see the report). The rest pose comes from the skin's bind poses, because the FBX's default pose can be any animation frame.
+  - The get-up blend is in local space (hips in world space): the Animator never writes the `root` bone (Optimal compression strips curves that never change), and blending it in world space left it drifting.
+- Assets: A-001, A-005 (draft), A-015, A-016 integrated; A-004 updated (Run, ThrowPose; idle still needed).
+- Blocked / questions for Jackson: none blocking. Play-test feel: knockdown threshold, 2.5 s down, the 0.3 s per Jump struggle, bodies carryable or not.
+- Next: Jackson's play-test and review of Phase 3.
+
 ## 2026-10-29: Phase 3 prep (plan and asset pass; build starts when Jackson reprompts)
 
 - Jackson moved on from Phase 2 and asked for Phase 3 prep while art catches up. Git workflow from now on: the agent commits; Jackson pushes at milestones.

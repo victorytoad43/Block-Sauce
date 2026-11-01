@@ -14,7 +14,7 @@ namespace BlockSauce.Editor
     {
         private const string ArtFolder = "Assets/Art/";
         private const float ArtScaleFactor = 0.4f;
-        private static readonly string[] LoopingClipWords = { "Idle", "Walk", "Run", "Loop", "Pose", "Hold" };
+        private static readonly string[] LoopingClipWords = { "Idle", "Walk", "Run", "Loop", "Pose", "Hold", "Spin" };
 
         private void OnPreprocessModel()
         {
@@ -50,7 +50,7 @@ namespace BlockSauce.Editor
             foreach (ModelImporterClipAnimation clip in clips)
             {
                 clip.name = CleanClipName(clip.takeName);
-                clip.loopTime = LoopingClipWords.Any(word => clip.name.Contains(word));
+                clip.loopTime = LoopingClipWords.Any(word => clip.name.IndexOf(word, System.StringComparison.OrdinalIgnoreCase) >= 0);
             }
 
             importer.clipAnimations = clips;

@@ -321,6 +321,48 @@ namespace Quantum.Prototypes {
     }
   }
   [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.RagdollLimb))]
+  public unsafe class RagdollLimbPrototype : ComponentPrototype<Quantum.RagdollLimb> {
+    [HideInInspector()]
+    public MapEntityId Owner;
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.RagdollLimb component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.RagdollLimb result, in PrototypeMaterializationContext context = default) {
+      PrototypeValidator.FindMapEntity(this.Owner, in context, out result.Owner);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.RagdollOwner))]
+  public unsafe class RagdollOwnerPrototype : ComponentPrototype<Quantum.RagdollOwner> {
+    public Quantum.Prototypes.FrameTimerPrototype Timer;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype StruggleCooldownTimer;
+    [HideInInspector()]
+    public MapEntityId Body;
+    [HideInInspector()]
+    public MapEntityId Anchor;
+    [HideInInspector()]
+    public Int32 StillTicks;
+    [HideInInspector()]
+    public QBoolean Asleep;
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.RagdollOwner component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.RagdollOwner result, in PrototypeMaterializationContext context = default) {
+      this.Timer.Materialize(frame, ref result.Timer, in context);
+      this.StruggleCooldownTimer.Materialize(frame, ref result.StruggleCooldownTimer, in context);
+      PrototypeValidator.FindMapEntity(this.Body, in context, out result.Body);
+      PrototypeValidator.FindMapEntity(this.Anchor, in context, out result.Anchor);
+      result.StillTicks = this.StillTicks;
+      result.Asleep = this.Asleep;
+    }
+  }
+  [System.SerializableAttribute()]
   [Quantum.Prototypes.Prototype(typeof(Quantum.RagdollStressTest))]
   public unsafe partial class RagdollStressTestPrototype : ComponentPrototype<Quantum.RagdollStressTest> {
     public AssetRef<EntityPrototype> Ragdoll;
@@ -347,6 +389,21 @@ namespace Quantum.Prototypes {
       result.Jitter = this.Jitter;
       result.Spin = this.Spin;
       result.Spawned = this.Spawned;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.Ragdollable))]
+  public unsafe partial class RagdollablePrototype : ComponentPrototype<Quantum.Ragdollable> {
+    public AssetRef<RagdollConfig> Config;
+    partial void MaterializeUser(Frame frame, ref Quantum.Ragdollable result, in PrototypeMaterializationContext context);
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.Ragdollable component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.Ragdollable result, in PrototypeMaterializationContext context = default) {
+      result.Config = this.Config;
       MaterializeUser(frame, ref result, in context);
     }
   }

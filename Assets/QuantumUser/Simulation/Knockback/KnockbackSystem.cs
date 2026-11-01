@@ -1,11 +1,11 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
 
 namespace Quantum
 {
     /// <summary>
     /// The one path every hit on a character goes through. Anything that knocks a character (a thrown or swung block,
     /// a body check, later explosions and sauces) raises ApplyKnockback; this system applies the impulse and decides
-    /// whether the hit staggers; a staggered character drops what it holds. Collisions between a character and a
+    /// whether the hit pushes, staggers or knocks the character down; staggered or downed, it drops what it holds. Collisions between a character and a
     /// moving body are turned into knockback here too.
     /// </summary>
     public unsafe class KnockbackSystem : SystemSignalsOnly, ISignalApplyKnockback, ISignalOnCollisionEnter3D
@@ -21,13 +21,30 @@ namespace Quantum
             if (frame.Unsafe.TryGetPointer(target, out Knockbackable* knockbackable) == false)
                 return;
 
+            if (frame.Has<RagdollOwner>(target))
+                return;
+
             KnockbackConfig config = frame.FindAsset(knockbackable->Config);
+            bool wasStaggered = frame.TryGet(target, out MovementData movement) && movement.Tier == ControlTier.Staggered;
+
+            FP speedChange = impulse.Magnitude / body->Mass;
+            bool staggered = speedChange >= config.StaggerSpeedChange;
+            bool knockedDown = speedChange >= config.KnockdownSpeedChange
+                || (config.BodyCheckKnocksDownStaggered && wasStaggered && frame.Has<Player>(source));
+
+            if (knockedDown && frame.Has<Ragdollable>(target))
+            {
+                // The ragdoll spawns moving at the body's velocity, so the hit goes straight into the velocity rather
+                // than through an impulse the solver would only apply on the next step. Downed, it drops what it holds.
+                body->Velocity += impulse / body->Mass;
+                frame.Events.KnockedBack(target, source, impulse, true);
+                frame.Signals.SetRagdoll(target, true);
+                return;
+            }
 
             body->WakeUp();
             body->AddLinearImpulse(impulse);
 
-            FP speedChange = impulse.Magnitude / body->Mass;
-            bool staggered = speedChange >= config.StaggerSpeedChange;
             if (staggered)
             {
                 FP seconds = FPMath.Clamp(speedChange * config.StaggerSecondsPerSpeed,

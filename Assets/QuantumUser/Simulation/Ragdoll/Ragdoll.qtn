@@ -1,0 +1,33 @@
+component Ragdollable
+{
+    asset_ref<RagdollConfig> Config;
+}
+
+component RagdollOwner
+{
+    FrameTimer Timer;
+    [HideInInspector] FrameTimer StruggleCooldownTimer;
+    [HideInInspector] EntityRef Body;
+    [HideInInspector] EntityRef Anchor;
+    [HideInInspector] int StillTicks;
+    [HideInInspector] bool Asleep;
+}
+
+component RagdollLimb
+{
+    [HideInInspector] EntityRef Owner;
+}
+
+signal SetRagdoll(EntityRef entity, QBoolean active);
+
+event RagdollChanged
+{
+    EntityRef Entity;
+    EntityRef Body;
+    bool Active;
+}
+
+event Struggled
+{
+    EntityRef Entity;
+}

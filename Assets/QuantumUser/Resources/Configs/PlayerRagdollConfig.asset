@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4329691e7911dbc4c8e40b1cf9f8396a, type: 3}
+  m_Name: PlayerRagdollConfig
+  m_EditorClassIdentifier: Quantum.Simulation::Quantum.RagdollConfig
+  Identifier:
+    Path: QuantumUser/Resources/Configs/PlayerRagdollConfig
+    Guid:
+      Value: 467257471658821914
+  RagdollPrototype:
+    Id:
+      Value: 1492320205666958197
+  SpinImpulse:
+    RawValue: 262144
+  Duration:
+    RawValue: 163840
+  StruggleRecovery:
+    RawValue: 19660
+  StruggleCooldown:
+    RawValue: 6553
+  MinStruggleRemainder:
+    RawValue: 6553
+  AllowGrabbingBodies: 1
+  CarriedReleaseDelay:
+    RawValue: 65536
+  RestSpeed:
+    RawValue: 9830
+  RestAngularSpeed:
+    RawValue: 32768
+  RestSeconds:
+    RawValue: 16384
+  GroundProbeDistance:
+    RawValue: 196608
+  ClearSpotRadii:
+  - RawValue: 32768
+  - RawValue: 65536
+  - RawValue: 98304
+  UprightFreeze: 5

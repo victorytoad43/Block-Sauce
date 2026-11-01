@@ -1,0 +1,32 @@
+- CSV
+
+f94144,f9844a,f9c74f,90be6d,43aa8b,4d908e,577590,277da1
+
+- With #
+
+#f94144, #f9844a, #f9c74f, #90be6d, #43aa8b, #4d908e, #577590, #277da1
+
+- Array
+
+["f94144", "f9844a","f9c74f","90be6d","43aa8b","4d908e","577590","277da1"]
+
+- Object
+
+{"Strawberry Red":"f94144", "Coral Glow":"f9844a","Tuscan Sun":"f9c74f","Willow Green":"90be6d","Seagrass":"43aa8b","Dark Cyan":"4d908e","Blue Slate":"577590","Cerulean":"277da1"}
+
+- Extended Array
+
+[{"name":"Strawberry Red","hex":"f94144","rgb":[249,65,68],"cmyk":[0,74,73,2],"hsb":[359,74,98],"hsl":[359,94,62],"lab":[56,69,41]},{"name":"Coral Glow","hex":"f9844a","rgb":[249,132,74],"cmyk":[0,47,70,2],"hsb":[20,70,98],"hsl":[20,94,63],"lab":[67,40,50]},{"name":"Tuscan Sun","hex":"f9c74f","rgb":[249,199,79],"cmyk":[0,20,68,2],"hsb":[42,68,98],"hsl":[42,93,64],"lab":[83,6,64]},{"name":"Willow Green","hex":"90be6d","rgb":[144,190,109],"cmyk":[24,0,43,25],"hsb":[94,43,75],"hsl":[94,38,59],"lab":[72,-30,36]},{"name":"Seagrass","hex":"43aa8b","rgb":[67,170,139],"cmyk":[61,0,18,33],"hsb":[162,61,67],"hsl":[162,43,46],"lab":[63,-37,7]},{"name":"Dark Cyan","hex":"4d908e","rgb":[77,144,142],"cmyk":[47,0,1,44],"hsb":[178,47,56],"hsl":[178,30,43],"lab":[56,-22,-6]},{"name":"Blue Slate","hex":"577590","rgb":[87,117,144],"cmyk":[40,19,0,44],"hsb":[208,40,56],"hsl":[208,25,45],"lab":[48,-4,-18]},{"name":"Cerulean","hex":"277da1","rgb":[39,125,161],"cmyk":[76,22,0,37],"hsb":[198,76,63],"hsl":[198,61,39],"lab":[49,-13,-27]}]
+
+- XML
+
+<palette>
+  <color name="Strawberry Red" hex="f94144" r="249" g="65" b="68" />
+  <color name="Coral Glow" hex="f9844a" r="249" g="132" b="74" />
+  <color name="Tuscan Sun" hex="f9c74f" r="249" g="199" b="79" />
+  <color name="Willow Green" hex="90be6d" r="144" g="190" b="109" />
+  <color name="Seagrass" hex="43aa8b" r="67" g="170" b="139" />
+  <color name="Dark Cyan" hex="4d908e" r="77" g="144" b="142" />
+  <color name="Blue Slate" hex="577590" r="87" g="117" b="144" />
+  <color name="Cerulean" hex="277da1" r="39" g="125" b="161" />
+</palette>

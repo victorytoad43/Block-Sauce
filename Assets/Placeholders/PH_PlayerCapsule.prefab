@@ -112,6 +112,9 @@ GameObject:
   - component: {fileID: 1127897408115431833}
   - component: {fileID: 5601955013440887320}
   - component: {fileID: 5824487416855064166}
+  - component: {fileID: 2211089434276030069}
+  - component: {fileID: 8470999871064724580}
+  - component: {fileID: 6414982322801283057}
   m_Layer: 0
   m_Name: PH_PlayerCapsule
   m_TagString: Untagged
@@ -615,8 +618,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.CharacterAnimationView
   _animator: {fileID: 6532893055267455855}
-  _walkClipSpeed: 0.3
+  _walkClipSpeed: 1
   _maxWalkRate: 4
+  _runClipSpeed: 3.2
+  _runRateRange: {x: 0.8, y: 2}
 --- !u!114 &5824487416855064166
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -632,6 +637,57 @@ MonoBehaviour:
   _palette: {fileID: 11400000, guid: 6417543b1dfd5b248be0190ca041e87b, type: 2}
   _renderers:
   - {fileID: 8594539242631816414}
+--- !u!114 &2211089434276030069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4830101896938081584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b13124e6e16fd534381619c13dcc9422, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QPrototypeRagdollable
+  Prototype:
+    Config:
+      Id:
+        Value: 467257471658821914
+--- !u!114 &8470999871064724580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4830101896938081584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 840ce7c9f16c16d45a629cc07a9b48a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.RagdollPoseView
+  _animator: {fileID: 6532893055267455855}
+  _ragdollPrefab: {fileID: 4541002924606234275, guid: 04995299bcd1d2c48877f97c9b2aad4d, type: 3}
+  _getUpBlendSeconds: 0.15
+--- !u!114 &6414982322801283057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4830101896938081584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2bf5eeee4182b6418ca2ee3d1bceab8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.DazedView
+  _pose: {fileID: 8470999871064724580}
+  _effectPrefab: {fileID: 919132149155446097, guid: 2bd93317813511846bf6d2aff5b4d379, type: 3}
+  _palette: {fileID: 11400000, guid: 6417543b1dfd5b248be0190ca041e87b, type: 2}
+  _heightAboveNeck: 0.6
+  _spinSpeed: 360
+  _maxScale: 2.5
+  _minScale: 0.8
+  _popSeconds: 0.12
 --- !u!1 &6939438412846394903
 GameObject:
   m_ObjectHideFlags: 0

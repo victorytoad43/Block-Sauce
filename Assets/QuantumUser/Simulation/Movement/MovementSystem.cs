@@ -1,4 +1,4 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
 using Quantum.Physics3D;
 
 namespace Quantum
@@ -53,6 +53,10 @@ namespace Quantum
         /// </summary>
         public override void Update(Frame frame, ref Filter filter)
         {
+            // Knocked down, the ragdoll is the body; the character waits, hidden, until it gets up.
+            if (frame.Has<RagdollOwner>(filter.Entity))
+                return;
+
             MovementConfig config = frame.FindAsset(filter.MovementData->Config);
             MovementData* data = filter.MovementData;
             bool grounded = filter.GroundedTracker->IsGrounded;

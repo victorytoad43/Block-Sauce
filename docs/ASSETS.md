@@ -9,11 +9,11 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 
 | ID | Asset | Needed by | Priority | Status | Placeholder in use |
 |---|---|---|---|---|---|
-| A-001 | Player color palette (8 colors) | Phase 2 | Needed soon | Requested | `PH_PlayerColors` |
+| A-001 | Player color palette (8 colors) | Phase 2 | Needed soon | Integrated | `PH_PlayerColors` (now holds the delivered colors) |
 | A-002 | Lobby + main menu UI mock-ups | Phase 1 | Next phase | Requested | Default UI |
 | A-003 | Guy character model + rig | Phase 0 (import test) | Needed soon | Integrated | Guy on `PH_PlayerCapsule` (capsule collider stays) |
-| A-004 | Guy animation set (first pass) | Phase 4 (walk needed soon for Phase 0) | Start now | In progress | None |
-| A-005 | Block mesh | Draft for Phase 1; final by Phase 5 | Needed soon | Requested (draft seen) | `PH_Block` |
+| A-004 | Guy animation set (first pass) | Phase 4 | Start now | In progress | Idle = walk frame 0 |
+| A-005 | Block mesh | Draft for Phase 1; final by Phase 5 | Needed soon | Integrated (draft) | `PH_Block` prefab, now with `BL_Block` |
 | A-006 | Match HUD + results screen mock-ups | Phase 2 | Needed soon | Requested | IMGUI text HUD (`MatchHud`) |
 | A-007 | Settle/count effect art direction | Phase 2 | Needed soon | Requested | `PH_LockDither` shader |
 | A-008 | Arena layout sketch | Phase 6 (graybox from Phase 0) | Nice to have | Requested | Graybox terrain |
@@ -23,8 +23,8 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 | A-012 | Guy hold-block pose + throw timing | Phase 1 timings; Phase 4 clip | Start now | Requested | None |
 | A-013 | Block owner tint and team readability | Phase 2 | Needed soon | Requested | Flat owner color on `PH_Block` |
 | A-014 | SFX placeholder list | Phase 6 (temp SFX any time) | Nice to have | Requested | Silent |
-| A-015 | Knockdown + get-up clips (slice of A-004) | Phase 3 | Needed soon | Requested | Snap to standing with a squash-and-stretch pop |
-| A-016 | Knockdown readability (dazed indicator) | Phase 3 (final art Phase 6) | Nice to have | Requested | None |
+| A-015 | Knockdown + get-up clips (slice of A-004) | Phase 3 | Needed soon | Integrated | None |
+| A-016 | Knockdown readability (dazed indicator) | Phase 3 (final art Phase 6) | Nice to have | Integrated (first pass) | None |
 
 ## Request format (agent: use this for every new request)
 
@@ -59,7 +59,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - **Generic** rig. A `root` bone at the origin; keep bone scale animatable (squash and stretch).
 - Export the armature and the character mesh only: **Only Deform Bones** on, **Add Leaf Bones** off, and leave out the `WGT_*` widget objects and any draft props in the file.
 - Easiest setup (Blender 4.2+): put `armature_guy` and `mesh_guy` in their own collection, add an FBX exporter to it in Collection Properties > Exporters, point it at `Assets/Art/_Incoming/`, and set it once: Object Types Armature + Mesh; Apply Scalings: FBX All; Forward -Z, Up Y; Apply Modifiers on; Only Deform Bones on; Add Leaf Bones off; Bake Animation on with All Actions on, NLA Strips off, Force Start/End Keying on. The settings are saved in the .blend, and every later export is one click.
-- Mesh, skeleton and all actions in one file (decided 2026-10-28). Action names like `Guy.WalkBasic` are fine; the import strips the prefixes. Clips whose names contain Idle, Walk, Run, Loop, Pose or Hold are set to loop.
+- Mesh, skeleton and all actions in one file (decided 2026-10-28). Action names like `Guy.WalkBasic` are fine; the import strips the prefixes. Clips whose names contain Idle, Walk, Run, Loop, Pose, Hold or Spin are set to loop.
 - A single-pose action (aim pose, hold pose) needs **at least two keyframes** (the same pose on frames 0 and 1); a one-keyframe action exports with zero length and imports empty.
 - No root motion in clips: animate in place. The simulation moves the body.
 - Loops must loop cleanly; first and last frames match.
@@ -81,7 +81,9 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Spec: 8 colors as hex, each with a darker shade for the settle dither and a lighter shade for highlights. Distinguishable for common color-vision deficiencies and on both light and dark terrain.
 - Must match: Leaves room for sauce materials (A-009) to read by material, not hue.
 - Placeholder: Unity default colors in `PH_PlayerColors` config
-- Status: Requested
+- Status: Integrated
+- 2026-10-31 delivery (`palette.txt`, kept as `Assets/Art/UI/A-001_Palette.txt`): 8 colors, in player order: Strawberry Red `f94144`, Coral Glow `f9844a`, Tuscan Sun `f9c74f`, Willow Green `90be6d`, Seagrass `43aa8b`, Dark Cyan `4d908e`, Blue Slate `577590`, Cerulean `277da1`. They're in `PH_PlayerColors` and drive Guy's tint, block ownership, the HUD and the dazed indicator. No darker or lighter shades came with it, so the settle dither uses each color darkened 55% (a setting on the palette asset); send shades if you want specific ones.
+  - Readability check for when you next look at it: players 5–8 (Seagrass, Dark Cyan, Blue Slate, Cerulean) sit close together, and Strawberry Red next to Willow Green is the classic red-green pair. In an 8-player match those may be hard to tell apart, especially for color-blind players. Not blocking; A-013 (owner readability beyond hue) is the place to solve it.
 
 ### A-002: Lobby + main menu UI mock-ups
 - Phase / needed by: Phase 1 (sandbox lobby), final art Phase 6
@@ -106,6 +108,7 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Placeholder: `PH_PlayerCapsule` (agent sizes it from Guy's measurements in Phase 0). Until the import test, the capsule is 1.66 m tall with a 0.35 m radius, based on 4.15 m × 0.4.
 - Status: Integrated
 - 2026-10-29 re-export (collection exporter): integrated. Mesh 8,758 verts with subdivision applied, 31 deform bones, no leaf bones, scale 1 on every node. At game scale Guy is **1.62 m tall**; his body is about **0.40 m in radius** (0.41 at the belly, feet reach 0.49). Guy now renders on the player prefab, with the capsule and facing marker hidden, and walks in play mode. The physics capsule stays 0.35 m × 1.66 m for now, so Guy overlaps walls and blocks by about 5 cm; widening it changes the reach Phase 1 was tuned at, so it waits for Phase 4.
+  - 2026-10-31 re-export: `armature_guy` + `mesh_guy` only (the draft `Circle`/`Cube` are gone, thanks), 7,040 verts. Same skeleton, so nothing else changed. The knockdown ragdoll (`CH_Guy_Ragdoll`, 11 limbs) is built from this skeleton by **Block Sauce › Build Guy Ragdoll**; the agent reruns it when Guy's proportions change.
   - Small cleanups for the next export: the draft vat (`Circle`) and block (`Cube`) are in the exporter's collection and came along (the agent hides them in game). Move them to their own collection, ideally with their own exporters for A-005 and A-009. Nice to have: rename `Material.001` to `M_Guy`.
 - 2026-10-29 first delivery (`guy.fbx`, now `Assets/Art/Characters/CH_Guy.fbx`): the rig imports correctly but **the mesh is missing** (the FBX holds only the armature). Re-export with `mesh_guy` included (Object Types: Armature + Mesh, and Selected Objects off or the mesh selected too). Also: the export has all 100 bones plus `_end` leaf bones; turn on Only Deform Bones and turn off Add Leaf Bones. Measured at game scale: faces +Z, `prop` bone 0.838 m up and 0.840 m forward of the root (matches the simulation's hold pivot), `head` bone 1.17 m. Full height and capsule radius get measured from the mesh on the re-export.
 - Notes: Placeholder `Assets/Placeholders/PH_PlayerCapsule.prefab` is in use: height 1.66 m, radius 0.35 m, origin at the feet. The radius is a guess; the import test replaces it with Guy's measured width. (agent: record game-scale height, capsule radius and `prop` offset here after the import test.)
@@ -134,6 +137,8 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
   - `WalkBasic` (48 frames, 2 s): imports and loops cleanly (seam 2.8°), animated in place, squash-and-stretch scale curves come through. Its planted foot moves backward at about 0.3 m/s at game scale, but the game walks at 3 m/s, so the feet would slide about 10×. For no sliding, a planted foot must move back about 0.31 m per frame in Blender units (3 m/s × 2.5 ÷ 24 fps) for walk, and 0.63 m per frame for run (6 m/s). If strides that long look wrong on Guy, the game's walk speed can come down instead; decide when tuning locomotion in Phase 4.
   - `Throw` (7 frames, 0.29 s): imports fine. The block leaves on **frame 5** (0.21 s), per Jackson.
   - `RunBasic` and `ThrowPose`: one keyframe each, so they export with zero length and import empty. Key them on at least two frames. (Still one keyframe in the 2026-10-29 re-export.)
+- 2026-10-31 re-export: `RunBasic` now has keys (21 frames, loops cleanly; its planted foot moves at about **3.2 m/s** at game scale), `ThrowPose` has two keys, and the get-up clips arrived (A-015). The re-exported `WalkBasic` measures about **1.0 m/s** at the planted foot. In game: walk below 3.3 m/s (sped up to match, up to 4×) and run above it (rate 0.8–2×, so it matches the 6 m/s run at about 1.9×). Still needed: a real **Idle** (standing still currently freezes on the walk's first frame).
+  - Export tip: the FBX's default pose was a get-up frame (Guy lying down), because the scene was on that action when it exported. The game reads the rest pose from the skin, so nothing broke, but a T-pose or idle on the current frame at export keeps things predictable.
   - In game (2026-10-29): `AC_Guy` plays `WalkBasic` whenever Guy moves, sped up to match ground speed (its stride matches about 0.3 m/s) up to 4×, and the rest pose when standing still. Per Jackson, the walk is for slow movement (low stick pressure) and a Run clip covers faster movement; the walk can be sped up if needed. Until `RunBasic` has keys, the walk plays at 4× above 1.2 m/s and the feet slide.
 
 ### A-005: Block mesh
@@ -145,6 +150,9 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Placeholder: Unity cube, `PH_Block`
 - Status: Requested
 - Phase 1 result: the game uses a 0.8 m block (2 m at authoring scale) with mass 2; grab range, hold radius and stacking were tuned at that size. Keep the final block at 2 m in Blender, pivot at the center.
+- 2026-10-31 delivery (`block.fbx`, now `Assets/Art/Blocks/BL_Block.fbx`): integrated on `PH_Block` (collider unchanged). 2 m at authoring scale = 0.8 m in game, beveled, UVs present, 104 verts. Two notes for the final version:
+  - The pivot is on the bottom face, not the center. The agent offsets it in the prefab, so nothing is needed now, but a centered pivot is the spec.
+  - No subdivision loops yet, so the Phase 5 sauce shader has nothing to displace. Fine for now; the final block needs even loops on every face.
 - Notes: `guy.blend` contains a `Cube` (2 m, 104 verts, geometry nodes modifier) that looks like a block draft. If so, export it as `BL_Block.fbx` with the geometry nodes applied. An early draft export helps Phase 1: grab, swing and stacking get tuned at the block's real size, so a size change after Phase 1 means retuning.
 
 ### A-006: Match HUD + results screen mock-ups
@@ -234,8 +242,9 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Purpose: The slice of A-004 that Phase 3 needs first. When a knocked-down player recovers, the ragdoll is removed and Guy stands up where his hips came to rest; the view blends from the ragdoll pose into a get-up clip.
 - Spec: two clips, in place: get up from lying face down, and from lying face up. Start each from a relaxed lying pose (it doesn't have to match any particular ragdoll pose; the view blends into frame 0). About 0.6–1.0 s each at game speed. Same export as Guy (`CH_Guy.fbx`, two or more keyframes per action).
 - Must match: the hips end where they started horizontally (no root motion); the last frame matches the idle/stand pose.
-- Placeholder: the view snaps Guy back to standing with a short squash-and-stretch pop (Phase 3)
-- Status: Requested
+- Placeholder: none needed any more
+- Status: Integrated
+- 2026-10-31 delivery (in `guy.fbx`, now `CH_Guy.fbx`): `GetUpFaceDown` and `GetUpFaceUp`, 12 frames each (0.5 s). Both start lying with the head toward +forward and the hips 0.37 m behind the feet, and end standing. In game: the view picks face down or face up from the ragdoll's chest and blends into frame 0 over 0.15 s; the simulation stands the character 0.37 m ahead of where the hips lay, so the clip's hips start where the ragdoll's were (`GetUpForwardOffset` on the ragdoll config; change it if the clips change). Slightly shorter than the 0.6–1.0 s asked for, which reads fine; lengthen if it feels snappy.
 - Notes (Phase 3 prep): the ragdoll is built from the deform bones already in `CH_Guy.fbx` (hips, chest, head, upper arm, forearm, thigh, shin; hands and feet ride the last segments), so no new rig work is needed. The get-up starts wherever the ragdoll came to rest: the view will blend from the last ragdoll pose into frame 0 over about 0.15 s, so frame 0 should be a relaxed lying pose, not a precise one. Lying face down = chest facing the ground.
 
 ### A-016: Knockdown readability (dazed indicator)
@@ -245,4 +254,5 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Spec: a small effect over a downed player's head (circling stars, a swirl, sweat drops, whatever fits Guy). A sketch or reference is enough; the agent builds it. Optionally a way to show time left (shrinking ring, fewer stars).
 - Must match: knockdown lasts a few seconds (first guess 2.5 s, Jackson to confirm); the effect follows the ragdoll's head while down and pops off on get-up.
 - Placeholder: None until Phase 3 (then a plain ring in the player's color)
-- Status: Requested
+- Status: Integrated (first pass)
+- 2026-10-31 delivery (`daze_fx.fbx`, now `Assets/Art/VFX/FX_Daze.fbx`, 0.11 m in game, with a `spin` action): shown over a downed player's head in their color, spinning, and shrinking from 4× to 1.5× as the knockdown runs out, so the size reads as time left. The agent spins it in code, so the `spin` action isn't used. Pops in on the knockdown and off on the get-up (`DazedView`).

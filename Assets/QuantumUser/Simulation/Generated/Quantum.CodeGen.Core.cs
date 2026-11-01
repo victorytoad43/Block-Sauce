@@ -588,6 +588,68 @@ namespace Quantum {
     }
   }
   [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct RagdollLimb : Quantum.IComponent {
+    public const Int32 SIZE = 8;
+    public const Int32 ALIGNMENT = 8;
+    [FieldOffset(0)]
+    [HideInInspector()]
+    public EntityRef Owner;
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 9133;
+        hash = hash * 31 + Owner.GetHashCode();
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (RagdollLimb*)ptr;
+      EntityRef.Serialize(&p->Owner, serializer);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct RagdollOwner : Quantum.IComponent {
+    public const Int32 SIZE = 40;
+    public const Int32 ALIGNMENT = 8;
+    [FieldOffset(32)]
+    public FrameTimer Timer;
+    [FieldOffset(24)]
+    [HideInInspector()]
+    public FrameTimer StruggleCooldownTimer;
+    [FieldOffset(16)]
+    [HideInInspector()]
+    public EntityRef Body;
+    [FieldOffset(8)]
+    [HideInInspector()]
+    public EntityRef Anchor;
+    [FieldOffset(0)]
+    [HideInInspector()]
+    public Int32 StillTicks;
+    [FieldOffset(4)]
+    [HideInInspector()]
+    public QBoolean Asleep;
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 11959;
+        hash = hash * 31 + Timer.GetHashCode();
+        hash = hash * 31 + StruggleCooldownTimer.GetHashCode();
+        hash = hash * 31 + Body.GetHashCode();
+        hash = hash * 31 + Anchor.GetHashCode();
+        hash = hash * 31 + StillTicks.GetHashCode();
+        hash = hash * 31 + Asleep.GetHashCode();
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (RagdollOwner*)ptr;
+      serializer.Stream.Serialize(&p->StillTicks);
+      QBoolean.Serialize(&p->Asleep, serializer);
+      EntityRef.Serialize(&p->Anchor, serializer);
+      EntityRef.Serialize(&p->Body, serializer);
+      FrameTimer.Serialize(&p->StruggleCooldownTimer, serializer);
+      FrameTimer.Serialize(&p->Timer, serializer);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct RagdollStressTest : Quantum.IComponent {
     public const Int32 SIZE = 56;
     public const Int32 ALIGNMENT = 8;
@@ -635,6 +697,24 @@ namespace Quantum {
     }
   }
   [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct Ragdollable : Quantum.IComponent {
+    public const Int32 SIZE = 8;
+    public const Int32 ALIGNMENT = 8;
+    [FieldOffset(0)]
+    public AssetRef<RagdollConfig> Config;
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 8353;
+        hash = hash * 31 + Config.GetHashCode();
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (Ragdollable*)ptr;
+      AssetRef.Serialize(&p->Config, serializer);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Team : Quantum.IComponent {
     public const Int32 SIZE = 4;
     public const Int32 ALIGNMENT = 1;
@@ -662,6 +742,9 @@ namespace Quantum {
   }
   public unsafe partial interface ISignalStagger : ISignal {
     void Stagger(Frame frame, EntityRef entity, FP duration);
+  }
+  public unsafe partial interface ISignalSetRagdoll : ISignal {
+    void SetRagdoll(Frame frame, EntityRef entity, QBoolean active);
   }
   unsafe partial class Constants {
   }
@@ -740,7 +823,10 @@ namespace Quantum {
       private ComponentSignals _componentSignals_Player = CreateComponentSignals<Quantum.Player>(frame);
       private ComponentSignals _componentSignals_PlayerLook = CreateComponentSignals<Quantum.PlayerLook>(frame);
       private ComponentSignals _componentSignals_PlayerSpawnPoint = CreateComponentSignals<Quantum.PlayerSpawnPoint>(frame);
+      private ComponentSignals _componentSignals_RagdollLimb = CreateComponentSignals<Quantum.RagdollLimb>(frame);
+      private ComponentSignals _componentSignals_RagdollOwner = CreateComponentSignals<Quantum.RagdollOwner>(frame);
       private ComponentSignals _componentSignals_RagdollStressTest = CreateComponentSignals<Quantum.RagdollStressTest>(frame);
+      private ComponentSignals _componentSignals_Ragdollable = CreateComponentSignals<Quantum.Ragdollable>(frame);
       private ComponentSignals _componentSignals_Team = CreateComponentSignals<Quantum.Team>(frame);
       private ComponentSignals _componentSignals_Transform2D = CreateComponentSignals<Transform2D>(frame);
       private ComponentSignals _componentSignals_Transform2DVertical = CreateComponentSignals<Transform2DVertical>(frame);
@@ -749,6 +835,7 @@ namespace Quantum {
       private ISignalDropHeld[] _ISignalDropHeldSystems = CreateSignalArray<ISignalDropHeld>(frame);
       private ISignalApplyKnockback[] _ISignalApplyKnockbackSystems = CreateSignalArray<ISignalApplyKnockback>(frame);
       private ISignalStagger[] _ISignalStaggerSystems = CreateSignalArray<ISignalStagger>(frame);
+      private ISignalSetRagdoll[] _ISignalSetRagdollSystems = CreateSignalArray<ISignalSetRagdoll>(frame);
       public void DropHeld(EntityRef holder) {
         var array = _ISignalDropHeldSystems;
         for (Int32 i = 0; i < array.Length; ++i) {
@@ -773,6 +860,15 @@ namespace Quantum {
           var s = array[i];
           if (frame.SystemIsEnabledInHierarchy((SystemBase)s)) {
             s.Stagger(frame, entity, duration);
+          }
+        }
+      }
+      public void SetRagdoll(EntityRef entity, QBoolean active) {
+        var array = _ISignalSetRagdollSystems;
+        for (Int32 i = 0; i < array.Length; ++i) {
+          var s = array[i];
+          if (frame.SystemIsEnabledInHierarchy((SystemBase)s)) {
+            s.SetRagdoll(frame, entity, active);
           }
         }
       }
@@ -872,7 +968,10 @@ namespace Quantum {
         registry.Register<Quantum.Ptr>(Quantum.Ptr.SIZE);
         registry.Register<QueryOptions>(2);
         registry.Register<RNGSession>(RNGSession.SIZE);
+        registry.Register<Quantum.RagdollLimb>(Quantum.RagdollLimb.SIZE);
+        registry.Register<Quantum.RagdollOwner>(Quantum.RagdollOwner.SIZE);
         registry.Register<Quantum.RagdollStressTest>(Quantum.RagdollStressTest.SIZE);
+        registry.Register<Quantum.Ragdollable>(Quantum.Ragdollable.SIZE);
         registry.Register<Quantum.SandboxBlockHome>(Quantum.SandboxBlockHome.SIZE);
         registry.Register<Shape2D>(Shape2D.SIZE);
         registry.Register<Shape3D>(Shape3D.SIZE);
@@ -901,7 +1000,10 @@ namespace Quantum {
         registry.Register<Quantum.Player>(Quantum.Player.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.PlayerLook>(Quantum.PlayerLook.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.PlayerSpawnPoint>(Quantum.PlayerSpawnPoint.Serialize, null, null, ComponentFlags.None);
+        registry.Register<Quantum.RagdollLimb>(Quantum.RagdollLimb.Serialize, null, null, ComponentFlags.None);
+        registry.Register<Quantum.RagdollOwner>(Quantum.RagdollOwner.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.RagdollStressTest>(Quantum.RagdollStressTest.Serialize, null, null, ComponentFlags.None);
+        registry.Register<Quantum.Ragdollable>(Quantum.Ragdollable.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.Team>(Quantum.Team.Serialize, null, null, ComponentFlags.None);
         return registry;
       }
