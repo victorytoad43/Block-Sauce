@@ -1,4 +1,4 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
 using Quantum;
 using UnityEngine;
 using QInput = Quantum.Input;
@@ -8,6 +8,8 @@ namespace BlockSauce
     /// <summary>
     /// Sends the local player's input to Quantum each tick: move, the orbit camera's absolute angles, and buttons.
     /// Absolute camera angles (as in Friendslop) mean a lost or repeated input never makes the aim drift.
+    /// Speed: on a gamepad the stick's tilt sets it, from a slow walk up to a full run (Run is always on, and the
+    /// simulation scales the run speed by the stick's magnitude); on a keyboard, keys walk and Shift runs.
     /// </summary>
     public class PlayerInputPoller : MonoBehaviour
     {
@@ -48,7 +50,8 @@ namespace BlockSauce
             input.Move = new FPVector2(move.x.ToFP(), move.y.ToFP());
             input.Jump = controls.Jump.IsPressed();
             input.Crouch = controls.Crouch.IsPressed();
-            input.Run = controls.Run.IsPressed();
+            bool analogMove = controls.Move.activeControl?.device is UnityEngine.InputSystem.Gamepad;
+            input.Run = analogMove || controls.Run.IsPressed();
             input.Grab = controls.Grab.IsPressed();
             input.Throw = controls.Throw.IsPressed();
 

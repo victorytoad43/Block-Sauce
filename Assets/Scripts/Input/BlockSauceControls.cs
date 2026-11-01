@@ -1,4 +1,4 @@
-using UnityEngine.InputSystem;
+﻿using UnityEngine.InputSystem;
 
 namespace BlockSauce
 {
@@ -50,7 +50,8 @@ namespace BlockSauce
 
             Jump = AddButton(map, "Jump", "<Keyboard>/space", "<Gamepad>/buttonSouth");
             Crouch = AddButton(map, "Crouch", "<Keyboard>/leftCtrl", "<Gamepad>/buttonEast");
-            Run = AddButton(map, "Run", "<Keyboard>/leftShift", "<Gamepad>/leftStickPress");
+            // Keyboard only: on a gamepad the stick's tilt sets the speed (see PlayerInputPoller).
+            Run = map.AddAction("Run", InputActionType.Button, "<Keyboard>/leftShift");
             Grab = AddButton(map, "Grab", "<Mouse>/leftButton", "<Gamepad>/rightShoulder");
             Throw = AddButton(map, "Throw", "<Mouse>/rightButton", "<Gamepad>/rightTrigger");
 

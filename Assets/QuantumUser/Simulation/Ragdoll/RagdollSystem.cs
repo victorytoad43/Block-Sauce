@@ -48,7 +48,7 @@ namespace Quantum
             if (HoldDownWhileCarried(frame, ref filter, config))
                 return;
 
-            TryStruggle(frame, ref filter, config);
+            TryStruggle(frame, ref filter, config, &filter.RagdollOwner->Timer);
             UpdateRest(frame, filter.RagdollOwner, config);
 
             if (filter.RagdollOwner->Timer.IsRunning(frame))
@@ -88,22 +88,54 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Restarts the knockdown at the carried release delay each tick any limb is held; returns true while one is.
+        /// While any limb is held: runs the carry timer (started on the first carry of this knockdown), which Jump
+        /// presses shorten, and keeps the knockdown at the carried release delay. When the carry timer runs out the
+        /// body breaks free: every carrier drops it and the knockdown runs on from there. Returns true while carried.
         /// </summary>
         private bool HoldDownWhileCarried(Frame frame, ref Filter filter, RagdollConfig config)
         {
-            if (IsCarried(frame, filter.RagdollOwner->Body) == false)
+            RagdollOwner* ragdoll = filter.RagdollOwner;
+            if (IsCarried(frame, ragdoll->Body) == false)
                 return false;
 
-            filter.RagdollOwner->Timer = FrameTimer.FromSeconds(frame, config.CarriedReleaseDelay);
-            filter.RagdollOwner->StillTicks = 0;
+            if (ragdoll->CarryTimer.IsSet == false)
+            {
+                ragdoll->CarryTimer = FrameTimer.FromSeconds(frame, config.CarryHoldSeconds);
+            }
+
+            TryStruggle(frame, ref filter, config, &ragdoll->CarryTimer);
+
+            if (ragdoll->CarryTimer.IsRunning(frame) == false)
+            {
+                ReleaseCarriers(frame, ragdoll->Body);
+                frame.Events.BrokeFree(filter.Entity);
+                return false;
+            }
+
+            ragdoll->Timer = FrameTimer.FromSeconds(frame, config.CarriedReleaseDelay);
+            ragdoll->StillTicks = 0;
             return true;
         }
 
         /// <summary>
-        /// Takes the struggle recovery off the knockdown on a Jump press, then ignores presses for the cooldown.
+        /// Makes everyone holding a limb of the body let go.
         /// </summary>
-        private void TryStruggle(Frame frame, ref Filter filter, RagdollConfig config)
+        private static void ReleaseCarriers(Frame frame, EntityRef root)
+        {
+            foreach ((EntityRef limb, int _) in frame.GetEntityGroupIterator(root))
+            {
+                if (frame.TryGet(limb, out Grabbable grabbable) && grabbable.Holder != EntityRef.None)
+                {
+                    frame.Signals.DropHeld(grabbable.Holder);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Takes the struggle recovery off a timer (the knockdown, or the carry while carried) on a Jump press, then
+        /// ignores presses for the cooldown.
+        /// </summary>
+        private void TryStruggle(Frame frame, ref Filter filter, RagdollConfig config, FrameTimer* timer)
         {
             RagdollOwner* ragdoll = filter.RagdollOwner;
 
@@ -113,10 +145,10 @@ namespace Quantum
             if (frame.Unsafe.TryGetPointer(filter.Entity, out Player* player) == false || player->Input.Jump.WasPressed == false)
                 return;
 
-            FP remaining = ragdoll->Timer.RemainingSeconds(frame);
+            FP remaining = timer->RemainingSeconds(frame);
             FP shortened = FPMath.Max(remaining - config.StruggleRecovery, config.MinStruggleRemainder);
 
-            ragdoll->Timer = FrameTimer.FromSeconds(frame, shortened);
+            *timer = FrameTimer.FromSeconds(frame, shortened);
             ragdoll->StruggleCooldownTimer = FrameTimer.FromSeconds(frame, config.StruggleCooldown);
 
             frame.Events.Struggled(filter.Entity);

@@ -144,6 +144,8 @@ namespace Quantum.Prototypes.Unity {
     [HideInInspector()]
     public Quantum.Prototypes.FrameTimerPrototype StruggleCooldownTimer;
     [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype CarryTimer;
+    [HideInInspector()]
     public Quantum.QuantumEntityPrototype Body;
     [HideInInspector()]
     public Quantum.QuantumEntityPrototype Anchor;
@@ -156,6 +158,7 @@ namespace Quantum.Prototypes.Unity {
       var result = new Quantum.Prototypes.RagdollOwnerPrototype();
       converter.Convert(this.Timer, out result.Timer);
       converter.Convert(this.StruggleCooldownTimer, out result.StruggleCooldownTimer);
+      converter.Convert(this.CarryTimer, out result.CarryTimer);
       converter.Convert(this.Body, out result.Body);
       converter.Convert(this.Anchor, out result.Anchor);
       converter.Convert(this.StillTicks, out result.StillTicks);

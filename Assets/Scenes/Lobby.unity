@@ -3596,6 +3596,8 @@ MonoBehaviour:
         Value: 1864995266751708973
     PlayerSpawnHeightOffset:
       RawValue: 65536
+    FallThresholdY:
+      RawValue: -983040
   SessionConfig: {fileID: 0}
   LocalPlayers:
   - PlayerAvatar:
@@ -5261,6 +5263,8 @@ MonoBehaviour:
         Value: 1864995266751708973
     PlayerSpawnHeightOffset:
       RawValue: 65536
+    FallThresholdY:
+      RawValue: -983040
   Players:
   - PlayerAvatar:
       Id:

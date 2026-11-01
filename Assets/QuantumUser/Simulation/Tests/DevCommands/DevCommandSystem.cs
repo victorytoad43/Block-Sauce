@@ -35,11 +35,17 @@ namespace Quantum
         /// Sends the body flying at the target's own best tower, if it has one, instead of straight ahead.
         /// </summary>
         public bool TowardTower;
+        /// <summary>
+        /// Instead of a hit, moves the target 1.2 m in front of the sender and drops it limp there, ready to be grabbed
+        /// (tests carrying bodies).
+        /// </summary>
+        public bool DropInFront;
 
         public override void Serialize(BitStream stream)
         {
             stream.Serialize(ref TargetPlayer);
             stream.Serialize(ref TowardTower);
+            stream.Serialize(ref DropInFront);
         }
     }
 
@@ -55,8 +61,15 @@ namespace Quantum
             {
                 foreach (CommandDevKnockdown command in frame.GetPlayerCommands<CommandDevKnockdown>(player))
                 {
-                    KnockDown(frame, command.TargetPlayer >= 0 ? (PlayerRef)command.TargetPlayer : (PlayerRef)player,
-                        command.TargetPlayer == -2, command.TowardTower);
+                    PlayerRef target = command.TargetPlayer >= 0 ? (PlayerRef)command.TargetPlayer : (PlayerRef)player;
+                    if (command.DropInFront)
+                    {
+                        DropInFront(frame, target, player);
+                    }
+                    else
+                    {
+                        KnockDown(frame, target, command.TargetPlayer == -2, command.TowardTower);
+                    }
                 }
             }
 
@@ -73,6 +86,27 @@ namespace Quantum
                 }
             }
 #endif
+        }
+
+        private static void DropInFront(Frame frame, PlayerRef target, PlayerRef sender)
+        {
+            EntityRef targetEntity = EntityRef.None, senderEntity = EntityRef.None;
+            var players = frame.Filter<Player>();
+            while (players.NextUnsafe(out EntityRef entity, out Player* player))
+            {
+                if (player->Ref == target) targetEntity = entity;
+                if (player->Ref == sender) senderEntity = entity;
+            }
+
+            if (targetEntity == EntityRef.None || senderEntity == EntityRef.None || targetEntity == senderEntity)
+                return;
+
+            Transform3D senderTransform = frame.Get<Transform3D>(senderEntity);
+            Transform3D* transform = frame.Unsafe.GetPointer<Transform3D>(targetEntity);
+            transform->Position = senderTransform.Position + senderTransform.Rotation * FPVector3.Forward * (FP)6 / 5;
+            transform->Rotation = senderTransform.Rotation;
+            frame.Unsafe.GetPointer<PhysicsBody3D>(targetEntity)->Velocity = FPVector3.Zero;
+            frame.Signals.SetRagdoll(targetEntity, true);
         }
 
         private static void KnockDown(Frame frame, PlayerRef target, bool everyone, bool towardTower)

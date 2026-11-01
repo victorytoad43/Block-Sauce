@@ -608,13 +608,16 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct RagdollOwner : Quantum.IComponent {
-    public const Int32 SIZE = 40;
+    public const Int32 SIZE = 48;
     public const Int32 ALIGNMENT = 8;
-    [FieldOffset(32)]
+    [FieldOffset(40)]
     public FrameTimer Timer;
-    [FieldOffset(24)]
+    [FieldOffset(32)]
     [HideInInspector()]
     public FrameTimer StruggleCooldownTimer;
+    [FieldOffset(24)]
+    [HideInInspector()]
+    public FrameTimer CarryTimer;
     [FieldOffset(16)]
     [HideInInspector()]
     public EntityRef Body;
@@ -632,6 +635,7 @@ namespace Quantum {
         var hash = 11959;
         hash = hash * 31 + Timer.GetHashCode();
         hash = hash * 31 + StruggleCooldownTimer.GetHashCode();
+        hash = hash * 31 + CarryTimer.GetHashCode();
         hash = hash * 31 + Body.GetHashCode();
         hash = hash * 31 + Anchor.GetHashCode();
         hash = hash * 31 + StillTicks.GetHashCode();
@@ -645,6 +649,7 @@ namespace Quantum {
       QBoolean.Serialize(&p->Asleep, serializer);
       EntityRef.Serialize(&p->Anchor, serializer);
       EntityRef.Serialize(&p->Body, serializer);
+      FrameTimer.Serialize(&p->CarryTimer, serializer);
       FrameTimer.Serialize(&p->StruggleCooldownTimer, serializer);
       FrameTimer.Serialize(&p->Timer, serializer);
     }

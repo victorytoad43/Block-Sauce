@@ -194,6 +194,8 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - Knockdown duration: 2.5 s, each Jump press takes 0.3 s off. The numbers stay open for tuning and live on `PlayerRagdollConfig`; the knockdown threshold (6 m/s) lives on `PlayerKnockbackConfig`. (Jackson, 2026-10-31.)
 - Grabbing downed bodies: an editor toggle (Allow Grabbing Bodies on `PlayerRagdollConfig`), so both ways can be tried; on by default. (Jackson, 2026-10-31.)
 - No knockdown grace after getting up: you can be knocked down again straight away. (Jackson, 2026-10-31.)
+- Bodies stay carryable. A carried body breaks free after 2.5 s, and Jump presses shorten that the same way they shorten the knockdown (0.3 s each); once it has broken free it can't be picked up again until it has got up. (Jackson, 2026-10-31.)
+- Speed on a gamepad comes from how far the stick is pushed, from a slow walk up to a full run; the stick-click run button is gone. The keyboard keeps walk, with Shift to run. (Jackson, 2026-10-31.)
 
 ## Open questions
 

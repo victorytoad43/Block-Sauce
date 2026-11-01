@@ -48,6 +48,12 @@ namespace Quantum
         /// Seconds a carried body stays down after it is let go. While carried, the knockdown does not run down.
         /// </summary>
         public FP CarriedReleaseDelay = 1;
+        /// <summary>
+        /// Seconds a body can be carried before it breaks free and is dropped. Jump presses take the struggle recovery
+        /// off it, as they do off the knockdown. It runs once per knockdown: a body that has broken free can't be
+        /// picked up again until it has got up.
+        /// </summary>
+        public FP CarryHoldSeconds = (FP)5 / 2;
 
         /// <summary>
         /// The speed, in m/s, every limb must be under for the body to count as still.

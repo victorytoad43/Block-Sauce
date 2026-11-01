@@ -26,6 +26,23 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## 2026-10-31: Phase 3, touches after Jackson's review
+- Did:
+  - **Breaking free while carried:** a carried body breaks free after 2.5 s (`CarryHoldSeconds` on `PlayerRagdollConfig`), and Jump presses take 0.3 s off it, as they do off the knockdown. Breaking free makes the carrier drop it and raises a `BrokeFree` event; then the usual 1 s down after release runs (also shortened by Jump). It can't be picked up again until it has got up, so nobody can chain-carry a body.
+  - **Analog walk-to-run:** on a gamepad the stick's tilt now sets the speed continuously, from walking up to the 6 m/s run (Run is always on for the stick, and the simulation already scaled the run speed by stick magnitude). The stick-click run binding is removed. The keyboard is unchanged: walk, with Shift to run.
+  - **Walk hitch:** the clip held still for its second half. The import trims it (details in ASSETS.md A-004); the loop still pops slightly until the animation is fixed.
+  - Dev: `CommandDevKnockdown` can drop a player limp in front of the sender (`DropInFront`), for carry tests.
+- Verified (two clients through MPPM, verified frames):
+  - Carried without struggling: broke free 2.5 s after the grab, the carrier's hands emptied, and the body got up 1.0 s later.
+  - Carried while mashing Jump (from about 1.0 s into the carry): broke free about 1 s sooner, and got up about 0.6 s after that.
+  - Virtual gamepad: 40% tilt walked at 2.0 m/s (walk clip), 75% ran at 4.7 m/s and full tilt at 6.0 m/s (run clip). The 40% figure includes the stick's built-in dead zone.
+  - The walk clip imports at 1.0 s (was 2.0 s).
+  - No errors from game code. The console's only errors came from the agent's test tools (a virtual-gamepad helper, and old test scripts in the clone).
+- Decided: once broken free, the carry timer stays spent until get-up, rather than restarting on a new grab.
+- Assets: A-004 notes updated with the walk fix needed.
+- Blocked / questions for Jackson: none. Holding for the next art delivery.
+- Next: integrate what lands in `_Incoming`, then the next iteration.
+
 ## Phase 3 report: Knockdown
 - Built:
   - **Knockdown tier** on the one knockback path (`KnockbackSystem`): a hit worth a 6 m/s speed change or more knocks the character down (a full-speed throw or jumpshot, a hard swing, any fast block); a running body check on someone already staggered knocks them down whatever its size; smaller hits push or stagger as before. Thresholds are on `PlayerKnockbackConfig`.

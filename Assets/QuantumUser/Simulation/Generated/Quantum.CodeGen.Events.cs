@@ -487,6 +487,31 @@ namespace Quantum {
       }
     }
   }
+  public unsafe partial class EventBrokeFree : EventBase {
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 16;
+    public EntityRef Entity;
+    protected EventBrokeFree(Int32 id, EventFlags flags) : 
+        base(id, flags) {
+    }
+    public EventBrokeFree() : 
+        base(ID, EventFlags.Server|EventFlags.Client) {
+    }
+    public new QuantumGame Game {
+      get {
+        return (QuantumGame)base.Game;
+      }
+      set {
+        base.Game = value;
+      }
+    }
+    public override Int32 GetHashCode() {
+      unchecked {
+        var hash = 432822892;
+        hash = hash * 31 + Entity.GetHashCode();
+        return hash;
+      }
+    }
+  }
   public unsafe partial class Frame {
     public unsafe partial struct FrameEvents {
       public EventBlockSettleStarted BlockSettleStarted(EntityRef Block, PlayerRef Owner) {
@@ -604,6 +629,12 @@ namespace Quantum {
         _f.AddEvent(ev);
         return ev;
       }
+      public EventBrokeFree BrokeFree(EntityRef Entity) {
+        var ev = _f.Context.AcquireEvent<EventBrokeFree>(EventBrokeFree.ID);
+        ev.Entity = Entity;
+        _f.AddEvent(ev);
+        return ev;
+      }
     }
   }
   unsafe partial class Statics {
@@ -627,6 +658,7 @@ namespace Quantum {
         registry.Register<EventSlideStarted>(EventSlideStarted.ID);
         registry.Register<EventRagdollChanged>(EventRagdollChanged.ID);
         registry.Register<EventStruggled>(EventStruggled.ID);
+        registry.Register<EventBrokeFree>(EventBrokeFree.ID);
         return registry;
       }
     }

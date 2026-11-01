@@ -341,6 +341,8 @@ namespace Quantum.Prototypes {
     [HideInInspector()]
     public Quantum.Prototypes.FrameTimerPrototype StruggleCooldownTimer;
     [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype CarryTimer;
+    [HideInInspector()]
     public MapEntityId Body;
     [HideInInspector()]
     public MapEntityId Anchor;
@@ -356,6 +358,7 @@ namespace Quantum.Prototypes {
     public void Materialize(Frame frame, ref Quantum.RagdollOwner result, in PrototypeMaterializationContext context = default) {
       this.Timer.Materialize(frame, ref result.Timer, in context);
       this.StruggleCooldownTimer.Materialize(frame, ref result.StruggleCooldownTimer, in context);
+      this.CarryTimer.Materialize(frame, ref result.CarryTimer, in context);
       PrototypeValidator.FindMapEntity(this.Body, in context, out result.Body);
       PrototypeValidator.FindMapEntity(this.Anchor, in context, out result.Anchor);
       result.StillTicks = this.StillTicks;
