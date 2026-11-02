@@ -4,7 +4,8 @@ namespace BlockSauce
 {
     /// <summary>
     /// On a player character's view: when the character belongs to this client, points the orbit camera at it,
-    /// and tells the camera each frame whether it holds a block, which way it faces, and how high the block swings.
+    /// and tells the camera each frame whether it holds a block, which way it faces, and where the block's swing (or the
+    /// throw aim) stands.
     /// </summary>
     public class LocalPlayerView : QuantumEntityViewComponent
     {
@@ -32,10 +33,18 @@ namespace BlockSauce
             OrbitCamera.Instance.SetHolding(isHolding, transform.eulerAngles.y);
             if (isHolding)
             {
-                // Aiming spends vertical input on the throw angle, so the camera only tilts with a plain swing.
+                // Aiming spends vertical input on the throw angle instead of the swing pitch.
                 GrabConfig config = PredictedFrame.FindAsset(grabber.Config);
-                OrbitCamera.Instance.SetSwingPitch(grabber.IsAiming == false, grabber.SwingPitch.AsFloat,
-                    config.SwingPitchMin.AsFloat, config.SwingPitchMax.AsFloat);
+                if (grabber.IsAiming)
+                {
+                    OrbitCamera.Instance.SetSwing(true, 0f, config.BodyTurnThreshold.AsFloat, grabber.AimPitch.AsFloat,
+                        config.AimPitchMin.AsFloat, config.AimPitchMax.AsFloat, config.AimPitchSensitivity.AsFloat);
+                }
+                else
+                {
+                    OrbitCamera.Instance.SetSwing(false, grabber.SwingYaw.AsFloat, config.BodyTurnThreshold.AsFloat,
+                        grabber.SwingPitch.AsFloat, config.SwingPitchMin.AsFloat, config.SwingPitchMax.AsFloat, 1f);
+                }
             }
         }
 
