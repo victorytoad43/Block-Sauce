@@ -513,24 +513,24 @@ MonoBehaviour:
       Flags: 0
   - Rotation:
       X:
-        RawValue: -45608
+        RawValue: 0
       Y:
-        RawValue: -8208
+        RawValue: 0
       Z:
-        RawValue: -8208
+        RawValue: 0
       W:
-        RawValue: 45608
+        RawValue: 65536
     Position:
       X:
         RawValue: -137625
       Y:
-        RawValue: 0
+        RawValue: 20316
       Z:
-        RawValue: 0
+        RawValue: 58982
     PhysicsMaterial:
       Id:
         Value: 0
-    ShapeType: 4
+    ShapeType: 2
     SphereRadius:
       RawValue: 0
     CapsuleRadius:
@@ -539,14 +539,14 @@ MonoBehaviour:
       RawValue: 0
     BoxExtents:
       X:
-        RawValue: 0
+        RawValue: 16460
       Y:
-        RawValue: 0
+        RawValue: 20316
       Z:
-        RawValue: 0
+        RawValue: 2621
     SmoothSphereMeshCollisions: 0
     StaticData:
-      Name: Cup
+      Name: Wall_0
       Tag: Untagged
       Layer: 9
       Asset:
@@ -560,24 +560,24 @@ MonoBehaviour:
       Flags: 0
   - Rotation:
       X:
-        RawValue: -45608
+        RawValue: 0
       Y:
-        RawValue: -8208
+        RawValue: 16961
       Z:
-        RawValue: -8208
+        RawValue: 0
       W:
-        RawValue: 45608
+        RawValue: 63302
     Position:
       X:
-        RawValue: 137625
+        RawValue: -108134
       Y:
-        RawValue: 0
+        RawValue: 20316
       Z:
-        RawValue: 0
+        RawValue: 51080
     PhysicsMaterial:
       Id:
         Value: 0
-    ShapeType: 4
+    ShapeType: 2
     SphereRadius:
       RawValue: 0
     CapsuleRadius:
@@ -586,14 +586,14 @@ MonoBehaviour:
       RawValue: 0
     BoxExtents:
       X:
-        RawValue: 0
+        RawValue: 16460
       Y:
-        RawValue: 0
+        RawValue: 20316
       Z:
-        RawValue: 0
+        RawValue: 2621
     SmoothSphereMeshCollisions: 0
     StaticData:
-      Name: Cup
+      Name: Wall_1
       Tag: Untagged
       Layer: 9
       Asset:
@@ -601,6 +601,1040 @@ MonoBehaviour:
           Value: 0
       IsTrigger: 0
       ColliderIndex: 11
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 32768
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 56755
+    Position:
+      X:
+        RawValue: -86545
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 29491
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_2
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 12
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 46340
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 46340
+    Position:
+      X:
+        RawValue: -78643
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_3
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 13
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 56755
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 32767
+    Position:
+      X:
+        RawValue: -86545
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: -29491
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_4
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 14
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 63302
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 16961
+    Position:
+      X:
+        RawValue: -108134
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: -51080
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_5
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 15
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 65536
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 0
+    Position:
+      X:
+        RawValue: -137625
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: -58982
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_6
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 16
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 63302
+      Z:
+        RawValue: 0
+      W:
+        RawValue: -16961
+    Position:
+      X:
+        RawValue: -167116
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: -51080
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_7
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 17
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 56755
+      Z:
+        RawValue: 0
+      W:
+        RawValue: -32768
+    Position:
+      X:
+        RawValue: -188705
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: -29491
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_8
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 18
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 46340
+      Z:
+        RawValue: 0
+      W:
+        RawValue: -46340
+    Position:
+      X:
+        RawValue: -196608
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_9
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 19
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 32768
+      Z:
+        RawValue: 0
+      W:
+        RawValue: -56755
+    Position:
+      X:
+        RawValue: -188705
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 29491
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_10
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 20
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 16961
+      Z:
+        RawValue: 0
+      W:
+        RawValue: -63302
+    Position:
+      X:
+        RawValue: -167116
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 51080
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_11
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 21
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 65536
+    Position:
+      X:
+        RawValue: 137625
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 58982
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_0
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 22
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 16961
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 63302
+    Position:
+      X:
+        RawValue: 167116
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 51080
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_1
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 23
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 32768
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 56755
+    Position:
+      X:
+        RawValue: 188705
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 29491
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_2
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 24
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 46340
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 46340
+    Position:
+      X:
+        RawValue: 196608
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_3
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 25
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 56755
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 32767
+    Position:
+      X:
+        RawValue: 188705
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: -29491
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_4
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 26
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 63302
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 16961
+    Position:
+      X:
+        RawValue: 167116
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: -51080
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_5
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 27
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 65536
+      Z:
+        RawValue: 0
+      W:
+        RawValue: 0
+    Position:
+      X:
+        RawValue: 137625
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: -58982
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_6
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 28
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 63302
+      Z:
+        RawValue: 0
+      W:
+        RawValue: -16961
+    Position:
+      X:
+        RawValue: 108134
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: -51080
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_7
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 29
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 56755
+      Z:
+        RawValue: 0
+      W:
+        RawValue: -32768
+    Position:
+      X:
+        RawValue: 86545
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: -29491
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_8
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 30
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 46340
+      Z:
+        RawValue: 0
+      W:
+        RawValue: -46340
+    Position:
+      X:
+        RawValue: 78643
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_9
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 31
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 32768
+      Z:
+        RawValue: 0
+      W:
+        RawValue: -56755
+    Position:
+      X:
+        RawValue: 86545
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 29491
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_10
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 32
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 16961
+      Z:
+        RawValue: 0
+      W:
+        RawValue: -63302
+    Position:
+      X:
+        RawValue: 108134
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 51080
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 2
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 16460
+      Y:
+        RawValue: 20316
+      Z:
+        RawValue: 2621
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Wall_11
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 33
       MutableMode: 0
     QNavMeshData:
       Area: 0
@@ -782,7 +1816,7 @@ MonoBehaviour:
   - Components:
     - rid: 3976700873517563904
     - rid: 3976700873517563905
-  SerializedTriangleDataUncompressedSize: 96848
+  SerializedTriangleDataUncompressedSize: 8
   references:
     version: 2
     RefIds:

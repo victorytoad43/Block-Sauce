@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 8240129676438692450}
   - component: {fileID: 3363681044359866268}
   - component: {fileID: 9118534043987482391}
+  - component: {fileID: 3202399801992920246}
   m_Layer: 0
   m_Name: PH_Block
   m_TagString: Untagged
@@ -352,6 +353,17 @@ MonoBehaviour:
   Prototype:
     Holder: {fileID: 0}
     LastHolder: {fileID: 0}
+    SolidLayer: 0
+    ThrowClear:
+      Mode: 0
+      Frames: 0
+      Seconds:
+        RawValue: 0
+    ThrowClearOf:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
 --- !u!114 &3363681044359866268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -380,6 +392,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.BlockView
   _palette: {fileID: 11400000, guid: 6417543b1dfd5b248be0190ca041e87b, type: 2}
   _renderer: {fileID: 7859214607670676757}
+--- !u!114 &3202399801992920246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 737171309673966063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f3b9ecc022342e44b3ff9cc05c453b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.SauceCoatView
+  _blockRenderer: {fileID: 7859214607670676757}
+  _coatMaterial: {fileID: 2100000, guid: 5afcf5d3c19e7e741a9a33bda48cb8cf, type: 2}
+  _looks: {fileID: 11400000, guid: 8268b055fbb6aa0498faa7fb2226a3d7, type: 2}
+  _bubblesPerSecond: 14
+  _glintsPerSecond: 10
 --- !u!1 &4513924175352004827
 GameObject:
   m_ObjectHideFlags: 0
