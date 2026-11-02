@@ -4,11 +4,11 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-02)
 
-**Phases 0–3 are done. Phase 4 (Character) has every clip it needs (win and lose stand on `Idle`); its done-when check, a full match with 2+ clients, is next.**
+**Phases 0–4 are done. Phase 4 (Character) awaits Jackson's review; win and lose stand on `Idle` until A-023. Next is Phase 5 (Sauces).**
 
 What plays today, online with up to 8 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
-- Grab, hold and swing (body turns past 45°; camera tilts at the swing's top and bottom), place with flush settling, hold-to-aim throw with trajectory preview, jumpshot.
+- Grab, hold and swing (body turns past 45°; the camera follows the swing on a gradient and never locks), place with flush settling, hold-to-aim throw with trajectory preview, jumpshot.
 - Stack & Lock: 3 owned blocks each, settle dither, counting, win, full match loop back to the lobby.
 - Knockdown: Guy's 11-limb ragdoll, Jump to recover faster, carrying bodies, get-up clips, dazed indicator, falling out of the world resets.
 - Animation: idle; walk and run blending forward, back and strafe; jump; sit and slide; stagger flinches by hit side; GrabBlock hold with spine turn and hand IK; aim pose (`Throw` frame 4) and follow-through, grounded and airborne; foot IK on steps, ramps and blocks.
@@ -28,16 +28,15 @@ What plays today, online with up to 8 players, in the Lobby scene:
 - Matches only run in the Lobby scene; Arena_Graybox has no `Match` yet (Phase 6).
 
 ### Waiting on Jackson
-- Play-test of Phase 3, the stacking/hold iteration, the vertical camera tilt, sit, strafe, flinch and foot IK, and the aim pose with the over-the-shoulder aim camera (0.9 m right, 0.3 m up; `OrbitCamera` › Aim Shoulder Offset).
+- Review of Phase 4 (report below) and a play-test: sit, strafe, flinch, foot IK, the aim pose, the over-the-shoulder aim camera (0.9 m right, 0.3 m up; `OrbitCamera` › Aim Shoulder Offset) and the holding camera gradient (`OrbitCamera` › Swing Camera Share, 0.35).
 - The two open questions in the plan (settle numbers; pickup swings through your own tower).
 
 ### Placeholders in use
 `PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the draft `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_PlayerColors` (holds the real palette), `PH_` terrain (A-008), the IMGUI `MatchHud` (A-006), the stock Quantum start UI (A-002), `PH_RagdollTest` (stress-test scene only).
 
-## Phase 4 plan: what's left
+## Next: Phase 5 (Sauces)
 
-1. **Win and lose (A-023, when it lands):** play on Round end and Results from `MatchStateChanged`, winner and losers by the match's winner. `Idle` until then.
-2. **Verify the done-when:** a full match on uneven terrain with 2+ clients through MPPM, cycling every state (idle, walk, run, strafe, jump, sit, slide, stagger, knockdown, get-up, grab, carry, aim, throw, jumpshot, place, win, lose); watched from the Scene view; console clean; phase report.
+Starts after Jackson's Phase 4 review. Needs A-005 (final block mesh) and A-013 (owner readability) for the coat shader; the simulation side (dip planes, strength, Stack and Slip sauce) can start on the draft block. A-023 (win and lose) slots in whenever it lands.
 
 ## Log
 
@@ -63,6 +62,28 @@ Phase report format:
 - Placeholders still in use: <list with asset IDs>
 - Ready for review: yes
 ```
+
+## Phase 4 report: Character
+- Built: every player state animated on Guy. Idle; walk and run blending forward, back and strafe; jump start, loop and land; sit and slide; stagger flinches by hit side; `GrabBlock` hold with spine turn and hand IK; the aim pose (`Throw` frame 4) and follow-through, grounded and airborne; knockdown ragdoll on Guy's bones and get-up blends; foot IK on steps, ramps and blocks; capsule at Guy's 0.40 m radius. Camera: never locks while holding (gradient), moves over the shoulder while aiming.
+- Done-when verification ("Guy plays a full match on uneven terrain with no state left unanimated"): two clients through MPPM (`Assets/Settings/PlayMode/TwoClients.asset`, main editor plus one clone) in one online room. Player A ran a scripted match: start, walk, run, slide into a sit, jump, grab, carry with strafes and back-steps, swing past the turn threshold, aim and throw, aim in the air and jumpshot, place, knockdown and get-up, then stood still while player B (scripted) ran into it for a real stagger, then stacked three blocks to win. The match went Lobby → Countdown → Playing → RoundEnd → Results → Lobby. A logged every Animator state each character's view reached, as seen on A:
+  - A (local): Idle, Walk, Walk back, Walk strafe, Run, Run back, Run strafe, JumpStart, JumpLoop, JumpLand, Sit, Sit with the slide clip, GrabBlock, Aim (on the ground and in the air), Throw, StruckBack, StruckLeft, ragdoll, GetUpFaceDown, foot IK planted; tiers InControl and Staggered.
+  - B (remote, interpolated): Idle, Walk, Run, Run strafe, JumpLoop, JumpLand, foot IK planted.
+  - No state outside the controller's known ones, on any layer.
+  - Win and lose: Idle during RoundEnd and Results, as decided.
+  - Uneven terrain: foot IK on the Lobby's step and ramps (checked earlier today; planted in this run too).
+  - A separate replay of the jumpshot: aiming on the ground, airborne at 0.61 s, thrown in the air at 1.01 s.
+  - Console on both clients: no game errors.
+- Known issues: see Current state (aim block offset, strafe foot slide, block height while sitting, long arms on dropped hips).
+- Placeholders still in use: `PH_PlayerCapsule`, `PH_Block` (draft `BL_Block`, A-005), `PH_LockDither` (A-007/A-013), `PH_` terrain (A-008), IMGUI `MatchHud` (A-006), stock start UI (A-002); win and lose on `Idle` (A-023).
+- Ready for review: yes
+
+## 2026-11-02: Phase 4, holding camera gradient; done-when verified
+- Did: the orbit camera no longer locks behind the body while holding. It turns toward the swing at 35% of the input in the middle, rising smoothly (cubic) to all of it at the 45° body-turn edge, then turns with the body; vertically it tilts the same way toward the ends of the swing pitch or throw angle and fully past them. View only (`OrbitCamera`, `LocalPlayerView`). Added the `TwoClients` MPPM scenario. Ran the done-when (report above).
+- Verified: swinging right at 60°/s, the camera turned 3° → 7° → 16° while the block swung 8° → 25° → 40°, then followed the turning body; raising the block tilted the camera from 15° to −28° throughout; raising and lowering the throw aim tilted it 15° → 5° → 21°.
+- Decided: the camera yaw is a function of the swing (no drift: swinging back returns it); the middle share is a tunable (`Swing Camera Share`). The Lobby scene now stores the camera's three new fields at their defaults.
+- Assets: none.
+- Questions for Jackson: does the gradient feel right (0.35 in the middle)?
+- Next: Phase 4 review, then Phase 5.
 
 ## 2026-11-02: Phase 4, aim pose and jumpshot from Throw frame 4
 - Did:

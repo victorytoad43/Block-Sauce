@@ -36,7 +36,7 @@ Reference implementation: Photon's Friendslop sample (grab, carry, throw, force-
 
 - While holding, look input (right stick or mouse) swings the block instead of turning the camera. The block orbits a pivot inside Guy at the `GrabBlock` clip's hold point (0.77 m up, 0.95 m out), level and square to him. Left/right on the left stick strafe.
 - The block chases its hand point by velocity each tick, so a swing physically hits players and towers. A carrier never collides with, or is knocked by, the block it holds.
-- Sideways: a swing past 45° turns the body, and the camera follows behind. Vertically: once the block reaches the top (60°) or bottom (−25°) of its swing, further up or down input tilts the camera.
+- The camera always moves with look input while holding, on a gradient: 35% of the input with the block in the middle of its swing, rising smoothly to all of it at the edges. Sideways, a swing past 45° turns the body and the camera turns with it. Vertically, past the top (60°) or bottom (−25°) of the swing, input only tilts the camera. Aiming tilts the same way with the throw angle.
 - Holding Throw aims: the block rises to 30°, horizontal input turns the body, vertical input sets the throw angle, and a trajectory line and landing circle show the throw. Releasing throws (12 m/s; a jumpshot in the air is 1.3×). Grab while holding places.
 - Aim and throw in the view: aiming holds frame 4 of `Throw` (the wind-up, block overhead) on the upper body, and the block's model rides in Guy's hands while the real block stays at the 30° aim point in front. Releasing plays `Throw` on from frame 4, and the model catches up with the flying block within 0.08 s. In the air it is the same over `JumpLoop`. The camera moves over the right shoulder while aiming so the raised block doesn't hide the aim line.
 
@@ -85,7 +85,7 @@ Each dip stores a plane in the block's local space; the shader turns those plane
 - [x] **Phase 2, Stack & Lock:** owned blocks, stack detection, settling and counting, match flow, HUD placeholder, win check.
 - [x] **Phase 3, Knockdown:** knockdown tier, Guy's 11-limb ragdoll, get-up, carrying bodies, falling out, 8 players down at once profiled online (sim held 64 Hz).
 
-### Phase 4: Character (in progress)
+### Phase 4: Character (done 2026-11-02, awaiting review)
 In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/land; sit and slide; stagger flinches by hit side; `GrabBlock` hold layer with spine turn and two-bone hand IK on the block; aim pose and `Throw` follow-through, grounded and airborne; foot IK on uneven ground and blocks; ragdoll pose on Guy's bones; get-up blends; the grabbed block squaring to Guy's facing; capsule at Guy's 0.40 m radius.
 - [x] Strafe, stagger, sit and slide clips integrated (2026-11-02)
 - [x] Crouch replaced by sit (stationary, slides above 4 m/s)
@@ -94,7 +94,8 @@ In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/lan
 - [x] Hold visuals: hands on the block's faces, no chest clipping from 0° to 60° (checked 2026-11-02)
 - [x] Two-handed aim pose and jumpshot from `Throw` frame 4 (2026-11-02)
 - [x] Place: no clip; letting go blends the upper body back out of the hold
-- [ ] Verify the done-when: a full match with 2+ clients (MPPM), every state cycled; win and lose play `Idle` until A-023
+- [x] Camera keeps moving with look input while holding (gradient instead of a locked middle)
+- [x] Done-when verified: a full match with 2 clients (MPPM `TwoClients` scenario), every state cycled; win and lose play `Idle` until A-023
 - **Done when:** Guy plays a full match on uneven terrain with no state left unanimated.
 
 ### Phase 5: Sauces
@@ -128,7 +129,7 @@ Current decisions only; how they were reached is in git history.
 - **Towers** can be built anywhere; any hit during settling restarts it; rivals' blocks can be grabbed, thrown and placed on your tower.
 - **Stacking:** no locking. Blocks stay physical and grabbable and only count for the score. Counted blocks at rest are put to sleep (performance only). Blocks keep a plain box collider with restitution 0. Placing over another block squares it to that block and lifts it out of any overlap (toggle: Settle Placed On Block Below on `PlayerGrabConfig`). Placement is otherwise free: no snapping.
 - **Grab:** the nearest free block within 2 m in a 60° cone in front of the character; it turns level and square to Guy.
-- **Holding and camera:** see Architecture › Holding a block. Vertical camera tilt at the swing's edge added 2026-11-02 at Jackson's request.
+- **Holding and camera:** see Architecture › Holding a block. The camera never locks while holding: it follows the swing on a gradient (Jackson, 2026-11-02).
 - **Throwing** is hold-to-aim with a trajectory line and landing circle; a jumpshot aims the same way at 1.3× speed. One clip, `Throw`, covers both: frame 4 is the aim pose, the rest is the follow-through (Jackson, 2026-11-02). No place clip; win and lose stand on `Idle` until A-023.
 - **Spectator and repeatable match test** come later: the spectator in Phase 6, with the menu it starts from and the camera work; the one-button 8-player test in Phase 7, since it needs bots that can play a round. Until then, full-match checks run in MPPM and are watched from the Scene view.
 - **Movement input:** a gamepad stick's tilt sets speed from slow walk to full run; the keyboard walks, with Shift to run. The gamepad Start button starts a match; only Escape opens the menu.

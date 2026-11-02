@@ -4359,6 +4359,9 @@ MonoBehaviour:
   _pitchMax: 70
   _swingSensitivity: 1
   _followSharpness: 6
+  _swingCameraShare: 0.35
+  _aimShoulderOffset: {x: 0.9, y: 0.3}
+  _shoulderSharpness: 10
 --- !u!1 &1301914051
 GameObject:
   m_ObjectHideFlags: 0
