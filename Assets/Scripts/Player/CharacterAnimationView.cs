@@ -10,8 +10,9 @@ namespace BlockSauce
     /// forward, backward and strafing by the move direction relative to the facing (a carrier strafes and backs off
     /// while the swing holds its facing). Sitting plays the sit-down, blending into the slide while the sitting body
     /// moves fast. A jump plays the jump start, time in the air the jump loop, and touching down the landing. A
-    /// stagger plays a flinch for the side that was hit, over the whole body. View only: it reads the predicted frame
-    /// and simulation events, and never writes to the simulation.
+    /// stagger plays a flinch for the side that was hit, over the whole body. After a round the winner plays Win and
+    /// everyone else Lose, through the round end and results. View only: it reads the predicted frame and simulation
+    /// events, and never writes to the simulation.
     /// </summary>
     public class CharacterAnimationView : QuantumEntityViewComponent
     {
@@ -23,6 +24,7 @@ namespace BlockSauce
         private static readonly int SittingId = Animator.StringToHash("Sitting");
         private static readonly int AirborneId = Animator.StringToHash("Airborne");
         private static readonly int JumpId = Animator.StringToHash("Jump");
+        private static readonly int OutcomeId = Animator.StringToHash("Outcome");
         private static readonly int StruckFrontId = Animator.StringToHash("StruckFront");
         private static readonly int StruckBackId = Animator.StringToHash("StruckBack");
         private static readonly int StruckLeftId = Animator.StringToHash("StruckLeft");
@@ -104,6 +106,21 @@ namespace BlockSauce
             _animator.SetBool(AirborneId, _airTime >= _airborneDelay);
 
             UpdateFlinchWeight(isDown || isSitting);
+            _animator.SetInteger(OutcomeId, isDown ? 0 : GetOutcome());
+        }
+
+        /// <summary>
+        /// Returns 1 if this character won the round that just ended, 2 if it lost, and 0 while no round has ended.
+        /// </summary>
+        private int GetOutcome()
+        {
+            Frame frame = PredictedFrame;
+            if (frame.TryGetSingleton(out Match match) == false
+                || (match.State != MatchState.RoundEnd && match.State != MatchState.Results)
+                || TryGetPredictedQuantumComponent(out Player player) == false)
+                return 0;
+
+            return player.Ref == match.Winner ? 1 : 2;
         }
 
         /// <summary>
