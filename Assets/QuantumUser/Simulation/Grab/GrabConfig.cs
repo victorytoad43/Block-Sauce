@@ -124,5 +124,10 @@ namespace Quantum
         /// The jumpshot's speed as a multiple of the throw speed; a jumpshot aims like a throw.
         /// </summary>
         public FP JumpshotSpeedScale = (FP)13 / 10;
+        /// <summary>
+        /// Seconds after a throw during which the block and its thrower pass through each other: the aim point sits
+        /// almost against the thrower, so the block would otherwise hit him on the way out.
+        /// </summary>
+        public FP ThrowClearSeconds = (FP)15 / 100;
     }
 }

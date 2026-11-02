@@ -303,26 +303,47 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Grabbable : Quantum.IComponent {
-    public const Int32 SIZE = 16;
+    public const Int32 SIZE = 64;
     public const Int32 ALIGNMENT = 8;
-    [FieldOffset(0)]
-    [HideInInspector()]
-    public EntityRef Holder;
     [FieldOffset(8)]
     [HideInInspector()]
+    public EntityRef Holder;
+    [FieldOffset(16)]
+    [HideInInspector()]
     public EntityRef LastHolder;
+    [FieldOffset(0)]
+    [HideInInspector()]
+    public Int32 SolidLayer;
+    [FieldOffset(56)]
+    [HideInInspector()]
+    public FrameTimer ThrowClear;
+    [FieldOffset(24)]
+    [HideInInspector()]
+    [FramePrinter.FixedArrayAttribute(typeof(EntityRef), 4)]
+    private fixed Byte _ThrowClearOf_[32];
+    public readonly FixedArray<EntityRef> ThrowClearOf {
+      get {
+        fixed (byte* p = _ThrowClearOf_) { return new FixedArray<EntityRef>(p, 8, 4); }
+      }
+    }
     public override readonly Int32 GetHashCode() {
       unchecked { 
         var hash = 13457;
         hash = hash * 31 + Holder.GetHashCode();
         hash = hash * 31 + LastHolder.GetHashCode();
+        hash = hash * 31 + SolidLayer.GetHashCode();
+        hash = hash * 31 + ThrowClear.GetHashCode();
+        hash = hash * 31 + HashCodeUtils.GetArrayHashCode(ThrowClearOf);
         return hash;
       }
     }
     public static void Serialize(void* ptr, FrameSerializer serializer) {
       var p = (Grabbable*)ptr;
+      serializer.Stream.Serialize(&p->SolidLayer);
       EntityRef.Serialize(&p->Holder, serializer);
       EntityRef.Serialize(&p->LastHolder, serializer);
+      FixedArray.Serialize(p->ThrowClearOf, serializer, Statics.SerializeEntityRef);
+      FrameTimer.Serialize(&p->ThrowClear, serializer);
     }
   }
   [StructLayout(LayoutKind.Explicit)]
@@ -880,6 +901,7 @@ namespace Quantum {
     }
   }
   unsafe partial class Statics {
+    public static FrameSerializer.Delegate SerializeEntityRef = EntityRef.Serialize;
     public static FrameSerializer.Delegate SerializeSandboxBlockHome = Quantum.SandboxBlockHome.Serialize;
     public static FrameSerializer.Delegate SerializeInput = Quantum.Input.Serialize;
     unsafe partial record TypeRegistrations {

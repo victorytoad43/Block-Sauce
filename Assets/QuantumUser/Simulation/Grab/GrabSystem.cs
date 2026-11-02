@@ -31,6 +31,11 @@ namespace Quantum
         ISignalOnComponentRemoved<Grabbable>, ISignalOnComponentRemoved<Grabber>
     {
         /// <summary>
+        /// The physics layer an aimed block sits on: it collides with nothing (Project Settings › Physics).
+        /// </summary>
+        private const string AimedBlockLayer = "AimedBlock";
+
+        /// <summary>
         /// The components the grab system updates for each character.
         /// </summary>
         public struct Filter
@@ -92,8 +97,12 @@ namespace Quantum
                 filter.Grabber->IsAiming = true;
                 filter.Grabber->AimPitch = config.AimPitchStart;
                 // The view shows the block overhead while the real one waits in front, so it touches nothing until it
-                // leaves the hands (DetachHeld makes it solid again). A trigger still moves; a disabled collider doesn't.
-                frame.Unsafe.GetPointer<PhysicsCollider3D>(filter.Grabber->Held)->IsTrigger = true;
+                // leaves the hands (DetachHeld restores its layer). A disabled collider would stop the body moving, and
+                // turning a body into a trigger at runtime breaks the broadphase, so it moves to a layer that collides
+                // with nothing.
+                PhysicsCollider3D* collider = frame.Unsafe.GetPointer<PhysicsCollider3D>(filter.Grabber->Held);
+                frame.Unsafe.GetPointer<Grabbable>(filter.Grabber->Held)->SolidLayer = collider->Layer;
+                collider->Layer = frame.Layers.GetLayerIndex(AimedBlockLayer);
             }
             else
             {
@@ -398,7 +407,39 @@ namespace Quantum
             frame.Unsafe.GetPointer<PhysicsBody3D>(held)->Velocity = velocity;
 
             Release(frame, filter.Entity, filter.Grabber);
+            StartThrowClear(frame, held, config);
             frame.Events.Thrown(filter.Entity, held, velocity, isJumpshot);
+        }
+
+        /// <summary>
+        /// Lets a thrown block pass through its thrower and whatever it overlaps right now for a moment, so it leaves the
+        /// hands at full speed instead of being pushed out backwards. Its contacts with other bodies are reported every
+        /// tick from now on, which <see cref="GrabbableCollisionSystem"/> needs to ignore them.
+        /// </summary>
+        private void StartThrowClear(Frame frame, EntityRef held, GrabConfig config)
+        {
+            Grabbable* grabbable = frame.Unsafe.GetPointer<Grabbable>(held);
+            grabbable->ThrowClear = FrameTimer.FromSeconds(frame, config.ThrowClearSeconds);
+
+            FixedArray<EntityRef> clearOf = grabbable->ThrowClearOf;
+            for (int i = 0; i < clearOf.Length; i++)
+            {
+                clearOf[i] = EntityRef.None;
+            }
+
+            Transform3D* transform = frame.Unsafe.GetPointer<Transform3D>(held);
+            HitCollection3D hits = frame.Physics3D.OverlapShape(transform->Position, transform->Rotation,
+                frame.Get<PhysicsCollider3D>(held).Shape, -1, QueryOptions.HitDynamics | QueryOptions.HitKinematics);
+            int count = 0;
+            for (int i = 0; i < hits.Count && count < clearOf.Length; i++)
+            {
+                if (hits[i].IsTrigger == false && hits[i].Entity != held)
+                {
+                    clearOf[count++] = hits[i].Entity;
+                }
+            }
+
+            frame.Physics3D.SetCallbacks(held, frame.Physics3D.GetCallbacks(held) | CallbackFlags.OnDynamicCollision);
         }
 
         /// <summary>
@@ -555,8 +596,9 @@ namespace Quantum
         /// </summary>
         private void DetachHeld(Frame frame, EntityRef held)
         {
-            frame.Unsafe.GetPointer<Grabbable>(held)->Holder = EntityRef.None;
-            frame.Unsafe.GetPointer<PhysicsCollider3D>(held)->IsTrigger = false;
+            Grabbable* grabbable = frame.Unsafe.GetPointer<Grabbable>(held);
+            grabbable->Holder = EntityRef.None;
+            frame.Unsafe.GetPointer<PhysicsCollider3D>(held)->Layer = grabbable->SolidLayer;
 
             DisableLeash(frame, held);
 

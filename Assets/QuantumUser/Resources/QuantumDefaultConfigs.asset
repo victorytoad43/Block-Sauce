@@ -169,7 +169,7 @@ MonoBehaviour:
     - UI
     - 
     - 
-    - 
+    - AimedBlock
     - 
     - 
     - 
@@ -195,7 +195,7 @@ MonoBehaviour:
     - 
     ImportMode: 1
     MatrixImportSource: 1
-    LayerMatrix: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    LayerMatrix: fffefffffffefffffffefffffffefffffffefffffffefffffffefffffffeffff00000000fffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffefffffffeffff
   Navigation:
     DefaultNavMeshAgent:
       Id:

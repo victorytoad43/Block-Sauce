@@ -91,6 +91,13 @@ namespace Quantum.Prototypes {
     public MapEntityId Holder;
     [HideInInspector()]
     public MapEntityId LastHolder;
+    [HideInInspector()]
+    public Int32 SolidLayer;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype ThrowClear;
+    [HideInInspector()]
+    [ArrayLengthAttribute(4)]
+    public MapEntityId[] ThrowClearOf = new MapEntityId[4];
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
       Quantum.Grabbable component = default;
       Materialize((Frame)f, ref component, in context);
@@ -99,6 +106,11 @@ namespace Quantum.Prototypes {
     public void Materialize(Frame frame, ref Quantum.Grabbable result, in PrototypeMaterializationContext context = default) {
       PrototypeValidator.FindMapEntity(this.Holder, in context, out result.Holder);
       PrototypeValidator.FindMapEntity(this.LastHolder, in context, out result.LastHolder);
+      result.SolidLayer = this.SolidLayer;
+      this.ThrowClear.Materialize(frame, ref result.ThrowClear, in context);
+      for (int i = 0, count = PrototypeValidator.CheckLength(ThrowClearOf, 4, in context); i < count; ++i) {
+        PrototypeValidator.FindMapEntity(this.ThrowClearOf[i], in context, out *result.ThrowClearOf.GetPointer(i));
+      }
     }
   }
   [System.SerializableAttribute()]

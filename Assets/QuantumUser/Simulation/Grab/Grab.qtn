@@ -13,6 +13,12 @@ component Grabbable
 {
     [HideInInspector] EntityRef Holder;
     [HideInInspector] EntityRef LastHolder;
+    // The block's own physics layer, kept while aiming moves it to the AimedBlock layer.
+    [HideInInspector] Int32 SolidLayer;
+    // Until this runs out, a thrown block passes through its LastHolder and through the bodies it overlapped when
+    // thrown (an aimed block touches nothing, so it can be released inside another block).
+    [HideInInspector] FrameTimer ThrowClear;
+    [HideInInspector] array<EntityRef>[4] ThrowClearOf;
 }
 
 event Grabbed

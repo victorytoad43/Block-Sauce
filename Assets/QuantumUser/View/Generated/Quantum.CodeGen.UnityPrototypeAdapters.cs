@@ -88,11 +88,21 @@ namespace Quantum.Prototypes.Unity {
     public Quantum.QuantumEntityPrototype Holder;
     [HideInInspector()]
     public Quantum.QuantumEntityPrototype LastHolder;
+    [HideInInspector()]
+    public Int32 SolidLayer;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype ThrowClear;
+    [HideInInspector()]
+    [ArrayLengthAttribute(4)]
+    public Quantum.QuantumEntityPrototype[] ThrowClearOf = new Quantum.QuantumEntityPrototype[4];
     partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.GrabbablePrototype prototype);
     public override Quantum.Prototypes.GrabbablePrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
       var result = new Quantum.Prototypes.GrabbablePrototype();
       converter.Convert(this.Holder, out result.Holder);
       converter.Convert(this.LastHolder, out result.LastHolder);
+      converter.Convert(this.SolidLayer, out result.SolidLayer);
+      converter.Convert(this.ThrowClear, out result.ThrowClear);
+      converter.Convert(this.ThrowClearOf, out result.ThrowClearOf);
       ConvertUser(converter, ref result);
       return result;
     }
