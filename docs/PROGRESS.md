@@ -4,18 +4,19 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-02)
 
-**Phases 0–3 are done. Phase 4 (Character) is in progress, waiting on Guy's aim, place and win/lose clips.**
+**Phases 0–3 are done. Phase 4 (Character) has every clip it needs (win and lose stand on `Idle`); its done-when check, a full match with 2+ clients, is next.**
 
 What plays today, online with up to 8 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
 - Grab, hold and swing (body turns past 45°; camera tilts at the swing's top and bottom), place with flush settling, hold-to-aim throw with trajectory preview, jumpshot.
 - Stack & Lock: 3 owned blocks each, settle dither, counting, win, full match loop back to the lobby.
 - Knockdown: Guy's 11-limb ragdoll, Jump to recover faster, carrying bodies, get-up clips, dazed indicator, falling out of the world resets.
-- Animation: idle; walk and run blending forward, back and strafe; jump; sit and slide; stagger flinches by hit side; GrabBlock hold with spine turn and hand IK; throw follow-through; foot IK on steps, ramps and blocks.
+- Animation: idle; walk and run blending forward, back and strafe; jump; sit and slide; stagger flinches by hit side; GrabBlock hold with spine turn and hand IK; aim pose (`Throw` frame 4) and follow-through, grounded and airborne; foot IK on steps, ramps and blocks.
 
 ### Known issues
 - Strafe feet slide: the strafe clips step about 0.16 m/s, so they're sped up 2–8× and still can't keep up (A-024).
 - Sitting while holding a block keeps the block at the standing hold height; the arms reach up to it. If it reads badly, lower the hold pivot while sitting (simulation).
+- While aiming, the block's model is overhead in Guy's hands but the real block (what collides, and where the aim line starts) stays 0.8 m in front at the 30° aim point. If it matters in play, move the simulation's aim point overhead and launch the throw from in front.
 - With the hips dropped for a low foot, Guy's long arms can touch the ground beside him.
 - Flinches were checked by playing each one through the view; a real stagger in play still needs a look (the event path is unchanged from the knockback system).
 - The camera has no wall collision. Phase 6.
@@ -27,7 +28,7 @@ What plays today, online with up to 8 players, in the Lobby scene:
 - Matches only run in the Lobby scene; Arena_Graybox has no `Match` yet (Phase 6).
 
 ### Waiting on Jackson
-- Play-test of Phase 3, the stacking/hold iteration, the vertical camera tilt, and today's sit, strafe, flinch and foot IK.
+- Play-test of Phase 3, the stacking/hold iteration, the vertical camera tilt, sit, strafe, flinch and foot IK, and the aim pose with the over-the-shoulder aim camera (0.9 m right, 0.3 m up; `OrbitCamera` › Aim Shoulder Offset).
 - The two open questions in the plan (settle numbers; pickup swings through your own tower).
 
 ### Placeholders in use
@@ -35,10 +36,8 @@ What plays today, online with up to 8 players, in the Lobby scene:
 
 ## Phase 4 plan: what's left
 
-1. **Aim and jumpshot (A-021):** play the two-handed aim pose on the upper-body layer while Throw is held, the airborne version while aiming in the air; hand IK keeps the hands on the raised block. Then `Throw` follows through on release as now.
-2. **Place (A-022):** play the set-down on the upper-body layer on the `Placed` event, blending to empty hands.
-3. **Win and lose (A-023):** play on Round end and Results from `MatchStateChanged`, winner and losers by the match's winner.
-4. **Verify the done-when:** a full match on uneven terrain with 2+ clients through MPPM, cycling every state (idle, walk, run, strafe, jump, sit, slide, stagger, knockdown, get-up, grab, carry, aim, throw, jumpshot, place, win, lose); console clean; phase report.
+1. **Win and lose (A-023, when it lands):** play on Round end and Results from `MatchStateChanged`, winner and losers by the match's winner. `Idle` until then.
+2. **Verify the done-when:** a full match on uneven terrain with 2+ clients through MPPM, cycling every state (idle, walk, run, strafe, jump, sit, slide, stagger, knockdown, get-up, grab, carry, aim, throw, jumpshot, place, win, lose); watched from the Scene view; console clean; phase report.
 
 ## Log
 
@@ -64,6 +63,24 @@ Phase report format:
 - Placeholders still in use: <list with asset IDs>
 - Ready for review: yes
 ```
+
+## 2026-11-02: Phase 4, aim pose and jumpshot from Throw frame 4
+- Did:
+  - **Guy re-export** with the two-handed `Throw` (12 frames): integrated.
+  - **Aim** (Jackson): a frozen `Aim` state on the upper-body layer holds `Throw` frame 4, the wind-up with the block overhead. The block's model rides between Guy's hands there (`HeldBlockPoseView`), while the real block stays at the 30° aim point; the torso turn and hand IK give way to the pose while aiming. Releasing plays `Throw` on from frame 4 and hands the model back to the flying block over 0.08 s.
+  - **Jumpshot** uses the same pose and clip over the jump; the upper body fades back to `JumpLoop`.
+  - **Aim camera:** the orbit camera moves 0.9 m right and 0.3 m up while aiming. The raised block hid the aim line and landing circle from the usual spot.
+  - **Place and win/lose:** no place clip (letting go already blends out of the hold); win and lose stand on `Idle`. A-021 and A-022 removed from the asset list.
+  - **Spectator and repeatable test match:** assessed and placed in Phase 6 and Phase 7 (see the plan's Decisions).
+- Verified (play mode, one online client, scripted input):
+  - Grounded: Aim holds at normalized time 0.333 (frame 4) for the whole hold; the block's model sits 0.72 m behind and 1.67 m above his feet, his hands on its sides. On release `Throw` runs on from 0.36, and the model closes on the real block 1.20 → 0.77 → 0.50 → 0.26 → 0.05 m over 5 ticks, then tracks it within 0.02 m.
+  - Airborne: the same, not grounded throughout, jumpshot speed.
+  - Captures: from the usual camera spot the raised block hid the aim; from the shoulder the line and circle are clear.
+  - Console: no game errors.
+- Decided: the block's model, not the simulation's block, goes overhead, so nothing in the simulation changes and a throw still launches from in front (see Known issues).
+- Assets: A-021 delivered as the reworked `Throw`; A-022 dropped; A-023 stays (in development).
+- Questions for Jackson: does the shoulder camera feel right while aiming?
+- Next: the Phase 4 done-when with 2+ clients through MPPM.
 
 ## 2026-11-02: Phase 4, sit, strafe, flinch, foot IK, capsule
 - Did:

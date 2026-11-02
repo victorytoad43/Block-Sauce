@@ -7,18 +7,22 @@ namespace BlockSauce
     /// On a player character's view: makes Guy hold what he carries. Grabbing plays the GrabBlock clip on the upper-body
     /// layer, which ends with both hands on a block at the hold point. While the block is held, his spine and chest turn
     /// and lean toward wherever the swing has taken it, and both arms reach for its sides (two-bone IK), so the hands stay
-    /// on the block as it swings, lags or is raised to throw. A throw plays the follow-through of the Throw clip. View
-    /// only: it reads the predicted frame and never writes to the simulation.
+    /// on the block as it swings or lags. Aiming holds the wind-up frame of the Throw clip (block overhead), and the
+    /// block's model rides in his hands there; a throw plays the rest of the clip from that frame while the block's model
+    /// catches up with where the real block flies. Airborne it is the same, over the jump. View only: it reads the
+    /// predicted frame and never writes to the simulation. Only the block's model moves; the block itself stays where the
+    /// simulation holds it.
     /// </summary>
     public class HeldBlockPoseView : QuantumEntityViewComponent
     {
         private static readonly int GrabBlockId = Animator.StringToHash("GrabBlock");
         private static readonly int ThrowId = Animator.StringToHash("Throw");
+        private static readonly int AimId = Animator.StringToHash("Aim");
         private static readonly int EmptyId = Animator.StringToHash("Empty");
 
         [Tooltip("The Animator on Guy's model.")]
         [SerializeField] private Animator _animator;
-        [Tooltip("The Animator layer that plays GrabBlock and Throw over the upper body.")]
+        [Tooltip("The Animator layer that plays GrabBlock, Aim and Throw over the upper body.")]
         [SerializeField] private string _upperBodyLayer = "UpperBody";
         [Tooltip("Seconds the upper-body layer takes to blend in on a grab and out on a release.")]
         [SerializeField] private float _blendSeconds = 0.12f;
@@ -42,8 +46,14 @@ namespace BlockSauce
         [SerializeField] private float _gripBack = 0.12f;
         [Tooltip("Seconds the hands take to reach the block after a grab.")]
         [SerializeField] private float _reachSeconds = 0.1f;
-        [Tooltip("How far into the Throw clip, as a share of its length, the follow-through starts.")]
-        [SerializeField] private float _throwStart = 0.3f;
+
+        [Header("Aim and throw")]
+        [Tooltip("The Throw clip frame held as the aim pose (the wind-up); a throw plays on from it.")]
+        [SerializeField] private int _aimFrame = 4;
+        [Tooltip("Seconds the aim pose takes to blend in, carrying the block's model up into the hands.")]
+        [SerializeField] private float _aimBlendSeconds = 0.15f;
+        [Tooltip("Seconds after a throw the block's model takes to go from the hands to the real, flying block.")]
+        [SerializeField] private float _releaseSeconds = 0.08f;
 
         private int _layer;
         private Transform _spine;
@@ -57,6 +67,12 @@ namespace BlockSauce
         private float _layerWeight;
         private float _reachWeight;
         private float _throwTimer;
+        private float _aimTime;
+        private bool _aiming;
+        private float _aimWeight;
+        private Transform _thrownView;
+        private float _releaseTimer;
+        private float _releaseWeight;
 
         public override void OnInitialize()
         {
@@ -75,6 +91,9 @@ namespace BlockSauce
                     case "hand.R": _handR = bone; break;
                 }
             }
+
+            AnimationClip throwClip = GetClip("Throw");
+            _aimTime = throwClip != null ? Mathf.Clamp01(_aimFrame / (throwClip.length * throwClip.frameRate)) : 0f;
         }
 
         public override void OnActivate(Frame frame)
@@ -84,8 +103,21 @@ namespace BlockSauce
                 if (e.Entity != EntityRef || _layer < 0)
                     return;
 
-                _animator.Play(ThrowId, _layer, _throwStart);
-                _throwTimer = GetClipLength("Throw") * (1f - _throwStart);
+                AnimationClip throwClip = GetClip("Throw");
+                _animator.Play(ThrowId, _layer, _aimTime);
+                _throwTimer = throwClip != null ? throwClip.length * (1f - _aimTime) : 0f;
+
+                QuantumEntityView view = EntityView.EntityViewUpdater.GetView(e.Held);
+                _thrownView = view != null ? view.transform : null;
+                _releaseTimer = _releaseSeconds;
+                if (_held == e.Held)
+                {
+                    // Not yet seen as released this frame; otherwise the release already recorded the aim weight.
+                    _releaseWeight = _aimWeight;
+                }
+
+                _aiming = false;
+                _aimWeight = 0f;
             });
         }
 
@@ -99,11 +131,14 @@ namespace BlockSauce
             if (_layer < 0)
                 return;
 
-            EntityRef held = GetHeld(out GrabConfig config);
+            EntityRef held = GetHeld(out GrabConfig config, out bool aiming);
             if (held != _held)
             {
                 _held = held;
                 _heldView = null;
+                _releaseWeight = _aimWeight;
+                _aiming = false;
+                _aimWeight = 0f;
                 if (held != EntityRef.None)
                 {
                     QuantumEntityView view = EntityView.EntityViewUpdater.GetView(held);
@@ -116,6 +151,21 @@ namespace BlockSauce
                 }
             }
 
+            if (_heldView != null && aiming != _aiming)
+            {
+                _aiming = aiming;
+                if (aiming)
+                {
+                    _animator.CrossFade(AimId, _aimBlendSeconds, _layer, _aimTime);
+                }
+                else
+                {
+                    _animator.CrossFade(GrabBlockId, _aimBlendSeconds, _layer, 1f);
+                }
+            }
+
+            _aimWeight = Mathf.MoveTowards(_aimWeight, _aiming ? 1f : 0f, Time.deltaTime / _aimBlendSeconds);
+            _releaseTimer = Mathf.Max(0f, _releaseTimer - Time.deltaTime);
             _throwTimer = Mathf.Max(0f, _throwTimer - Time.deltaTime);
             bool active = _heldView != null || _throwTimer > 0f;
             if (active == false && _layerWeight <= 0f)
@@ -129,32 +179,45 @@ namespace BlockSauce
         }
 
         /// <summary>
-        /// Returns what the character holds, or none while it is down or holds nothing.
+        /// Returns what the character holds, or none while it is down or holds nothing, and whether it is aiming a throw.
         /// </summary>
-        private EntityRef GetHeld(out GrabConfig config)
+        private EntityRef GetHeld(out GrabConfig config, out bool aiming)
         {
             config = null;
+            aiming = false;
             Frame frame = PredictedFrame;
             if (frame == null || frame.Has<RagdollOwner>(EntityRef) || frame.TryGet(EntityRef, out Grabber grabber) == false
                 || grabber.Held == EntityRef.None || frame.Exists(grabber.Held) == false)
                 return EntityRef.None;
 
             config = frame.FindAsset(grabber.Config);
+            aiming = grabber.IsAiming;
             return grabber.Held;
         }
 
         public override void OnLateUpdateView()
         {
+            if (_thrownView != null && _releaseTimer > 0f && _handL != null)
+            {
+                float share = _releaseTimer / _releaseSeconds * _releaseWeight;
+                _thrownView.position = Vector3.Lerp(_thrownView.position, GetBlockInHands(), share);
+            }
+
             if (_heldView == null || _reachWeight <= 0f || _spine == null)
                 return;
+
+            // The animated hands, before the torso and arms are bent toward the real block, are where the aim pose holds
+            // the block's model.
+            Vector3 inHands = GetBlockInHands();
+            float follow = _reachWeight * (1f - _aimWeight);
 
             Vector3 pivot = transform.position + Vector3.up * _pivotHeight;
             Vector3 toHeld = _heldView.position - pivot;
             Vector3 local = Quaternion.Inverse(transform.rotation) * toHeld;
             float yaw = Mathf.Atan2(local.x, local.z) * Mathf.Rad2Deg;
             float pitch = Mathf.Atan2(local.y, new Vector2(local.x, local.z).magnitude) * Mathf.Rad2Deg;
-            float turn = Mathf.Clamp(yaw, -_maxTurnDegrees, _maxTurnDegrees) * _reachWeight;
-            float lean = pitch * _reachWeight;
+            float turn = Mathf.Clamp(yaw, -_maxTurnDegrees, _maxTurnDegrees) * follow;
+            float lean = pitch * follow;
 
             TurnBone(_spine, turn * _spineTurnShare, lean * _spineLeanShare);
             TurnBone(_chest, turn * _chestTurnShare, lean * _chestLeanShare);
@@ -165,8 +228,23 @@ namespace BlockSauce
             float halfWidth = _heldIsBlock ? _blockGripHalfWidth : _otherGripHalfWidth;
             Vector3 grip = _heldView.position - direction * _gripBack;
 
-            ReachFor(_upperArmL, _forearmL, _handL, grip - side * halfWidth);
-            ReachFor(_upperArmR, _forearmR, _handR, grip + side * halfWidth);
+            ReachFor(_upperArmL, _forearmL, _handL, grip - side * halfWidth, follow);
+            ReachFor(_upperArmR, _forearmR, _handR, grip + side * halfWidth, follow);
+
+            if (_aimWeight > 0f)
+            {
+                _heldView.position = Vector3.Lerp(_heldView.position, inHands, _aimWeight);
+            }
+        }
+
+        /// <summary>
+        /// Returns where a block gripped by both hands sits: between them, pushed out from the chest by the grip depth.
+        /// </summary>
+        private Vector3 GetBlockInHands()
+        {
+            Vector3 between = (_handL.position + _handR.position) * 0.5f;
+            Vector3 outward = between - _chest.position;
+            return outward.sqrMagnitude > 1e-4f ? between + outward.normalized * _gripBack : between;
         }
 
         /// <summary>
@@ -179,22 +257,22 @@ namespace BlockSauce
         }
 
         /// <summary>
-        /// Moves the hand toward <paramref name="target"/> by the reach weight, keeping its animated rotation.
+        /// Moves the hand toward <paramref name="target"/> by <paramref name="weight"/>, keeping its animated rotation.
         /// </summary>
-        private void ReachFor(Transform upperArm, Transform forearm, Transform hand, Vector3 target)
+        private static void ReachFor(Transform upperArm, Transform forearm, Transform hand, Vector3 target, float weight)
         {
-            TwoBoneIK.Solve(upperArm, forearm, hand, Vector3.Lerp(hand.position, target, _reachWeight));
+            TwoBoneIK.Solve(upperArm, forearm, hand, Vector3.Lerp(hand.position, target, weight));
         }
 
-        private float GetClipLength(string clipName)
+        private AnimationClip GetClip(string clipName)
         {
             foreach (AnimationClip clip in _animator.runtimeAnimatorController.animationClips)
             {
                 if (clip.name == clipName)
-                    return clip.length;
+                    return clip;
             }
 
-            return 0f;
+            return null;
         }
     }
 }

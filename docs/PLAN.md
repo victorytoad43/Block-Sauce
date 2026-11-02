@@ -38,6 +38,7 @@ Reference implementation: Photon's Friendslop sample (grab, carry, throw, force-
 - The block chases its hand point by velocity each tick, so a swing physically hits players and towers. A carrier never collides with, or is knocked by, the block it holds.
 - Sideways: a swing past 45° turns the body, and the camera follows behind. Vertically: once the block reaches the top (60°) or bottom (−25°) of its swing, further up or down input tilts the camera.
 - Holding Throw aims: the block rises to 30°, horizontal input turns the body, vertical input sets the throw angle, and a trajectory line and landing circle show the throw. Releasing throws (12 m/s; a jumpshot in the air is 1.3×). Grab while holding places.
+- Aim and throw in the view: aiming holds frame 4 of `Throw` (the wind-up, block overhead) on the upper body, and the block's model rides in Guy's hands while the real block stays at the 30° aim point in front. Releasing plays `Throw` on from frame 4, and the model catches up with the flying block within 0.08 s. In the air it is the same over `JumpLoop`. The camera moves over the right shoulder while aiming so the raised block doesn't hide the aim line.
 
 ### Knockdown
 
@@ -85,15 +86,15 @@ Each dip stores a plane in the block's local space; the shader turns those plane
 - [x] **Phase 3, Knockdown:** knockdown tier, Guy's 11-limb ragdoll, get-up, carrying bodies, falling out, 8 players down at once profiled online (sim held 64 Hz).
 
 ### Phase 4: Character (in progress)
-In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/land; sit and slide; stagger flinches by hit side; `GrabBlock` hold layer with spine turn and two-bone hand IK on the block; `Throw` follow-through; foot IK on uneven ground and blocks; ragdoll pose on Guy's bones; get-up blends; the grabbed block squaring to Guy's facing; capsule at Guy's 0.40 m radius.
+In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/land; sit and slide; stagger flinches by hit side; `GrabBlock` hold layer with spine turn and two-bone hand IK on the block; aim pose and `Throw` follow-through, grounded and airborne; foot IK on uneven ground and blocks; ragdoll pose on Guy's bones; get-up blends; the grabbed block squaring to Guy's facing; capsule at Guy's 0.40 m radius.
 - [x] Strafe, stagger, sit and slide clips integrated (2026-11-02)
 - [x] Crouch replaced by sit (stationary, slides above 4 m/s)
 - [x] Capsule widened to 0.40 m; grab reach and flush placing retested
 - [x] Foot IK on uneven terrain
 - [x] Hold visuals: hands on the block's faces, no chest clipping from 0° to 60° (checked 2026-11-02)
-- [ ] Two-handed aim pose and airborne jumpshot (A-021, in progress)
-- [ ] Place clip (A-022)
-- [ ] Win and lose clips on Round end / Results (A-023)
+- [x] Two-handed aim pose and jumpshot from `Throw` frame 4 (2026-11-02)
+- [x] Place: no clip; letting go blends the upper body back out of the hold
+- [ ] Verify the done-when: a full match with 2+ clients (MPPM), every state cycled; win and lose play `Idle` until A-023
 - **Done when:** Guy plays a full match on uneven terrain with no state left unanimated.
 
 ### Phase 5: Sauces
@@ -108,11 +109,13 @@ In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/lan
 - [ ] Camera collision with walls; menu UI, HUD, audio
 - [ ] Juice: shake, particles, squash and stretch, count pop
 - [ ] Feel tuning pass (aim, sensitivity, throw speed, settle and knockdown numbers)
+- [ ] Spectator: join any room (live or test) without a player; fly freely or follow and cycle through players; reached from the new menu. Quantum replays of a recorded match play back through the same camera, for promo capture.
 - **Done when:** a new player finishes a round without explanation.
 
 ### Phase 7: Expansion (ongoing)
 - [ ] Team modes and roles, new win rules, more sauces
 - [ ] Bots (Quantum Bot SDK), matchmaking polish
+- [ ] One-button test match: bots fill all 8 slots and play Stack & Lock to a win, watched with the spectator camera
 - Each new mode is a config plus rule hooks.
 
 ## Decisions
@@ -126,7 +129,8 @@ Current decisions only; how they were reached is in git history.
 - **Stacking:** no locking. Blocks stay physical and grabbable and only count for the score. Counted blocks at rest are put to sleep (performance only). Blocks keep a plain box collider with restitution 0. Placing over another block squares it to that block and lifts it out of any overlap (toggle: Settle Placed On Block Below on `PlayerGrabConfig`). Placement is otherwise free: no snapping.
 - **Grab:** the nearest free block within 2 m in a 60° cone in front of the character; it turns level and square to Guy.
 - **Holding and camera:** see Architecture › Holding a block. Vertical camera tilt at the swing's edge added 2026-11-02 at Jackson's request.
-- **Throwing** is hold-to-aim with a trajectory line and landing circle; a jumpshot aims the same way at 1.3× speed. The throw clip releases on frame 5 of 7.
+- **Throwing** is hold-to-aim with a trajectory line and landing circle; a jumpshot aims the same way at 1.3× speed. One clip, `Throw`, covers both: frame 4 is the aim pose, the rest is the follow-through (Jackson, 2026-11-02). No place clip; win and lose stand on `Idle` until A-023.
+- **Spectator and repeatable match test** come later: the spectator in Phase 6, with the menu it starts from and the camera work; the one-button 8-player test in Phase 7, since it needs bots that can play a round. Until then, full-match checks run in MPPM and are watched from the Scene view.
 - **Movement input:** a gamepad stick's tilt sets speed from slow walk to full run; the keyboard walks, with Shift to run. The gamepad Start button starts a match; only Escape opens the menu.
 - **Sit replaces crouch** (Jackson, 2026-11-02): no movement while sitting except sliding; a sitting body moving fast plays the slide.
 - **Knockdown:** see Architecture › Knockdown. Numbers live on `PlayerKnockbackConfig` and `PlayerRagdollConfig` and stay open for tuning.

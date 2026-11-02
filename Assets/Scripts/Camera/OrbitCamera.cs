@@ -9,6 +9,7 @@ namespace BlockSauce
     /// eases round behind the character, and collects the look movement as swing degrees for the input poller.
     /// Sideways, a swing far enough round turns the body (in the simulation) and the camera follows it. Vertically,
     /// once the block reaches the top or bottom of its swing, further up or down input tilts the camera instead.
+    /// While aiming a throw it moves over the character's shoulder, clear of the block raised overhead.
     /// This is view-only state: the simulation never reads it except through that input.
     /// </summary>
     public class OrbitCamera : MonoBehaviour
@@ -34,6 +35,11 @@ namespace BlockSauce
         [SerializeField] private float _swingSensitivity = 1f;
         [Tooltip("How fast the camera eases round behind the character while holding, per second.")]
         [SerializeField] private float _followSharpness = 6f;
+        [Tooltip("Where the camera moves while aiming a throw, in meters: right of and above its usual place, so the "
+            + "block held overhead doesn't hide the aim.")]
+        [SerializeField] private Vector2 _aimShoulderOffset = new Vector2(0.9f, 0.3f);
+        [Tooltip("How fast the camera moves to and from the shoulder, per second.")]
+        [SerializeField] private float _shoulderSharpness = 10f;
 
         private Transform _target;
         private bool _isHolding;
@@ -43,6 +49,8 @@ namespace BlockSauce
         private float _swingPitch;
         private float _swingPitchMin;
         private float _swingPitchMax;
+        private bool _isAiming;
+        private float _shoulderWeight;
 
         /// <summary>
         /// The camera's absolute yaw, in degrees around world up.
@@ -72,6 +80,7 @@ namespace BlockSauce
             {
                 _pendingSwing = Vector2.zero;
                 _canTiltWithSwing = false;
+                _isAiming = false;
             }
 
             _isHolding = isHolding;
@@ -85,6 +94,7 @@ namespace BlockSauce
         public void SetSwingPitch(bool canTilt, float swingPitch, float swingPitchMin, float swingPitchMax)
         {
             _canTiltWithSwing = canTilt;
+            _isAiming = canTilt == false;
             _swingPitch = swingPitch;
             _swingPitchMin = swingPitchMin;
             _swingPitchMax = swingPitchMax;
@@ -153,8 +163,11 @@ namespace BlockSauce
             if (_target == null)
                 return;
 
+            _shoulderWeight = Mathf.Lerp(_shoulderWeight, _isAiming ? 1f : 0f,
+                1f - Mathf.Exp(-_shoulderSharpness * Time.deltaTime));
             Quaternion rotation = Quaternion.Euler(Pitch, Yaw, 0f);
-            Vector3 pivot = _target.position + Vector3.up * _pivotHeight;
+            Vector3 shoulder = Quaternion.Euler(0f, Yaw, 0f) * new Vector3(_aimShoulderOffset.x, _aimShoulderOffset.y, 0f);
+            Vector3 pivot = _target.position + Vector3.up * _pivotHeight + shoulder * _shoulderWeight;
             transform.SetPositionAndRotation(pivot - rotation * Vector3.forward * _distance, rotation);
         }
 
