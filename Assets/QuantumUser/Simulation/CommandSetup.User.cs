@@ -11,6 +11,7 @@
             factories.Add(new CommandDevStackTower());
             factories.Add(new CommandDevKnockdown());
             factories.Add(new CommandDevBuildColumn());
+            factories.Add(new CommandDevSauce());
         }
     }
 }

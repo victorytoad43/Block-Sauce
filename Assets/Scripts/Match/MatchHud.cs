@@ -40,6 +40,13 @@ namespace BlockSauce
                 game.AddCommand(new CommandDevStackTower());
             }
 
+            // Dev shortcut: coat your held block, or all your blocks, with Stack sauce (F8) or Slip sauce (Shift+F8).
+            if (Keyboard.current != null && Keyboard.current.f8Key.wasPressedThisFrame)
+            {
+                bool slip = Keyboard.current.shiftKey.isPressed;
+                game.AddCommand(new CommandDevSauce { Type = slip ? SauceType.Slip : SauceType.Stack });
+            }
+
             // Dev shortcut: knock yourself down.
             if (Keyboard.current != null && Keyboard.current.f10Key.wasPressedThisFrame)
             {

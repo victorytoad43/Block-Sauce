@@ -78,6 +78,22 @@ namespace Quantum
     }
 
     /// <summary>
+    /// Test-only: coats the sender's held block, or if it holds none every block it owns, with a sauce at full depth
+    /// (SauceSystem.ApplyDip). Works in the lobby and in a match. Only debug builds act on it.
+    /// </summary>
+    public class CommandDevSauce : DeterministicCommand
+    {
+        public SauceType Type = SauceType.Stack;
+
+        public override void Serialize(BitStream stream)
+        {
+            int type = (int)Type;
+            stream.Serialize(ref type);
+            Type = (SauceType)type;
+        }
+    }
+
+    /// <summary>
     /// Test-only: runs dev commands in debug builds. Does nothing in release builds.
     /// </summary>
     public unsafe class DevCommandSystem : SystemMainThread
@@ -104,6 +120,11 @@ namespace Quantum
                 {
                     BuildColumn(frame, player, command.Count, command.Distance, command.Skip);
                 }
+
+                foreach (CommandDevSauce command in frame.GetPlayerCommands<CommandDevSauce>(player))
+                {
+                    Sauce(frame, player, command.Type);
+                }
             }
 
             if (frame.TryGetSingleton(out Match match) == false || match.State != MatchState.Playing)
@@ -119,6 +140,41 @@ namespace Quantum
                 }
             }
 #endif
+        }
+
+        private static void Sauce(Frame frame, PlayerRef sender, SauceType type)
+        {
+            if (frame.TryGetSingleton(out Match match) == false)
+                return;
+
+            SauceConfig config = frame.FindAsset(frame.FindAsset(match.Mode).Sauce);
+            if (config == null)
+                return;
+
+            EntityRef held = EntityRef.None;
+            var players = frame.Filter<Player, Grabber>();
+            while (players.NextUnsafe(out EntityRef _, out Player* player, out Grabber* grabber))
+            {
+                if (player->Ref == sender)
+                {
+                    held = grabber->Held;
+                }
+            }
+
+            if (held != EntityRef.None && frame.Has<Block>(held))
+            {
+                SauceSystem.ApplyDip(frame, config, held, type, FP._0_75);
+                return;
+            }
+
+            var blocks = frame.Filter<Block>();
+            while (blocks.NextUnsafe(out EntityRef block, out Block* owned))
+            {
+                if (owned->Owner == sender)
+                {
+                    SauceSystem.ApplyDip(frame, config, block, type, FP._0_75);
+                }
+            }
         }
 
         private static void DropInFront(Frame frame, PlayerRef target, PlayerRef sender)

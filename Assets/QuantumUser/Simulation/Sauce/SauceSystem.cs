@@ -164,6 +164,30 @@ namespace Quantum
         }
 
         /// <summary>
+        /// Coats a block as if it had just been dipped level to <paramref name="fraction"/> of its height, through the
+        /// same coat, strength and event path as a real dip. For dev tools and modes that hand out sauced blocks.
+        /// </summary>
+        public static void ApplyDip(Frame frame, SauceConfig config, EntityRef block, SauceType type, FP fraction)
+        {
+            if (frame.Unsafe.TryGetPointer(block, out SauceCoat* coat) == false)
+            {
+                frame.Add(block, new SauceCoat { PlainMaterial = frame.Get<PhysicsCollider3D>(block).Material });
+                coat = frame.Unsafe.GetPointer<SauceCoat>(block);
+            }
+
+            FPVector3 normal = FPQuaternion.Inverse(frame.Get<Transform3D>(block).Rotation) * FPVector3.Up;
+            FPVector3 extents = frame.Get<PhysicsCollider3D>(block).Shape.Box.Extents;
+            FP reach = FPMath.Abs(normal.X) * extents.X + FPMath.Abs(normal.Y) * extents.Y + FPMath.Abs(normal.Z) * extents.Z;
+            fraction = FPMath.Clamp01(fraction);
+
+            int slot = coat->DipCount < MaxDips ? coat->DipCount++ : GetShallowestDip(coat);
+            FixedArray<SauceDip> dips = coat->Dips;
+            dips[slot] = new SauceDip { Normal = normal, Offset = (2 * fraction - 1) * reach, Fraction = fraction, Type = type };
+            frame.Events.BlockDipEnded(block, type, (byte)slot, fraction);
+            UpdateStrengths(frame, config, block, coat);
+        }
+
+        /// <summary>
         /// Returns the share of a box's height, measured along <paramref name="normal"/>, below the plane
         /// Dot(normal, p) = <paramref name="offset"/>.
         /// </summary>
