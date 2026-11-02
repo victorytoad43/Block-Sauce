@@ -10,6 +10,7 @@
             factories.Add(new CommandStartMatch());
             factories.Add(new CommandDevStackTower());
             factories.Add(new CommandDevKnockdown());
+            factories.Add(new CommandDevBuildColumn());
         }
     }
 }

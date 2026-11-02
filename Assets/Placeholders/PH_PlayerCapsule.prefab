@@ -115,6 +115,7 @@ GameObject:
   - component: {fileID: 2211089434276030069}
   - component: {fileID: 8470999871064724580}
   - component: {fileID: 6414982322801283057}
+  - component: {fileID: 4473357891918747787}
   m_Layer: 0
   m_Name: PH_PlayerCapsule
   m_TagString: Untagged
@@ -622,6 +623,7 @@ MonoBehaviour:
   _maxWalkRate: 4
   _runClipSpeed: 3.2
   _runRateRange: {x: 0.8, y: 2}
+  _airborneDelay: 0.12
 --- !u!114 &5824487416855064166
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -688,6 +690,31 @@ MonoBehaviour:
   _maxScale: 2.5
   _minScale: 0.8
   _popSeconds: 0.12
+--- !u!114 &4473357891918747787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4830101896938081584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b15615629472c284d99017d8aafff565, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.HeldBlockPoseView
+  _animator: {fileID: 6532893055267455855}
+  _upperBodyLayer: UpperBody
+  _blendSeconds: 0.12
+  _spineTurnShare: 0.35
+  _chestTurnShare: 0.45
+  _spineLeanShare: 0.2
+  _chestLeanShare: 0.3
+  _maxTurnDegrees: 70
+  _blockGripHalfWidth: 0.45
+  _otherGripHalfWidth: 0.18
+  _gripBack: 0.12
+  _reachSeconds: 0.1
+  _throwStart: 0.3
 --- !u!1 &6939438412846394903
 GameObject:
   m_ObjectHideFlags: 0

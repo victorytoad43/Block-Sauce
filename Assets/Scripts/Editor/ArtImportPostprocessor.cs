@@ -51,13 +51,6 @@ namespace BlockSauce.Editor
             {
                 clip.name = CleanClipName(clip.takeName);
                 clip.loopTime = LoopingClipWords.Any(word => clip.name.IndexOf(word, System.StringComparison.OrdinalIgnoreCase) >= 0);
-
-                // Temporary (2026-10-31 export): WalkBasic is keyed over frames 0-24 but its action runs to 48, so the
-                // second second holds still. Trim it while it is still 48 frames long; a fixed export skips this.
-                if (clip.name == "WalkBasic" && Mathf.Approximately(clip.lastFrame - clip.firstFrame, 48f))
-                {
-                    clip.lastFrame = clip.firstFrame + 24f;
-                }
             }
 
             importer.clipAnimations = clips;

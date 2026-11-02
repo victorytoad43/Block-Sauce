@@ -17,9 +17,9 @@ MonoBehaviour:
     Guid:
       Value: 499509218805318175
   PivotHeight:
-    RawValue: 55050
+    RawValue: 50462
   HoldRadius:
-    RawValue: 58982
+    RawValue: 62259
   GrabRange:
     RawValue: 131072
   GrabConeHalfAngle:
@@ -50,11 +50,18 @@ MonoBehaviour:
     RawValue: 163840
   CarryReactionScale:
     RawValue: 13107
+  SettlePlacedOnBlockBelow: 1
   ThrowSpeed:
     RawValue: 786432
-  ThrowPitch:
+  AimPitchStart:
     RawValue: 983040
+  AimPitchMin:
+    RawValue: -1310720
+  AimPitchMax:
+    RawValue: 3932160
+  AimPitchSensitivity:
+    RawValue: 32768
+  AimReadyPitch:
+    RawValue: 1966080
   JumpshotSpeedScale:
     RawValue: 85196
-  JumpshotPitch:
-    RawValue: -655360

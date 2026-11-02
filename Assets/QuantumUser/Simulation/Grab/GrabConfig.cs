@@ -10,14 +10,16 @@ namespace Quantum
     public class GrabConfig : AssetObject
     {
         /// <summary>
-        /// The height of the hold pivot above the character's feet, in meters (Guy's `prop` bone height at game scale).
+        /// The height of the hold pivot above the character's feet, in meters: the height of Guy's `prop` bone at the
+        /// end of the GrabBlock clip, where his hands hold the block.
         /// </summary>
         [Header("Hold Point")]
-        public FP PivotHeight = (FP)84 / 100;
+        public FP PivotHeight = (FP)77 / 100;
         /// <summary>
-        /// How far from the pivot the held block's center sits, in meters (Guy's `prop` bone reach at game scale).
+        /// How far from the pivot the held block's center sits, in meters: the reach of Guy's `prop` bone at the end
+        /// of the GrabBlock clip.
         /// </summary>
-        public FP HoldRadius = (FP)90 / 100;
+        public FP HoldRadius = (FP)95 / 100;
 
         /// <summary>
         /// How far from the pivot, in meters, a block can be to be grabbed.
@@ -85,6 +87,13 @@ namespace Quantum
         /// The share of the hold's push that comes back through the carrier: zero is weightless, one the full reaction.
         /// </summary>
         public FP CarryReactionScale = FP._0_20;
+
+        /// <summary>
+        /// Placing a block over another squares it to that block's faces and lifts it out of the block if it was
+        /// pressed in, so it settles flush instead of being shoved off. Off: it is let go exactly where it is held.
+        /// </summary>
+        [Header("Place")]
+        public bool SettlePlacedOnBlockBelow = true;
 
         /// <summary>
         /// The throw speed, in m/s, added to the carrier's velocity.

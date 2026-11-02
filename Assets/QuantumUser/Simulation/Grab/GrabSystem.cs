@@ -73,7 +73,7 @@ namespace Quantum
 
             if (input->Grab.WasPressed)
             {
-                Place(frame, ref filter);
+                Place(frame, ref filter, config);
                 return;
             }
 
@@ -126,7 +126,6 @@ namespace Quantum
 
             Transform3D* heldTransform = frame.Unsafe.GetPointer<Transform3D>(target);
             FPQuaternion bodyYaw = GetBodyYaw(filter.Transform);
-            filter.Grabber->HeldRotationOffset = FPQuaternion.Inverse(bodyYaw) * heldTransform->Rotation;
 
             FPVector3 localToBlock = FPQuaternion.Inverse(bodyYaw) * (heldTransform->Position - pivot);
             filter.Grabber->SwingYaw = FPMath.Clamp(FPMath.Atan2(localToBlock.X, localToBlock.Z) * FP.Rad2Deg,
@@ -134,6 +133,11 @@ namespace Quantum
             FP flatDistance = FPMath.Sqrt(localToBlock.X * localToBlock.X + localToBlock.Z * localToBlock.Z);
             filter.Grabber->SwingPitch = FPMath.Clamp(FPMath.Atan2(localToBlock.Y, flatDistance) * FP.Rad2Deg,
                 config.SwingPitchMin, config.SwingPitchMax);
+
+            // The block is held level and square to the character: of its four sideways faces, the one already nearest
+            // the character stays toward it, so the grab only straightens it.
+            FPQuaternion swingYaw = GetHoldRotation(filter.Transform, filter.Grabber, FPQuaternion.Identity);
+            filter.Grabber->HeldRotationOffset = GetQuarterTurn(swingYaw, heldTransform->Rotation);
 
             AttachLeash(frame, ref filter, config, target);
 
@@ -300,23 +304,84 @@ namespace Quantum
             ApplyCarryVelocity(config, filter.PhysicsBody, heldBody, velocity, pivotToHeld);
 
             heldTransform->Rotation = FPQuaternion.RotateTowards(heldTransform->Rotation,
-                swingRotation * filter.Grabber->HeldRotationOffset, config.HoldTurnSpeed * frame.DeltaTime);
+                GetHoldRotation(filter.Transform, filter.Grabber, filter.Grabber->HeldRotationOffset),
+                config.HoldTurnSpeed * frame.DeltaTime);
             heldBody->AngularVelocity = FPVector3.Zero;
         }
 
         /// <summary>
-        /// Sets the held block down where it is: stopped, turned square to the character's facing, and let go.
+        /// Sets the held block down where it is, stopped and level. Over another block it is squared to that block's
+        /// faces and, if it was pressed into it, lifted to sit on top, so letting go never leaves two blocks overlapping
+        /// for the solver to shove apart.
         /// </summary>
-        private void Place(Frame frame, ref Filter filter)
+        private void Place(Frame frame, ref Filter filter, GrabConfig config)
         {
             EntityRef held = filter.Grabber->Held;
             PhysicsBody3D* body = frame.Unsafe.GetPointer<PhysicsBody3D>(held);
             body->Velocity = FPVector3.Zero;
             body->AngularVelocity = FPVector3.Zero;
-            frame.Unsafe.GetPointer<Transform3D>(held)->Rotation = GetBodyYaw(filter.Transform);
+
+            Transform3D* transform = frame.Unsafe.GetPointer<Transform3D>(held);
+            transform->Rotation = ThrowHelper.GetBodyYaw(transform->Rotation);
+            if (config.SettlePlacedOnBlockBelow && TryGetBlockBelow(frame, held, transform->Position, out EntityRef below))
+            {
+                Transform3D belowTransform = frame.Get<Transform3D>(below);
+                FPQuaternion belowYaw = ThrowHelper.GetBodyYaw(belowTransform.Rotation);
+                transform->Rotation = belowYaw * GetQuarterTurn(belowYaw, transform->Rotation);
+
+                FP restingY = belowTransform.Position.Y + GetHalfHeight(frame, below) + GetHalfHeight(frame, held);
+                if (transform->Position.Y < restingY)
+                {
+                    transform->Position.Y = restingY;
+                }
+            }
 
             Release(frame, filter.Entity, filter.Grabber);
             frame.Events.Placed(filter.Entity, held);
+        }
+
+        /// <summary>
+        /// Finds a block under the held block's center, close enough that the held block is resting on or pressed into it.
+        /// </summary>
+        private static bool TryGetBlockBelow(Frame frame, EntityRef held, FPVector3 position, out EntityRef below)
+        {
+            below = EntityRef.None;
+            FP reach = GetHalfHeight(frame, held) * 3 + FP._0_10;
+            HitCollection3D hits = frame.Physics3D.RaycastAll(position, FPVector3.Down, reach, -1,
+                QueryOptions.HitStatics | QueryOptions.HitDynamics | QueryOptions.HitKinematics);
+            hits.SortCastDistance();
+            for (int i = 0; i < hits.Count; i++)
+            {
+                if (hits[i].IsTrigger || hits[i].Entity == held)
+                    continue;
+
+                if (hits[i].IsStatic || frame.Has<Block>(hits[i].Entity) == false)
+                    return false;
+
+                below = hits[i].Entity;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns half a block's height, from its box collider.
+        /// </summary>
+        private static FP GetHalfHeight(Frame frame, EntityRef block)
+        {
+            return frame.Get<PhysicsCollider3D>(block).Shape.Box.Extents.Y;
+        }
+
+        /// <summary>
+        /// Returns the quarter turn about world up that brings <paramref name="reference"/> closest to the heading of
+        /// <paramref name="rotation"/>: which of a cube's four sideways faces points where the reference's forward does.
+        /// </summary>
+        private static FPQuaternion GetQuarterTurn(FPQuaternion reference, FPQuaternion rotation)
+        {
+            FPVector3 forward = FPQuaternion.Inverse(reference) * (rotation * FPVector3.Forward);
+            FP degrees = FPMath.Atan2(forward.X, forward.Z) * FP.Rad2Deg;
+            return FPQuaternion.AngleAxis(FPMath.Round(degrees / 90) * 90, FPVector3.Up);
         }
 
         /// <summary>
@@ -463,6 +528,15 @@ namespace Quantum
         private static FPQuaternion GetSwingRotation(Transform3D* transform, Grabber* grabber)
         {
             return GetBodyYaw(transform) * FPQuaternion.Euler(-grabber->SwingPitch, grabber->SwingYaw, FP._0);
+        }
+
+        /// <summary>
+        /// Returns the held block's rotation: level, turned to face the character along the swing, plus the grab's
+        /// quarter turn.
+        /// </summary>
+        private static FPQuaternion GetHoldRotation(Transform3D* transform, Grabber* grabber, FPQuaternion quarterTurn)
+        {
+            return GetBodyYaw(transform) * FPQuaternion.AngleAxis(grabber->SwingYaw, FPVector3.Up) * quarterTurn;
         }
 
         /// <summary>

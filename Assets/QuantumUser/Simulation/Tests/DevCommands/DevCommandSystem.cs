@@ -1,4 +1,4 @@
-﻿using Photon.Deterministic;
+using Photon.Deterministic;
 
 namespace Quantum
 {
@@ -50,6 +50,34 @@ namespace Quantum
     }
 
     /// <summary>
+    /// Test-only: stacks free blocks (any owner) into one straight column 2 m in front of the sender, each resting
+    /// exactly on the one below, at rest. Tests how tall stacks hold up. Works in the lobby and in a match. Only debug
+    /// builds act on it.
+    /// </summary>
+    public class CommandDevBuildColumn : DeterministicCommand
+    {
+        /// <summary>
+        /// How many blocks to stack.
+        /// </summary>
+        public int Count = 8;
+        /// <summary>
+        /// How far in front of the sender, in meters, the column stands.
+        /// </summary>
+        public FP Distance = 2;
+        /// <summary>
+        /// How many free blocks to pass over first, so a second column takes different blocks.
+        /// </summary>
+        public int Skip;
+
+        public override void Serialize(BitStream stream)
+        {
+            stream.Serialize(ref Count);
+            stream.Serialize(ref Distance);
+            stream.Serialize(ref Skip);
+        }
+    }
+
+    /// <summary>
     /// Test-only: runs dev commands in debug builds. Does nothing in release builds.
     /// </summary>
     public unsafe class DevCommandSystem : SystemMainThread
@@ -70,6 +98,11 @@ namespace Quantum
                     {
                         KnockDown(frame, target, command.TargetPlayer == -2, command.TowardTower);
                     }
+                }
+
+                foreach (CommandDevBuildColumn command in frame.GetPlayerCommands<CommandDevBuildColumn>(player))
+                {
+                    BuildColumn(frame, player, command.Count, command.Distance, command.Skip);
                 }
             }
 
@@ -131,6 +164,34 @@ namespace Quantum
                 FPVector3 direction = flat + FPVector3.Up * config.UpBias;
                 FP speedChange = config.KnockdownSpeedChange + FP._1;
                 frame.Signals.ApplyKnockback(entity, direction.Normalized * speedChange * body->Mass, EntityRef.None);
+            }
+        }
+
+        private static void BuildColumn(Frame frame, PlayerRef player, int count, FP distance, int skip)
+        {
+            if (TryGetCharacterEntity(frame, player, out EntityRef character) == false)
+                return;
+
+            Transform3D characterTransform = frame.Get<Transform3D>(character);
+            FPVector3 foot = characterTransform.Position + characterTransform.Rotation * FPVector3.Forward * distance;
+            FP size = (FP)4 / 5;
+            int level = 0;
+            var blocks = frame.Filter<Block, Transform3D, PhysicsBody3D>();
+            while (level < count && blocks.NextUnsafe(out EntityRef entity, out Block* _, out Transform3D* transform,
+                       out PhysicsBody3D* body))
+            {
+                if (frame.TryGet(entity, out Grabbable grabbable) && grabbable.Holder != EntityRef.None)
+                    continue;
+
+                if (skip-- > 0)
+                    continue;
+
+                transform->Position = new FPVector3(foot.X, size * FP._0_50 + size * level, foot.Z);
+                transform->Rotation = FPQuaternion.Identity;
+                body->Velocity = FPVector3.Zero;
+                body->AngularVelocity = FPVector3.Zero;
+                body->WakeUp();
+                level++;
             }
         }
 

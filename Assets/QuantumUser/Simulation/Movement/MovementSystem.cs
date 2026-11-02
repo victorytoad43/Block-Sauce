@@ -222,14 +222,23 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Brakes the horizontal velocity with the given deceleration, down to the physics sleep tolerance.
+        /// Brakes the horizontal velocity with the given deceleration, down to the physics sleep tolerance, and stops
+        /// what is left below it. The stop sets the velocity rather than adding a force, so it never wakes the body: a
+        /// resting character still sleeps, and one that can't (a carrier, kept awake by the block it holds) doesn't creep.
         /// </summary>
         private void Brake(Frame frame, PhysicsBody3D* body, FP deceleration)
         {
             FPVector2 horizontalVelocity = GetHorizontalVelocity(body);
             FP sleepTolerance = frame.SimulationConfig.Physics.LinearSleepTolerance;
             if (horizontalVelocity.SqrMagnitude <= sleepTolerance * sleepTolerance)
+            {
+                if (body->IsSleeping == false && horizontalVelocity != FPVector2.Zero)
+                {
+                    body->Velocity = new FPVector3(FP._0, body->Velocity.Y, FP._0);
+                }
+
                 return;
+            }
 
             FPVector2 brakeForce = -horizontalVelocity * deceleration;
             body->AddForce(new FPVector3(brakeForce.X, FP._0, brakeForce.Y));

@@ -26,6 +26,41 @@ The agent adds an entry at the top for each work session, and a phase report whe
 
 ---
 
+## 2026-11-01: Phase 3 iteration, stacking, holding and Guy's new clips
+- Did:
+  - **Stacking:** the block collider was already a plain 0.8 m box that matches the new model exactly; the model swap changed no physics. A perfectly stacked 10-high column stays still (every block asleep within a second, no drift), so resting stacks are sound. The pops came from how blocks arrive:
+    - A place let go of the block wherever it was. That could be pressed into the block below, or turned against it (Place snapped it to the carrier's facing), and the solver then shoved the two apart.
+    - A held block kept whatever tilt and turn it was grabbed with.
+    - Blocks bounced a little (restitution 0.1).
+  - Now a held block is level and square to Guy (keeping whichever face was already nearest him). A place over another block squares it to that block and lifts it out of any overlap, so it settles flush. Restitution is 0.
+  - **Hold pose:** the hold point moved to the GrabBlock clip's `prop` bone (0.77 m up, 0.95 m out; was 0.84 and 0.9). The new `HeldBlockPoseView`:
+    - plays GrabBlock on a new upper-body layer (mask `AM_GuyUpperBody`);
+    - turns and leans the spine and chest toward the block;
+    - puts both hands on the block's sides with two-bone IK;
+    - plays the Throw follow-through on a throw.
+  - **Carrier hit by its own block:** two causes.
+    - The knockback system turned the held block's collision-enter callback into a hit on its own carrier. The contact itself was already ignored, but the callback still fires, and early for speculative contacts. Fixed: a block never hits its holder.
+    - A carrier crept along at up to 0.1 m/s forever. Braking stops at the physics sleep tolerance and leaves the rest to sleep, but a carrier never sleeps (the held block keeps it awake). Fixed: braking zeroes what is left below the tolerance (a velocity write, which doesn't wake a sleeping body).
+  - **Guy's new clips:** Idle, backward walk and run, jump start/loop/land, GrabBlock and Throw are wired into `AC_Guy` (details in ASSETS.md A-004). The walk import trim is removed: the new walk loops cleanly.
+  - Dev: `CommandDevBuildColumn` stacks any free blocks into a straight column in front of the sender (count, distance, skip), for tall-stack tests.
+- Verified (play mode, one client, verified frames):
+  - 10-block column: no movement, all asleep, over 12 s.
+  - Carried a block over a 1-high stack and placed it: it settled at y 1.195 (1.2 exact), 1.3 cm off-center, level and asleep. Nothing moved.
+  - Jumped and placed on a 2-high stack: it settled at y 2.002, level and asleep. The blocks below moved 3 cm at most.
+  - Holding still at hold pitches from −25° to 42°: the carrier stays put (before the braking fix it crept at 0.095 m/s indefinitely).
+  - Ran backwards at 5.9 m/s, reversed, and walked backwards while holding: no knockback or drop events.
+  - Animator: walking backwards plays WalkBackward (Forward −1); a jump runs JumpStart → JumpLoop → JumpLand → Idle; the hold layer stays at full weight with GrabBlock; a throw plays Throw, then fades out in about 0.2 s.
+  - Side and front captures show both hands on the block's sides, with the torso turned to the block.
+  - Console clean.
+- Decided: the carry-to-place assist is on by default with an editor toggle (Settle Placed On Block Below), like the body-grab toggle. The torso takes up to 70° of a swing's turn; the arms reach the rest.
+- Known issues:
+  - The hands sit a little inside the block's side faces.
+  - With the block raised above about 40°, its back face can reach into Guy's chest (contacts are ignored, so this is only visual).
+  - The swing's body turn makes big sideways swings mostly a body turn, as before.
+- Assets: A-004 2026-11-01 delivery integrated; A-012 Integrated.
+- Blocked / questions for Jackson: none.
+- Next: Jackson's play-test of stacking and the hold.
+
 ## 2026-10-31: Phase 3, touches after Jackson's review
 - Did:
   - **Breaking free while carried:** a carried body breaks free after 2.5 s (`CarryHoldSeconds` on `PlayerRagdollConfig`), and Jump presses take 0.3 s off it, as they do off the knockdown. Breaking free makes the carrier drop it and raises a `BrokeFree` event; then the usual 1 s down after release runs (also shortened by Jump). It can't be picked up again until it has got up, so nobody can chain-carry a body.

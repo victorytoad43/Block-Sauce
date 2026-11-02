@@ -72,6 +72,11 @@ namespace Quantum
             if (frame.Unsafe.TryGetPointer(target, out Knockbackable* knockbackable) == false)
                 return;
 
+            // What a character carries never hits it: the contact is ignored (GrabbableCollisionSystem), but the enter
+            // callback still arrives, early even, for the speculative contact of a block held close.
+            if (frame.TryGet(striker, out Grabbable grabbable) && grabbable.Holder == target)
+                return;
+
             if (frame.Unsafe.TryGetPointer(target, out PhysicsBody3D* targetBody) == false
                 || frame.Unsafe.TryGetPointer(striker, out PhysicsBody3D* strikerBody) == false)
                 return;

@@ -140,6 +140,14 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - 2026-10-31 re-export: `RunBasic` now has keys (21 frames, loops cleanly; its planted foot moves at about **3.2 m/s** at game scale), `ThrowPose` has two keys, and the get-up clips arrived (A-015). The re-exported `WalkBasic` measures about **1.0 m/s** at the planted foot. In game: walk below 3.3 m/s (sped up to match, up to 4×) and run above it (rate 0.8–2×, so it matches the 6 m/s run at about 1.9×). Still needed: a real **Idle** (standing still currently freezes on the walk's first frame).
   - **`WalkBasic` hitch (found after Jackson's play-test):** the action runs 48 frames but only frames 0–24 move; frames 24–48 hold one pose, so every cycle froze for a second and then snapped back. The import trims it to frames 0–24 for now (a temporary rule in `ArtImportPostprocessor`, which only applies while the clip is still 48 frames). It still doesn't loop cleanly: frame 24 is about 16 cm (feet) and 8° (left upper arm) away from frame 0, so there's a small pop at the loop point. To fix in Blender: set the action's frame range to the keyed cycle, and make the last frame match the first (or end the range one frame before a copy of frame 0). The clip length itself is fine; the game speeds it up to match the ground speed.
   - Export tip: the FBX's default pose was a get-up frame (Guy lying down), because the scene was on that action when it exported. The game reads the rest pose from the skin, so nothing broke, but a T-pose or idle on the current frame at export keeps things predictable.
+- 2026-11-01 re-export (14 actions): integrated. `WalkBasic` and `RunBasic` now loop cleanly (last frame matches the first, 24 frames each), so the import trim is gone. In game:
+  - `Idle` plays when standing still.
+  - `WalkBackward` and `RunBackward` blend in when Guy moves against his facing (a carrier backing off, since the swing holds the facing).
+  - `JumpStart` → `JumpLoop` → `JumpLand` play on a jump, and the loop also plays after walking off a ledge.
+  - `GrabBlock` plays on the upper-body layer on a grab and holds its last frame while carrying (A-012).
+  - `Throw` plays from 30% on release, as a follow-through, since the block has already gone.
+  - Not used yet: `ThrowPose` (a one-hand overhead pose; the game aims with the block held in both hands in front) and `spin`.
+  - Still to come from the spec: strafe left and right, crouch, slide, staggers, win and lose.
   - In game (2026-10-29): `AC_Guy` plays `WalkBasic` whenever Guy moves, sped up to match ground speed (its stride matches about 0.3 m/s) up to 4×, and the rest pose when standing still. Per Jackson, the walk is for slow movement (low stick pressure) and a Run clip covers faster movement; the walk can be sped up if needed. Until `RunBasic` has keys, the walk plays at 4× above 1.2 m/s and the feet slide.
 
 ### A-005: Block mesh
@@ -216,8 +224,9 @@ The agent adds requests here at the start of every phase (plus look-ahead for th
 - Must match: Block draft size from A-005 (0.8 m in game); the `prop` bone's rest position (about 0.84 m forward and 0.84 m up from the root at game scale) is the current default hold point.
 - Phase 1 values in the simulation: the hold pivot is 0.84 m above the feet, and the block's center sits 0.9 m from it, so the hands meet the block about 0.5 m in front of the chest. Throwing is hold-to-aim (decided 2026-10-29). While Throw is held, the block is raised to a ready position (30° above the hold line, centered in front), and the character turns to aim. The block leaves on release at 12 m/s (a jumpshot at 15.6 m/s, while airborne). So the throw needs an aim/hold-ready pose (looping, any length) and a short release (the block leaves on its first frame, unless we add a release delay to match). The jumpshot needs the same pair, airborne.
 - 2026-10-29: `ThrowPose` (aim pose) and `Throw` (release on frame 5 of 7, 0.21 s) delivered in `CH_Guy.fbx`; `ThrowPose` still needs a second keyframe to import. In the simulation the block leaves when Throw is released; Phase 4 lines the clip up so frame 5 lands on that moment.
-- Placeholder: None (capsule; the block floats at the `prop` offset)
-- Status: Requested
+- 2026-11-01: `GrabBlock` (11 frames, 0.46 s) delivered. Its last frame holds the block at the `prop` bone, 0.77 m up and 0.95 m in front of the feet, and the simulation's hold point now matches it exactly. Guy's spine and chest turn and lean toward the block as it swings, and his hands reach the block's sides by IK, so the pose stays on the block anywhere in the swing.
+- Placeholder: None
+- Status: Integrated
 
 ### A-013: Block owner tint and team readability
 - Phase / needed by: Phase 2, when blocks get owners

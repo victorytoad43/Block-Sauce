@@ -196,6 +196,8 @@ Phases 0–2 build the whole game in gray-box before final art, so the first pla
 - No knockdown grace after getting up: you can be knocked down again straight away. (Jackson, 2026-10-31.)
 - Bodies stay carryable. A carried body breaks free after 2.5 s, and Jump presses shorten that the same way they shorten the knockdown (0.3 s each); once it has broken free it can't be picked up again until it has got up. (Jackson, 2026-10-31.)
 - Speed on a gamepad comes from how far the stick is pushed, from a slow walk up to a full run; the stick-click run button is gone. The keyboard keeps walk, with Shift to run. (Jackson, 2026-10-31.)
+- Blocks keep a plain box collider, and stacking has no special physics. Placing a block over another squares it to that block's faces and lifts it out if it was pressed in, so it settles flush rather than being shoved off; an editor toggle (Settle Placed On Block Below on `PlayerGrabConfig`) turns this off. Blocks don't bounce (restitution 0). (Jackson asked for simple stacking, 2026-11-01.)
+- The held block sits in Guy's hands at the GrabBlock clip's hold point, level and square to him; his chest and arms turn to follow it. A carrier never collides with, or is knocked by, the block it holds. (Jackson, 2026-11-01.)
 
 ## Open questions
 
