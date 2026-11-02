@@ -4,19 +4,21 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-02)
 
-**Phases 0–4 are done. Phase 4 (Character) awaits Jackson's review; win and lose stand on `Idle` until A-023. Next is Phase 5 (Sauces).**
+**Phases 0–4 are done (Phase 4 reviewed by Jackson). Phase 5 (Sauces) is built and checked on one client; its two-client done-when check is next.**
 
 What plays today, online with up to 8 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
 - Grab, hold and swing (body turns past 45°; the camera follows the swing on a gradient and never locks), place with flush settling, hold-to-aim throw with trajectory preview, jumpshot.
 - Stack & Lock: 3 owned blocks each, settle dither, counting, win, full match loop back to the lobby.
 - Knockdown: Guy's 11-limb ragdoll, Jump to recover faster, carrying bodies, get-up clips, dazed indicator, falling out of the world resets.
-- Animation: idle; walk and run blending forward, back and strafe; jump; sit and slide; stagger flinches by hit side; GrabBlock hold with spine turn and hand IK; aim pose (`Throw` frame 4) and follow-through, grounded and airborne; foot IK on steps, ramps and blocks.
+- Animation: idle; walk and run blending forward, back and strafe; jump; sit and slide; stagger flinches by hit side; GrabBlock hold with spine turn and hand IK; aim pose (`Throw` frame 4) and follow-through, grounded and airborne; foot IK on steps, ramps and blocks; win and lose placeholders after a round.
+- Sauces: two vats (Jackson's cup) in the middle of the Lobby. Dunk a held block (or throw one in) to coat it; how deep sets the strength. Stack sauce shoves rivals away from a stacked block; Slip sauce makes a block slide (7.9 m after a throw against 1.1 m plain). The coat is a ragged, drippy, glossy shell with bubbles (Stack) or glints (Slip). Dev keys: F8 coats your held block or all your blocks with Stack sauce, Shift+F8 with Slip.
 
 ### Known issues
-- Strafe feet slide: the strafe clips step about 0.16 m/s, so they're sped up 2–8× and still can't keep up (A-024).
 - Sitting while holding a block keeps the block at the standing hold height; the arms reach up to it. If it reads badly, lower the hold pivot while sitting (simulation).
-- While aiming, the block's model is overhead in Guy's hands but the real block (what collides, and where the aim line starts) stays 0.8 m in front at the 30° aim point. If it matters in play, move the simulation's aim point overhead and launch the throw from in front.
+- A block dunked hard against the cup's side can stick at the bottom for a moment before the hold lifts it out.
+- Sauce particles emit over the whole block, not only the coated part.
+- The cup's art is wider at the top than its collision ring (inner radius 0.86 m), so a block can look like it sinks into the flared wall (A-009).
 - With the hips dropped for a low foot, Guy's long arms can touch the ground beside him.
 - Flinches were checked by playing each one through the view; a real stagger in play still needs a look (the event path is unchanged from the knockback system).
 - The camera has no wall collision. Phase 6.
@@ -28,15 +30,16 @@ What plays today, online with up to 8 players, in the Lobby scene:
 - Matches only run in the Lobby scene; Arena_Graybox has no `Match` yet (Phase 6).
 
 ### Waiting on Jackson
-- Review of Phase 4 (report below) and a play-test: sit, strafe, flinch, foot IK, the aim pose, the over-the-shoulder aim camera (0.9 m right, 0.3 m up; `OrbitCamera` › Aim Shoulder Offset) and the holding camera gradient (`OrbitCamera` › Swing Camera Share, 0.35).
-- The two open questions in the plan (settle numbers; pickup swings through your own tower).
+- A play-test of the sauces, and the two new open questions in the plan (Stack sauce: a shove every 2 s or a single burst; drip direction).
+- The older open questions (settle numbers; pickup swings through your own tower).
 
 ### Placeholders in use
-`PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the draft `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_PlayerColors` (holds the real palette), `PH_` terrain (A-008), the IMGUI `MatchHud` (A-006), the stock Quantum start UI (A-002), `PH_RagdollTest` (stress-test scene only).
+`PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the subdivided `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_SauceVat_Stack`/`_Slip` (the cup at 1.3× with placeholder sauce), `PH_SauceCoat` and `PH_SauceLooks` (A-009), `PH_PlayerColors` (holds the real palette), `PH_` terrain (A-008), the IMGUI `MatchHud` (A-006), the stock Quantum start UI (A-002), `PH_RagdollTest` (stress-test scene only).
 
-## Next: Phase 5 (Sauces)
+## Phase 5 (Sauces): what's left
 
-Starts after Jackson's Phase 4 review. Needs A-005 (final block mesh) and A-013 (owner readability) for the coat shader; the simulation side (dip planes, strength, Stack and Slip sauce) can start on the draft block. A-023 (win and lose) slots in whenever it lands.
+- Done-when, with two clients (MPPM `TwoClients`): a Stack-sauced tower shoves a rival running at it, a Slip-sauced block changes a stack, and both read at a glance. Scripts are ready (A: start, F8 sauce, stack two; B: run at A's tower twice).
+- Then the phase report, and Jackson's review.
 
 ## Log
 
@@ -62,6 +65,14 @@ Phase report format:
 - Placeholders still in use: <list with asset IDs>
 - Ready for review: yes
 ```
+
+## 2026-11-02: Phase 5, sauces; aim collisions; Guy and block deliveries
+- Did: aimed block on an `AimedBlock` layer that collides with nothing, model arcs over the head (runtime trigger toggling broke Quantum's broadphase; a disabled collider froze the body). Thrown blocks pass through their thrower and whatever they were released inside for 0.15 s. Sauce simulation (`SauceSystem`, `SauceConfig`): vats, dip planes, strength, Stack shove, Slip friction. Coat shader and view, bubbles, glints, splash, Stack pulse ring. Dev command `CommandDevSauce` (F8 / Shift+F8). Win and lose states in the Animator.
+- Verified: aim (model clears the head at 2.1 m, no errors); first throw out of a stack at full speed; dunk into a cup (one dip, 69%, Stack strength 1.0, lifted out cleanly, player stays outside); Slip throw slides 7.9 m against 1.1 m plain; winner plays Win through round end and results; coat rendered in a capture.
+- Decided: vats are entities (`SauceVat`) with static wall colliders; the cup scaled 1.3× so players can't step in, collision as 12 vertical boxes on a `Vat` layer the hold reaches over; Stack sauce shoves rivals within 2.5 m every 2 s while stacked (3–5.5 m/s, never a knockdown); Slip in four friction steps; dips under 5% dropped, dips end 0.25 s after leaving the sauce; strafe timescales 1.1× walk, 2.25× run.
+- Assets: Guy re-export (the first one had no motion in any clip; the second is in): `Win.Jump` and `Sitdown` placeholders, longer strafes. `BL_Block` subdivided (4488 vertices). `EN_SauceVat` (the cup). A-005 removed; A-013 moved to Phase 6; A-009 now covers sauce looks; A-024 down to the slide; A-014 gains sauce sounds.
+- Questions for Jackson: Stack sauce shove every 2 s, or once when stacked? Drips away from the coat (glaze) or down with gravity? Re-export the cup at 1.3× with straighter outer walls?
+- Next: two-client done-when check, phase report.
 
 ## Phase 4 report: Character
 - Built: every player state animated on Guy. Idle; walk and run blending forward, back and strafe; jump start, loop and land; sit and slide; stagger flinches by hit side; `GrabBlock` hold with spine turn and hand IK; the aim pose (`Throw` frame 4) and follow-through, grounded and airborne; knockdown ragdoll on Guy's bones and get-up blends; foot IK on steps, ramps and blocks; capsule at Guy's 0.40 m radius. Camera: never locks while holding (gradient), moves over the shoulder while aiming.

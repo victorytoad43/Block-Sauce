@@ -4,30 +4,26 @@ Every asset still needed, in the order to make them. The top of the list is what
 
 Guy clips go in the one animated `CH_Guy.fbx` (mesh, deform skeleton, all actions), animated in place, at least two keyframes per action. Game speeds below are real-world (Blender units ÷ 2.5).
 
-1. **A-023 Guy win and lose**: Phase 4 (in development; `Idle` stands in until they land).
-   - Played on Round end (3 s) and Results (6 s). Loops or holds, any length. Eyes, jaw and mouth bones can be keyed for expressions.
-2. **A-005 Block, final mesh**: Phase 5 (the sauce shader needs it).
-   - The draft (`BL_Block`, 0.8 m in game, 2 m in Blender) works for everything up to then; size and collider stay exactly as they are.
-   - Final needs even subdivision loops on every face (the sauce coat displaces vertices; URP has no tessellation), UVs, and the pivot at the center (the draft's pivot is on the bottom face).
-3. **A-013 Block owner readability**: Phase 5 (before sauce coats sit on top).
-   - How a block shows its owner from across the arena and while tumbling: full tint, colored bevel, stripe, icon, or a mix. A paint-over of the block is enough.
-   - Must leave room for the settle overlay (A-007) and a sauce coat. Players 5 to 8 of the palette (Seagrass, Dark Cyan, Blue Slate, Cerulean) sit close together, and red next to green is a color-blind pair, so ownership needs a cue beyond hue.
-4. **A-009 Sauce vat and sauce looks**: Phase 5.
-    - Vat model, pivot at base center, sauce surface as a separate mesh at a known height. A block is dipped into it, so the opening must take a 0.8 m block at an angle.
-    - For Stack sauce and Slip sauce: color, gloss and a material cue (bubbles, sparkle) that reads without relying on hue, since player colors own hue.
-5. **A-007 Settle and count effect direction**: Phase 6 (any time before).
+1. **A-009 Sauce looks** (vat delivered): Phase 5/6.
+   - The cup (`EN_SauceVat`) is in, scaled 1.3× in its prefab so the rim (0.61 m) is above Guy's 0.5 m step and players can't walk in. Collision is a ring of vertical walls (inner radius 0.86 m), because the flared outer wall let players ride up and over. A re-export at that size, with walls near vertical outside, would make the art match the collision.
+   - Still needed for Stack sauce and Slip sauce: color, gloss and a cue that reads without hue (player colors own hue). Placeholders: Stack dark brown with rising bubbles, Slip pale silver with glints (`PH_SauceLooks`). A sauce surface mesh for the cup (a disc at 0.55 m in game, 0.42 m in Blender before the 1.3×) is optional; a flat disc stands in.
+2. **A-013 Block owner readability**: Phase 6 (visual polish).
+   - Jackson is rethinking ownership at the top level; likely a personal UI that highlights your own blocks. Must leave room for the settle overlay (A-007) and a sauce coat.
+3. **A-007 Settle and count effect direction**: Phase 6 (any time before).
     - The look of a stacked block filling up over 3 s (any hit restarts it), and the pop when it counts. A counted block can still be knocked off and goes back to its plain owner color. A few frames or a reference clip; the agent builds the shader. Placeholder: `PH_LockDither` (a 4×4 dither climbing in the owner's darker shade).
-6. **A-008 Arena layout sketch**: Phase 6.
-    - Top-down sketch with rough size, elevation changes, landmarks, room for 8 towers anywhere, and vat placement.
-7. **A-006 Match HUD and results screen mock-ups**: Phase 6.
+4. **A-008 Arena layout sketch**: Phase 6.
+    - Top-down sketch with rough size, elevation changes, landmarks, room for 8 towers anywhere, and vat placement (the Lobby has two vats in the middle, 4.2 m apart).
+5. **A-006 Match HUD and results screen mock-ups**: Phase 6.
     - States: Lobby (press Start or Enter), Countdown 3 s, Playing, Round end 3 s with the winner, Results 6 s. Per player: their color and 3 slots for their best stack, each empty, settling (0 to 100%) or counted. Mock-ups at 1920×1080 for 2 and 8 players.
-8. **A-002 Main menu and lobby UI mock-ups**: Phase 6.
+6. **A-002 Main menu and lobby UI mock-ups**: Phase 6.
     - Main menu (play, settings, quit), create or join room, lobby overlay (player list in colors, start). 1920×1080, controller focus states shown.
-9. **A-024 Guy strafe and slide polish**: Phase 6 (nice to have).
-   - `StrafeLeft`/`StrafeRight` are in. Their planted foot moves about 0.16 m/s, so at the 3 m/s walk and 6 m/s run they're sped up a lot and the feet still slide. A strafe with a longer sideways step (about 0.3 m per step), or a separate run strafe, would fix it.
-   - `Slide` currently holds the sit pose; any motion in it (lean, arms out, dust-kicking feet) plays while a sitting Guy moves faster than 2 m/s.
-10. **A-014 Sound effects**: Phase 6; temporary sounds welcome any time.
+7. **A-023 Guy win and lose, final**: Phase 6.
+   - Placeholders are in: `Win.Jump` (0.33 s, plays once and holds) and `Sitdown` (1 s) for lose, played through round end (3 s) and results (6 s). The lose action is named `Guy,Lose.Sitdown` (a comma, not a dot); it imports fine as `Sitdown`. Final clips can loop or hold, any length.
+8. **A-024 Guy slide polish**: Phase 6 (nice to have).
+   - Strafes are fixed: the planted foot now moves about 0.5 m/s, so they play at 1.1× walking and 2.25× running.
+   - `Slide` holds the sit pose; any motion in it (lean, arms out, dust-kicking feet) plays while a sitting Guy moves faster than 2 m/s.
+9. **A-014 Sound effects**: Phase 6; temporary sounds welcome any time.
     - WAV 48 kHz mono, short; one sound each, or a CC0 pack to pull from. Impacts want 2 to 3 variations and a light and heavy version.
-    - Events: jump, grab, drop, place, throw, block impact (by speed), knockback, knockdown thud, dazed loop, limb impacts, get-up, settle start, settle reset, count pop, uncount, countdown beeps, round start, win.
-11. **A-010 Logo and wordmark**: Phase 6.
+    - Events: jump, grab, drop, place, throw, block impact (by speed), knockback, knockdown thud, dazed loop, limb impacts, get-up, settle start, settle reset, count pop, uncount, countdown beeps, round start, win; sauce dip splash, Stack sauce shove, Slip sauce slide.
+10. **A-010 Logo and wordmark**: Phase 6.
     - SVG plus PNG at 2×, light and dark variants.
