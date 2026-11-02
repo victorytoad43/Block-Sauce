@@ -1,0 +1,67 @@
+enum SauceType
+{
+    None,
+    Stack,
+    Slip
+}
+
+// One dip into a vat: the sauce surface as a plane in the block's local space, about its center. Points p with
+// Dot(Normal, p) < Offset are under the sauce, so they are coated.
+struct SauceDip
+{
+    FPVector3 Normal;
+    FP Offset;
+    // The share of the block's height, measured along Normal, under the surface: 0..1.
+    FP Fraction;
+    SauceType Type;
+}
+
+// A vat of sauce. Its sauce fills a box from the vat's base up to SurfaceHeight; a block reaching into it is dipped.
+component SauceVat
+{
+    SauceType Type;
+    // The sauce's inside width (X) and length (Z), in meters, centered on the vat.
+    FPVector2 Size;
+    // The height of the sauce surface above the vat's base, in meters.
+    FP SurfaceHeight;
+}
+
+// The sauce on a block, added the first time it is dipped.
+component SauceCoat
+{
+    [HideInInspector] array<SauceDip>[3] Dips;
+    [HideInInspector] byte DipCount;
+    // The vat the block is in, the dip it is making there, and the last frame it was seen in the sauce.
+    [HideInInspector] EntityRef InVat;
+    [HideInInspector] byte ActiveDip;
+    [HideInInspector] Int32 InVatFrame;
+    // 0..1 for each sauce: its deepest dip's fraction over SauceConfig.FullStrengthFraction.
+    [HideInInspector] FP StackStrength;
+    [HideInInspector] FP SlipStrength;
+    // The block's own physics material, which Slip sauce replaces.
+    [HideInInspector] asset_ref<PhysicsMaterial> PlainMaterial;
+    [HideInInspector] FrameTimer StackCooldown;
+}
+
+event BlockDipStarted
+{
+    EntityRef Block;
+    EntityRef Vat;
+    SauceType Type;
+}
+
+event BlockDipEnded
+{
+    EntityRef Block;
+    SauceType Type;
+    byte Dip;
+    FP Fraction;
+}
+
+event StackSaucePulse
+{
+    EntityRef Block;
+    FPVector3 Position;
+    FP Radius;
+    FP Strength;
+}

@@ -177,6 +177,43 @@ namespace Quantum.Prototypes.Unity {
       return result;
     }
   }
+  [System.SerializableAttribute()]
+  public unsafe partial class SauceCoatPrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.SauceCoatPrototype> {
+    [HideInInspector()]
+    [ArrayLengthAttribute(3)]
+    public Quantum.Prototypes.SauceDipPrototype[] Dips = new Quantum.Prototypes.SauceDipPrototype[3];
+    [HideInInspector()]
+    public Byte DipCount;
+    [HideInInspector()]
+    public Quantum.QuantumEntityPrototype InVat;
+    [HideInInspector()]
+    public Byte ActiveDip;
+    [HideInInspector()]
+    public Int32 InVatFrame;
+    [HideInInspector()]
+    public FP StackStrength;
+    [HideInInspector()]
+    public FP SlipStrength;
+    [HideInInspector()]
+    public AssetRef<PhysicsMaterial> PlainMaterial;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype StackCooldown;
+    partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.SauceCoatPrototype prototype);
+    public override Quantum.Prototypes.SauceCoatPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
+      var result = new Quantum.Prototypes.SauceCoatPrototype();
+      converter.Convert(this.Dips, out result.Dips);
+      converter.Convert(this.DipCount, out result.DipCount);
+      converter.Convert(this.InVat, out result.InVat);
+      converter.Convert(this.ActiveDip, out result.ActiveDip);
+      converter.Convert(this.InVatFrame, out result.InVatFrame);
+      converter.Convert(this.StackStrength, out result.StackStrength);
+      converter.Convert(this.SlipStrength, out result.SlipStrength);
+      converter.Convert(this.PlainMaterial, out result.PlainMaterial);
+      converter.Convert(this.StackCooldown, out result.StackCooldown);
+      ConvertUser(converter, ref result);
+      return result;
+    }
+  }
 }
 #pragma warning restore 0109
 #pragma warning restore 1591

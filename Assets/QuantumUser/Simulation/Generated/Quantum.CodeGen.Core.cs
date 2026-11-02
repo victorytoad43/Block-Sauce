@@ -60,6 +60,11 @@ namespace Quantum {
     RoundEnd,
     Results,
   }
+  public enum SauceType : int {
+    None,
+    Stack,
+    Slip,
+  }
   public enum StackState : int {
     Loose,
     Settling,
@@ -177,6 +182,36 @@ namespace Quantum {
       var p = (SandboxBlockHome*)ptr;
       FPVector3.Serialize(&p->Position, serializer);
       FPQuaternion.Serialize(&p->Rotation, serializer);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct SauceDip {
+    public const Int32 SIZE = 48;
+    public const Int32 ALIGNMENT = 8;
+    [FieldOffset(24)]
+    public FPVector3 Normal;
+    [FieldOffset(16)]
+    public FP Offset;
+    [FieldOffset(8)]
+    public FP Fraction;
+    [FieldOffset(0)]
+    public SauceType Type;
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 4591;
+        hash = hash * 31 + Normal.GetHashCode();
+        hash = hash * 31 + Offset.GetHashCode();
+        hash = hash * 31 + Fraction.GetHashCode();
+        hash = hash * 31 + (Int32)Type;
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (SauceDip*)ptr;
+      serializer.Stream.Serialize((Int32*)&p->Type);
+      FP.Serialize(&p->Fraction, serializer);
+      FP.Serialize(&p->Offset, serializer);
+      FPVector3.Serialize(&p->Normal, serializer);
     }
   }
   [StructLayout(LayoutKind.Explicit)]
@@ -741,6 +776,97 @@ namespace Quantum {
     }
   }
   [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct SauceCoat : Quantum.IComponent {
+    public const Int32 SIZE = 192;
+    public const Int32 ALIGNMENT = 8;
+    [FieldOffset(48)]
+    [HideInInspector()]
+    [FramePrinter.FixedArrayAttribute(typeof(SauceDip), 3)]
+    private fixed Byte _Dips_[144];
+    [FieldOffset(1)]
+    [HideInInspector()]
+    public Byte DipCount;
+    [FieldOffset(16)]
+    [HideInInspector()]
+    public EntityRef InVat;
+    [FieldOffset(0)]
+    [HideInInspector()]
+    public Byte ActiveDip;
+    [FieldOffset(4)]
+    [HideInInspector()]
+    public Int32 InVatFrame;
+    [FieldOffset(32)]
+    [HideInInspector()]
+    public FP StackStrength;
+    [FieldOffset(24)]
+    [HideInInspector()]
+    public FP SlipStrength;
+    [FieldOffset(8)]
+    [HideInInspector()]
+    public AssetRef<PhysicsMaterial> PlainMaterial;
+    [FieldOffset(40)]
+    [HideInInspector()]
+    public FrameTimer StackCooldown;
+    public readonly FixedArray<SauceDip> Dips {
+      get {
+        fixed (byte* p = _Dips_) { return new FixedArray<SauceDip>(p, 48, 3); }
+      }
+    }
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 6029;
+        hash = hash * 31 + HashCodeUtils.GetArrayHashCode(Dips);
+        hash = hash * 31 + DipCount.GetHashCode();
+        hash = hash * 31 + InVat.GetHashCode();
+        hash = hash * 31 + ActiveDip.GetHashCode();
+        hash = hash * 31 + InVatFrame.GetHashCode();
+        hash = hash * 31 + StackStrength.GetHashCode();
+        hash = hash * 31 + SlipStrength.GetHashCode();
+        hash = hash * 31 + PlainMaterial.GetHashCode();
+        hash = hash * 31 + StackCooldown.GetHashCode();
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (SauceCoat*)ptr;
+      serializer.Stream.Serialize(&p->ActiveDip);
+      serializer.Stream.Serialize(&p->DipCount);
+      serializer.Stream.Serialize(&p->InVatFrame);
+      AssetRef.Serialize(&p->PlainMaterial, serializer);
+      EntityRef.Serialize(&p->InVat, serializer);
+      FP.Serialize(&p->SlipStrength, serializer);
+      FP.Serialize(&p->StackStrength, serializer);
+      FrameTimer.Serialize(&p->StackCooldown, serializer);
+      FixedArray.Serialize(p->Dips, serializer, Statics.SerializeSauceDip);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct SauceVat : Quantum.IComponent {
+    public const Int32 SIZE = 32;
+    public const Int32 ALIGNMENT = 8;
+    [FieldOffset(0)]
+    public SauceType Type;
+    [FieldOffset(16)]
+    public FPVector2 Size;
+    [FieldOffset(8)]
+    public FP SurfaceHeight;
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 6857;
+        hash = hash * 31 + (Int32)Type;
+        hash = hash * 31 + Size.GetHashCode();
+        hash = hash * 31 + SurfaceHeight.GetHashCode();
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (SauceVat*)ptr;
+      serializer.Stream.Serialize((Int32*)&p->Type);
+      FP.Serialize(&p->SurfaceHeight, serializer);
+      FPVector2.Serialize(&p->Size, serializer);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Team : Quantum.IComponent {
     public const Int32 SIZE = 4;
     public const Int32 ALIGNMENT = 1;
@@ -782,6 +908,7 @@ namespace Quantum {
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.InputButtons>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.MatchState>();
       FramePrinter.EnsurePrimitiveNotStripped<QueryOptions>();
+      FramePrinter.EnsurePrimitiveNotStripped<Quantum.SauceType>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.StackState>();
     }
   }
@@ -853,6 +980,8 @@ namespace Quantum {
       private ComponentSignals _componentSignals_RagdollOwner = CreateComponentSignals<Quantum.RagdollOwner>(frame);
       private ComponentSignals _componentSignals_RagdollStressTest = CreateComponentSignals<Quantum.RagdollStressTest>(frame);
       private ComponentSignals _componentSignals_Ragdollable = CreateComponentSignals<Quantum.Ragdollable>(frame);
+      private ComponentSignals _componentSignals_SauceCoat = CreateComponentSignals<Quantum.SauceCoat>(frame);
+      private ComponentSignals _componentSignals_SauceVat = CreateComponentSignals<Quantum.SauceVat>(frame);
       private ComponentSignals _componentSignals_Team = CreateComponentSignals<Quantum.Team>(frame);
       private ComponentSignals _componentSignals_Transform2D = CreateComponentSignals<Transform2D>(frame);
       private ComponentSignals _componentSignals_Transform2DVertical = CreateComponentSignals<Transform2DVertical>(frame);
@@ -903,6 +1032,7 @@ namespace Quantum {
   unsafe partial class Statics {
     public static FrameSerializer.Delegate SerializeEntityRef = EntityRef.Serialize;
     public static FrameSerializer.Delegate SerializeSandboxBlockHome = Quantum.SandboxBlockHome.Serialize;
+    public static FrameSerializer.Delegate SerializeSauceDip = Quantum.SauceDip.Serialize;
     public static FrameSerializer.Delegate SerializeInput = Quantum.Input.Serialize;
     unsafe partial record TypeRegistrations {
       internal TypeRegistry CoreRegistrations = RegisterCore(registry);
@@ -1000,6 +1130,10 @@ namespace Quantum {
         registry.Register<Quantum.RagdollStressTest>(Quantum.RagdollStressTest.SIZE);
         registry.Register<Quantum.Ragdollable>(Quantum.Ragdollable.SIZE);
         registry.Register<Quantum.SandboxBlockHome>(Quantum.SandboxBlockHome.SIZE);
+        registry.Register<Quantum.SauceCoat>(Quantum.SauceCoat.SIZE);
+        registry.Register<Quantum.SauceDip>(Quantum.SauceDip.SIZE);
+        registry.Register<Quantum.SauceType>(4);
+        registry.Register<Quantum.SauceVat>(Quantum.SauceVat.SIZE);
         registry.Register<Shape2D>(Shape2D.SIZE);
         registry.Register<Shape3D>(Shape3D.SIZE);
         registry.Register<SpringJoint>(SpringJoint.SIZE);
@@ -1031,6 +1165,8 @@ namespace Quantum {
         registry.Register<Quantum.RagdollOwner>(Quantum.RagdollOwner.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.RagdollStressTest>(Quantum.RagdollStressTest.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.Ragdollable>(Quantum.Ragdollable.Serialize, null, null, ComponentFlags.None);
+        registry.Register<Quantum.SauceCoat>(Quantum.SauceCoat.Serialize, null, null, ComponentFlags.None);
+        registry.Register<Quantum.SauceVat>(Quantum.SauceVat.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.Team>(Quantum.Team.Serialize, null, null, ComponentFlags.None);
         return registry;
       }

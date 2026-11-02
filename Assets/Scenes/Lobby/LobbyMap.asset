@@ -511,6 +511,100 @@ MonoBehaviour:
     QNavMeshData:
       Area: 0
       Flags: 0
+  - Rotation:
+      X:
+        RawValue: -45608
+      Y:
+        RawValue: -8208
+      Z:
+        RawValue: -8208
+      W:
+        RawValue: 45608
+    Position:
+      X:
+        RawValue: -137625
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 4
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Cup
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 10
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
+  - Rotation:
+      X:
+        RawValue: -45608
+      Y:
+        RawValue: -8208
+      Z:
+        RawValue: -8208
+      W:
+        RawValue: 45608
+    Position:
+      X:
+        RawValue: 137625
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    ShapeType: 4
+    SphereRadius:
+      RawValue: 0
+    CapsuleRadius:
+      RawValue: 0
+    CapsuleHeight:
+      RawValue: 0
+    BoxExtents:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+    SmoothSphereMeshCollisions: 0
+    StaticData:
+      Name: Cup
+      Tag: Untagged
+      Layer: 9
+      Asset:
+        Id:
+          Value: 0
+      IsTrigger: 0
+      ColliderIndex: 11
+      MutableMode: 0
+    QNavMeshData:
+      Area: 0
+      Flags: 0
   MapEntities:
   - Components:
     - rid: 1121056646169100288
@@ -682,7 +776,13 @@ MonoBehaviour:
     - rid: 3442151234574745606
   - Components:
     - rid: 4278626708522795008
-  SerializedTriangleDataUncompressedSize: 8
+  - Components:
+    - rid: 8455825105765793792
+    - rid: 8455825105765793793
+  - Components:
+    - rid: 3976700873517563904
+    - rid: 3976700873517563905
+  SerializedTriangleDataUncompressedSize: 96848
   references:
     version: 2
     RefIds:
@@ -2510,6 +2610,35 @@ MonoBehaviour:
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Id: 255
+    - rid: 3976700873517563904
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: 137625
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 0
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 0
+    - rid: 3976700873517563905
+      type: {class: SauceVatPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        Type:
+          Value: 2
+        Size:
+          X:
+            RawValue: 78643
+          Y:
+            RawValue: 78643
+        SurfaceHeight:
+          RawValue: 36044
     - rid: 4089721299381780480
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
@@ -4004,3 +4133,32 @@ MonoBehaviour:
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Id: 255
+    - rid: 8455825105765793792
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: -137625
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 0
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 0
+    - rid: 8455825105765793793
+      type: {class: SauceVatPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        Type:
+          Value: 1
+        Size:
+          X:
+            RawValue: 78643
+          Y:
+            RawValue: 78643
+        SurfaceHeight:
+          RawValue: 36044

@@ -8,7 +8,7 @@
         /// <summary>
         /// Adds Block Sauce's gameplay systems after the core systems from the SystemsConfig, in update order:
         /// input and camera first, then grounding, then the movement that reads both, then grabbing (which can turn
-        /// the body while swinging). Signal-only systems react to physics callbacks and other systems' signals.
+        /// the body while swinging), then stacking and the sauces that act on stacked blocks. Signal-only systems react to physics callbacks and other systems' signals.
         /// </summary>
         static partial void AddSystemsUser(ICollection<SystemBase> systems, RuntimeConfig gameConfig, SimulationConfig simulationConfig, SystemsConfig systemsConfig)
         {
@@ -23,6 +23,7 @@
             systems.Add(new KnockbackSystem());
             systems.Add(new ObjectImpactSystem());
             systems.Add(new BlockStackSystem());
+            systems.Add(new SauceSystem());
             systems.Add(new RagdollSystem());
             systems.Add(new FallSystem());
 

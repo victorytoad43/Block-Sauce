@@ -34,6 +34,11 @@ namespace Quantum
         /// The physics layer an aimed block sits on: it collides with nothing (Project Settings › Physics).
         /// </summary>
         private const string AimedBlockLayer = "AimedBlock";
+        /// <summary>
+        /// The physics layer of low statics a held block can be reached over and down into, such as sauce vats: they
+        /// still collide, but don't count as level geometry between the hands and the block.
+        /// </summary>
+        private const string ReachOverLayer = "Vat";
 
         /// <summary>
         /// The components the grab system updates for each character.
@@ -538,7 +543,7 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Returns true if level geometry lies between the pivot and the held block.
+        /// Returns true if level geometry, other than what can be reached over, lies between the pivot and the held block.
         /// </summary>
         private bool IsHeldBlockBlocked(Frame frame, FPVector3 origin, FPVector3 blockPosition)
         {
@@ -547,7 +552,8 @@ namespace Quantum
             if (distance <= FP._0)
                 return false;
 
-            return frame.Physics3D.Raycast(origin, toBlock / distance, distance, -1, QueryOptions.HitStatics).HasValue;
+            int layers = ~frame.Layers.GetLayerMask(ReachOverLayer);
+            return frame.Physics3D.Raycast(origin, toBlock / distance, distance, layers, QueryOptions.HitStatics).HasValue;
         }
 
         /// <summary>

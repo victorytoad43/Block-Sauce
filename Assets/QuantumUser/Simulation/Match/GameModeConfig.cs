@@ -16,6 +16,10 @@ namespace Quantum
         [Header("Blocks")]
         public AssetRef<EntityPrototype> BlockPrototype;
         /// <summary>
+        /// The sauce rules blocks are dipped under; none turns sauces off.
+        /// </summary>
+        public AssetRef<SauceConfig> Sauce;
+        /// <summary>
         /// How many blocks each player gets.
         /// </summary>
         public int BlocksPerPlayer = 3;

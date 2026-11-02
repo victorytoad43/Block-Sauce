@@ -436,6 +436,82 @@ namespace Quantum.Prototypes {
     }
   }
   [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.SauceCoat))]
+  public unsafe class SauceCoatPrototype : ComponentPrototype<Quantum.SauceCoat> {
+    [HideInInspector()]
+    [ArrayLengthAttribute(3)]
+    public Quantum.Prototypes.SauceDipPrototype[] Dips = new Quantum.Prototypes.SauceDipPrototype[3];
+    [HideInInspector()]
+    public Byte DipCount;
+    [HideInInspector()]
+    public MapEntityId InVat;
+    [HideInInspector()]
+    public Byte ActiveDip;
+    [HideInInspector()]
+    public Int32 InVatFrame;
+    [HideInInspector()]
+    public FP StackStrength;
+    [HideInInspector()]
+    public FP SlipStrength;
+    [HideInInspector()]
+    public AssetRef<PhysicsMaterial> PlainMaterial;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype StackCooldown;
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.SauceCoat component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.SauceCoat result, in PrototypeMaterializationContext context = default) {
+      for (int i = 0, count = PrototypeValidator.CheckLength(Dips, 3, in context); i < count; ++i) {
+        this.Dips[i].Materialize(frame, ref *result.Dips.GetPointer(i), in context);
+      }
+      result.DipCount = this.DipCount;
+      PrototypeValidator.FindMapEntity(this.InVat, in context, out result.InVat);
+      result.ActiveDip = this.ActiveDip;
+      result.InVatFrame = this.InVatFrame;
+      result.StackStrength = this.StackStrength;
+      result.SlipStrength = this.SlipStrength;
+      result.PlainMaterial = this.PlainMaterial;
+      this.StackCooldown.Materialize(frame, ref result.StackCooldown, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.SauceDip))]
+  public unsafe partial class SauceDipPrototype : StructPrototype {
+    public FPVector3 Normal;
+    public FP Offset;
+    public FP Fraction;
+    public Quantum.QEnum32<SauceType> Type;
+    partial void MaterializeUser(Frame frame, ref Quantum.SauceDip result, in PrototypeMaterializationContext context);
+    public void Materialize(Frame frame, ref Quantum.SauceDip result, in PrototypeMaterializationContext context = default) {
+      result.Normal = this.Normal;
+      result.Offset = this.Offset;
+      result.Fraction = this.Fraction;
+      result.Type = this.Type;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.SauceVat))]
+  public unsafe partial class SauceVatPrototype : ComponentPrototype<Quantum.SauceVat> {
+    public Quantum.QEnum32<SauceType> Type;
+    public FPVector2 Size;
+    public FP SurfaceHeight;
+    partial void MaterializeUser(Frame frame, ref Quantum.SauceVat result, in PrototypeMaterializationContext context);
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.SauceVat component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.SauceVat result, in PrototypeMaterializationContext context = default) {
+      result.Type = this.Type;
+      result.Size = this.Size;
+      result.SurfaceHeight = this.SurfaceHeight;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
   [Quantum.Prototypes.Prototype(typeof(Quantum.Team))]
   public unsafe partial class TeamPrototype : ComponentPrototype<Quantum.Team> {
     public Byte Id;

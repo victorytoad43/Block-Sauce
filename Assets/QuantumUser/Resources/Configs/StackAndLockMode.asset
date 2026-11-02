@@ -19,6 +19,9 @@ MonoBehaviour:
   BlockPrototype:
     Id:
       Value: 1486130621875712326
+  Sauce:
+    Id:
+      Value: 335603025714483471
   BlocksPerPlayer: 3
   TowerHeight: 3
   BlockSize:
