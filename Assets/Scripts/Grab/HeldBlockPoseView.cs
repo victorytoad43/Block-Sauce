@@ -54,6 +54,9 @@ namespace BlockSauce
         [SerializeField] private float _aimBlendSeconds = 0.15f;
         [Tooltip("Seconds after a throw the block's model takes to go from the hands to the real, flying block.")]
         [SerializeField] private float _releaseSeconds = 0.08f;
+        [Tooltip("How high above the feet, in meters, the block's model passes at the top of its arc between the real block "
+            + "in front and the hands overhead, so it goes over the head rather than through it.")]
+        [SerializeField] private float _arcTopHeight = 2.05f;
 
         private int _layer;
         private Transform _spine;
@@ -200,7 +203,7 @@ namespace BlockSauce
             if (_thrownView != null && _releaseTimer > 0f && _handL != null)
             {
                 float share = _releaseTimer / _releaseSeconds * _releaseWeight;
-                _thrownView.position = Vector3.Lerp(_thrownView.position, GetBlockInHands(), share);
+                _thrownView.position = GetArcPoint(GetBlockInHands(), _thrownView.position, 1f - share);
             }
 
             if (_heldView == null || _reachWeight <= 0f || _spine == null)
@@ -233,7 +236,7 @@ namespace BlockSauce
 
             if (_aimWeight > 0f)
             {
-                _heldView.position = Vector3.Lerp(_heldView.position, inHands, _aimWeight);
+                _heldView.position = GetArcPoint(_heldView.position, inHands, _aimWeight);
             }
         }
 
@@ -245,6 +248,21 @@ namespace BlockSauce
             Vector3 between = (_handL.position + _handR.position) * 0.5f;
             Vector3 outward = between - _chest.position;
             return outward.sqrMagnitude > 1e-4f ? between + outward.normalized * _gripBack : between;
+        }
+
+        /// <summary>
+        /// Returns the point <paramref name="t"/> of the way along an arc from <paramref name="from"/> to
+        /// <paramref name="to"/> whose middle passes over the character's head (a quadratic curve), or a straight line
+        /// where that is already high enough.
+        /// </summary>
+        private Vector3 GetArcPoint(Vector3 from, Vector3 to, float t)
+        {
+            Vector3 control = (from + to) * 0.5f;
+            // A quadratic curve's middle is halfway between the ends' midpoint and its control point.
+            float top = transform.position.y + _arcTopHeight;
+            control.y = Mathf.Max(control.y, 2f * top - control.y);
+            float u = 1f - t;
+            return u * u * from + 2f * u * t * control + t * t * to;
         }
 
         /// <summary>

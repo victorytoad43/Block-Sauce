@@ -91,6 +91,9 @@ namespace Quantum
             {
                 filter.Grabber->IsAiming = true;
                 filter.Grabber->AimPitch = config.AimPitchStart;
+                // The view shows the block overhead while the real one waits in front, so it touches nothing until it
+                // leaves the hands (DetachHeld makes it solid again). A trigger still moves; a disabled collider doesn't.
+                frame.Unsafe.GetPointer<PhysicsCollider3D>(filter.Grabber->Held)->IsTrigger = true;
             }
             else
             {
@@ -553,6 +556,7 @@ namespace Quantum
         private void DetachHeld(Frame frame, EntityRef held)
         {
             frame.Unsafe.GetPointer<Grabbable>(held)->Holder = EntityRef.None;
+            frame.Unsafe.GetPointer<PhysicsCollider3D>(held)->IsTrigger = false;
 
             DisableLeash(frame, held);
 
