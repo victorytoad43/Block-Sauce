@@ -9,7 +9,7 @@ component MovementData
     asset_ref<MovementConfig> Config;
     [HideInInspector] ControlTier Tier;
     [HideInInspector] FrameTimer StaggerTimer;
-    [HideInInspector] bool IsCrouching;
+    [HideInInspector] bool IsSitting;
     [HideInInspector] bool IsSliding;
     [HideInInspector] FrameTimer SlideTimer;
     [HideInInspector] FPVector2 SlideDirection;

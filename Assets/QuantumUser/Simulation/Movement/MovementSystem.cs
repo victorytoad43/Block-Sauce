@@ -7,13 +7,15 @@ namespace Quantum
     /// Drives characters on foot from their input: turning, walking, running, jumping, slope footing and step-ups.
     /// Characters are dynamic physics bodies steered by forces, so pushes and collisions stay physical.
     /// Adapted from Friendslop's MovementSystem: movement is relative to the orbit camera's yaw, and the character
-    /// turns toward where it moves instead of snapping to the camera. On top of that it runs crouching, sliding and
+    /// turns toward where it moves instead of snapping to the camera. On top of that it runs sitting, sliding and
     /// the control tiers: a staggered character loses steering and slides on its momentum until the stagger ends.
+    /// Crouch sits: a sitting character is stationary (no steering, turning or jumping), unless crouch was pressed
+    /// while moving fast enough, which starts a slide that ends in a sit while crouch is held.
     /// </summary>
     public unsafe class MovementSystem : SystemMainThreadFilter<MovementSystem.Filter>, ISignalStagger
     {
         /// <summary>
-        /// How far above the crouched head, in meters, the headroom probe starts, so it clears the character's own collider.
+        /// How far above the sitting head, in meters, the headroom probe starts, so it clears the character's own collider.
         /// </summary>
         private readonly FP HeadroomProbeOffset = FP._0_02;
 
@@ -47,7 +49,7 @@ namespace Quantum
 
         /// <summary>
         /// Runs the character for this tick in its current state: staggered, sliding, or in control.
-        /// In control it turns toward its move direction and walks, runs or crouches, jumps, and can start a slide.
+        /// In control it turns toward its move direction and walks or runs, jumps, and can sit or start a slide.
         /// While grounded it also holds the character on slopes and, given move input, steps it up low ledges.
         /// A character no player controls gets no input and only brakes, falls and holds on slopes.
         /// </summary>
@@ -87,10 +89,21 @@ namespace Quantum
             FPQuaternion cameraYaw = FPQuaternion.AngleAxis(filter.PlayerLook->Yaw, FPVector3.Up);
             FPVector3 moveDirection = cameraYaw * new FPVector3(moveInput.X, FP._0, moveInput.Y);
 
-            if (grounded && input.Crouch.WasPressed && input.Run.IsDown && TryStartSlide(frame, ref filter, config))
+            if (grounded && input.Crouch.WasPressed && TryStartSlide(frame, ref filter, config))
                 return;
 
-            UpdateCrouch(frame, ref filter, config, input.Crouch.IsDown);
+            UpdateSit(frame, ref filter, config, input.Crouch.IsDown);
+            if (data->IsSitting)
+            {
+                // Sitting is stationary: the body only brakes, so a shove still slides it along.
+                Brake(frame, filter.PhysicsBody, config.Deceleration);
+                if (grounded)
+                {
+                    HoldOnSlope(frame, ref filter);
+                }
+
+                return;
+            }
 
             // While holding a block the swing owns the facing, so left and right on the stick strafe.
             bool isHolding = frame.TryGet(filter.Entity, out Grabber grabber) && grabber.Held != EntityRef.None;
@@ -99,14 +112,9 @@ namespace Quantum
                 TurnToward(frame, ref filter, config, moveDirection);
             }
 
-            FP maxSpeed = data->IsCrouching ? config.CrouchSpeedMax
-                : input.Run.IsDown ? config.RunSpeedMax : config.WalkSpeedMax;
+            FP maxSpeed = input.Run.IsDown ? config.RunSpeedMax : config.WalkSpeedMax;
             DriveHorizontalVelocity(frame, ref filter, config, moveDirection, hasInput, maxSpeed);
-
-            if (data->IsCrouching == false)
-            {
-                TryJump(frame, ref filter, config, grounded, input.Jump.WasPressed);
-            }
+            TryJump(frame, ref filter, config, grounded, input.Jump.WasPressed);
 
             if (grounded)
             {
@@ -120,8 +128,8 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Starts a slide along the current horizontal velocity when the character runs fast enough, and returns true.
-        /// The slide keeps the character's speed or lifts it to the slide speed, and crouches the capsule.
+        /// Starts a slide along the current horizontal velocity when the character moves fast enough, and returns true.
+        /// The slide keeps the character's speed or lifts it to the slide speed, and lowers the capsule to sitting.
         /// </summary>
         private bool TryStartSlide(Frame frame, ref Filter filter, MovementConfig config)
         {
@@ -139,7 +147,7 @@ namespace Quantum
             data->IsSliding = true;
             data->SlideDirection = direction;
             data->SlideTimer = FrameTimer.FromSeconds(frame, config.SlideDuration);
-            SetCrouched(frame, ref filter, config, true);
+            SetSitting(frame, ref filter, config, true);
 
             filter.Transform->Rotation = FPQuaternion.LookRotation(new FPVector3(direction.X, FP._0, direction.Y));
             frame.Events.SlideStarted(filter.Entity);
@@ -147,8 +155,8 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Carries the slide on low braking without steering, until its timer ends or it slows to crouch speed.
-        /// Jumping out of a slide stands the character up and jumps; otherwise it ends crouched if crouch is held.
+        /// Carries the slide on low braking without steering, until its timer ends or it slows to the slide end speed.
+        /// Jumping out of a slide stands the character up and jumps; otherwise it ends sitting if crouch is held.
         /// </summary>
         private void UpdateSlide(Frame frame, ref Filter filter, MovementConfig config, Input input, bool grounded)
         {
@@ -161,62 +169,62 @@ namespace Quantum
             }
 
             bool slowedDown = GetHorizontalVelocity(filter.PhysicsBody).SqrMagnitude
-                < config.CrouchSpeedMax * config.CrouchSpeedMax;
+                < config.SlideEndSpeed * config.SlideEndSpeed;
             bool jumping = input.Jump.WasPressed && grounded && HasHeadroom(frame, ref filter, config);
 
             if (data->SlideTimer.IsRunning(frame) && slowedDown == false && jumping == false)
                 return;
 
             data->IsSliding = false;
-            UpdateCrouch(frame, ref filter, config, input.Crouch.IsDown && jumping == false);
+            UpdateSit(frame, ref filter, config, input.Crouch.IsDown && jumping == false);
 
-            if (jumping && data->IsCrouching == false)
+            if (jumping && data->IsSitting == false)
             {
                 TryJump(frame, ref filter, config, grounded, true);
             }
         }
 
         /// <summary>
-        /// Crouches while crouch is held, and stands back up once it is released and there is room overhead.
+        /// Sits while crouch is held, and stands back up once it is released and there is room overhead.
         /// </summary>
-        private void UpdateCrouch(Frame frame, ref Filter filter, MovementConfig config, bool crouchHeld)
+        private void UpdateSit(Frame frame, ref Filter filter, MovementConfig config, bool crouchHeld)
         {
             if (crouchHeld)
             {
-                SetCrouched(frame, ref filter, config, true);
+                SetSitting(frame, ref filter, config, true);
             }
-            else if (filter.MovementData->IsCrouching && HasHeadroom(frame, ref filter, config))
+            else if (filter.MovementData->IsSitting && HasHeadroom(frame, ref filter, config))
             {
-                SetCrouched(frame, ref filter, config, false);
+                SetSitting(frame, ref filter, config, false);
             }
         }
 
         /// <summary>
-        /// Resizes the capsule to the crouched or standing height, keeping its bottom at the character's feet.
+        /// Resizes the capsule to the sitting or standing height, keeping its bottom at the character's feet.
         /// </summary>
-        private void SetCrouched(Frame frame, ref Filter filter, MovementConfig config, bool crouched)
+        private void SetSitting(Frame frame, ref Filter filter, MovementConfig config, bool sitting)
         {
-            if (filter.MovementData->IsCrouching == crouched)
+            if (filter.MovementData->IsSitting == sitting)
                 return;
 
-            filter.MovementData->IsCrouching = crouched;
+            filter.MovementData->IsSitting = sitting;
 
             if (frame.Unsafe.TryGetPointer(filter.Entity, out PhysicsCollider3D* collider) == false)
                 return;
 
-            FP height = crouched ? config.CrouchHeight : config.StandingHeight;
+            FP height = sitting ? config.SitHeight : config.StandingHeight;
             FP halfHeight = height / 2;
             collider->Shape = Shape3D.CreateCapsule(config.CapsuleRadius, halfHeight - config.CapsuleRadius,
                 FPVector3.Up * halfHeight);
         }
 
         /// <summary>
-        /// Returns true when nothing solid sits between the crouched head and the standing head height.
+        /// Returns true when nothing solid sits between the sitting head and the standing head height.
         /// </summary>
         private bool HasHeadroom(Frame frame, ref Filter filter, MovementConfig config)
         {
-            FPVector3 origin = filter.Transform->Position + FPVector3.Up * (config.CrouchHeight + HeadroomProbeOffset);
-            FP distance = config.StandingHeight - config.CrouchHeight;
+            FPVector3 origin = filter.Transform->Position + FPVector3.Up * (config.SitHeight + HeadroomProbeOffset);
+            FP distance = config.StandingHeight - config.SitHeight;
             return frame.Physics3D.Raycast(origin, FPVector3.Up, distance, -1,
                 QueryOptions.HitStatics | QueryOptions.HitDynamics | QueryOptions.HitKinematics).HasValue == false;
         }

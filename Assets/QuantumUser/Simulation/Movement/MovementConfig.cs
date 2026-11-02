@@ -45,23 +45,23 @@ namespace Quantum
         /// The capsule's radius, in meters. Must match the player prototype's collider.
         /// </summary>
         [Header("Capsule")]
-        public FP CapsuleRadius = (FP)35 / 100;
+        public FP CapsuleRadius = (FP)40 / 100;
         /// <summary>
         /// The standing capsule height, in meters (Guy at game scale). Must match the player prototype's collider.
         /// </summary>
         public FP StandingHeight = (FP)166 / 100;
         /// <summary>
-        /// The capsule height while crouching or sliding, in meters.
+        /// The capsule height while sitting or sliding, in meters (Guy's sit pose at game scale).
         /// </summary>
-        public FP CrouchHeight = (FP)110 / 100;
+        public FP SitHeight = (FP)130 / 100;
 
         /// <summary>
-        /// The top horizontal speed while crouching, in m/s.
+        /// The horizontal speed, in m/s, below which a slide ends: the character sits if crouch is held, else stands.
         /// </summary>
-        [Header("Crouch and Slide")]
-        public FP CrouchSpeedMax = (FP)3 / 2;
+        [Header("Sit and Slide")]
+        public FP SlideEndSpeed = (FP)3 / 2;
         /// <summary>
-        /// The horizontal speed, in m/s, a running character needs before crouch starts a slide.
+        /// The horizontal speed, in m/s, a character needs before crouch starts a slide instead of a sit.
         /// </summary>
         public FP SlideMinSpeed = 4;
         /// <summary>
@@ -69,7 +69,7 @@ namespace Quantum
         /// </summary>
         public FP SlideSpeed = (FP)15 / 2;
         /// <summary>
-        /// How long a slide lasts, in seconds, unless it slows below crouch speed first.
+        /// How long a slide lasts, in seconds, unless it slows below the slide end speed first.
         /// </summary>
         public FP SlideDuration = FP._0_75;
         /// <summary>

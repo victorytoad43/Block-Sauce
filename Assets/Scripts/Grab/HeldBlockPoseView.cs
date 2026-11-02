@@ -179,38 +179,11 @@ namespace BlockSauce
         }
 
         /// <summary>
-        /// Moves the hand toward <paramref name="target"/> by the reach weight, bending the elbow in the plane the
-        /// animation already bends it in, and keeps the hand's animated rotation.
+        /// Moves the hand toward <paramref name="target"/> by the reach weight, keeping its animated rotation.
         /// </summary>
         private void ReachFor(Transform upperArm, Transform forearm, Transform hand, Vector3 target)
         {
-            Quaternion handRotation = hand.rotation;
-            Vector3 shoulder = upperArm.position;
-            Vector3 elbow = forearm.position;
-            target = Vector3.Lerp(hand.position, target, _reachWeight);
-
-            float upperLength = Vector3.Distance(shoulder, elbow);
-            float lowerLength = Vector3.Distance(elbow, hand.position);
-            Vector3 toTarget = target - shoulder;
-            float reach = Mathf.Clamp(toTarget.magnitude, 0.01f, (upperLength + lowerLength) * 0.999f);
-            Vector3 reachDirection = toTarget.normalized;
-
-            Vector3 bendNormal = Vector3.Cross(reachDirection, elbow - shoulder);
-            if (bendNormal.sqrMagnitude < 1e-6f)
-            {
-                bendNormal = Vector3.Cross(reachDirection, -Vector3.up);
-            }
-
-            float cosShoulder = (upperLength * upperLength + reach * reach - lowerLength * lowerLength)
-                / (2f * upperLength * reach);
-            float shoulderAngle = Mathf.Acos(Mathf.Clamp(cosShoulder, -1f, 1f)) * Mathf.Rad2Deg;
-            Vector3 elbowTarget = shoulder
-                + Quaternion.AngleAxis(shoulderAngle, bendNormal.normalized) * reachDirection * upperLength;
-
-            upperArm.rotation = Quaternion.FromToRotation(elbow - shoulder, elbowTarget - shoulder) * upperArm.rotation;
-            forearm.rotation = Quaternion.FromToRotation(hand.position - forearm.position, target - forearm.position)
-                * forearm.rotation;
-            hand.rotation = handRotation;
+            TwoBoneIK.Solve(upperArm, forearm, hand, Vector3.Lerp(hand.position, target, _reachWeight));
         }
 
         private float GetClipLength(string clipName)

@@ -31,12 +31,12 @@ MonoBehaviour:
   FallGravityScale:
     RawValue: 163840
   CapsuleRadius:
-    RawValue: 22937
+    RawValue: 26214
   StandingHeight:
     RawValue: 108789
-  CrouchHeight:
-    RawValue: 72089
-  CrouchSpeedMax:
+  SitHeight:
+    RawValue: 85197
+  SlideEndSpeed:
     RawValue: 98304
   SlideMinSpeed:
     RawValue: 262144

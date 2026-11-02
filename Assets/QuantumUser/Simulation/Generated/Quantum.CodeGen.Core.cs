@@ -492,7 +492,7 @@ namespace Quantum {
     public FrameTimer StaggerTimer;
     [FieldOffset(4)]
     [HideInInspector()]
-    public QBoolean IsCrouching;
+    public QBoolean IsSitting;
     [FieldOffset(8)]
     [HideInInspector()]
     public QBoolean IsSliding;
@@ -508,7 +508,7 @@ namespace Quantum {
         hash = hash * 31 + Config.GetHashCode();
         hash = hash * 31 + (Int32)Tier;
         hash = hash * 31 + StaggerTimer.GetHashCode();
-        hash = hash * 31 + IsCrouching.GetHashCode();
+        hash = hash * 31 + IsSitting.GetHashCode();
         hash = hash * 31 + IsSliding.GetHashCode();
         hash = hash * 31 + SlideTimer.GetHashCode();
         hash = hash * 31 + SlideDirection.GetHashCode();
@@ -518,7 +518,7 @@ namespace Quantum {
     public static void Serialize(void* ptr, FrameSerializer serializer) {
       var p = (MovementData*)ptr;
       serializer.Stream.Serialize((Int32*)&p->Tier);
-      QBoolean.Serialize(&p->IsCrouching, serializer);
+      QBoolean.Serialize(&p->IsSitting, serializer);
       QBoolean.Serialize(&p->IsSliding, serializer);
       AssetRef.Serialize(&p->Config, serializer);
       FrameTimer.Serialize(&p->SlideTimer, serializer);

@@ -28,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.83, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.83, z: 0.7}
+  m_LocalScale: {x: 0.8, y: 0.83, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1583370411494458624}
@@ -115,6 +115,7 @@ GameObject:
   - component: {fileID: 2211089434276030069}
   - component: {fileID: 8470999871064724580}
   - component: {fileID: 6414982322801283057}
+  - component: {fileID: 4769580823115886944}
   - component: {fileID: 4473357891918747787}
   m_Layer: 0
   m_Name: PH_PlayerCapsule
@@ -204,7 +205,7 @@ MonoBehaviour:
       SphereRadius:
         RawValue: 32768
       CapsuleRadius:
-        RawValue: 22938
+        RawValue: 26214
       CapsuleHeight:
         RawValue: 108790
       CapsuleDirection: 0
@@ -483,7 +484,7 @@ MonoBehaviour:
       Frames: 0
       Seconds:
         RawValue: 0
-    IsCrouching:
+    IsSitting:
       Value: 0
     IsSliding:
       Value: 0
@@ -624,6 +625,7 @@ MonoBehaviour:
   _runClipSpeed: 3.2
   _runRateRange: {x: 0.8, y: 2}
   _airborneDelay: 0.12
+  _flinchFadeOut: 0.3
 --- !u!114 &5824487416855064166
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -690,6 +692,25 @@ MonoBehaviour:
   _maxScale: 2.5
   _minScale: 0.8
   _popSeconds: 0.12
+--- !u!114 &4769580823115886944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4830101896938081584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 124dfb002c5de114b87b9fbbd2ac1e94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.FootIKView
+  _animator: {fileID: 6532893055267455855}
+  _probeHeight: 0.5
+  _probeDepth: 0.5
+  _maxHipDrop: 0.35
+  _maxFootTilt: 30
+  _hipSharpness: 12
+  _fadeSeconds: 0.15
 --- !u!114 &4473357891918747787
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -249,7 +249,7 @@ namespace Quantum.Prototypes {
     [HideInInspector()]
     public Quantum.Prototypes.FrameTimerPrototype StaggerTimer;
     [HideInInspector()]
-    public QBoolean IsCrouching;
+    public QBoolean IsSitting;
     [HideInInspector()]
     public QBoolean IsSliding;
     [HideInInspector()]
@@ -266,7 +266,7 @@ namespace Quantum.Prototypes {
       result.Config = this.Config;
       result.Tier = this.Tier;
       this.StaggerTimer.Materialize(frame, ref result.StaggerTimer, in context);
-      result.IsCrouching = this.IsCrouching;
+      result.IsSitting = this.IsSitting;
       result.IsSliding = this.IsSliding;
       this.SlideTimer.Materialize(frame, ref result.SlideTimer, in context);
       result.SlideDirection = this.SlideDirection;

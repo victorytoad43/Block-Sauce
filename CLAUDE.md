@@ -56,6 +56,8 @@ Friendslop docs: https://doc.photonengine.com/quantum/v3/game-samples/friendslop
 - Multiple clients: Unity Multiplayer Play Mode (installed), plus development builds launched with `-autojoin ROOM` and `-autoplay` (random bot input) for up to 8 players.
 - Dev tools (editor and development builds only): F9 stacks your next block onto a tower (`CommandDevStackTower`), F10 knocks you down (`CommandDevKnockdown`), `CommandDevBuildColumn` builds a tall column for stacking tests.
 - Measure from the verified frame, not just the predicted one, when checking anything that could be rolled back.
+- In-editor checks: `unity cmd script eval_file --file <cs>` runs C# in the open editor (fully qualify `UnityEditor.Animations` types; `using` lines don't compile). For timed input, set `PlayerInputPoller.TestInputOverride` to a lambda that scripts input by elapsed time and logs samples to `AppDomain.CurrentDomain.SetData`, then read the log back in a second eval. Clear the override afterwards.
+- `unity cmd capture game_view --save_path Temp/x.png` actually writes `Assets/Temp/x.png`: move the image out and delete `Assets/Temp` and its `.meta`.
 
 ## How to work through a phase
 

@@ -14,7 +14,7 @@ namespace BlockSauce.Editor
     {
         private const string ArtFolder = "Assets/Art/";
         private const float ArtScaleFactor = 0.4f;
-        private static readonly string[] LoopingClipWords = { "Idle", "Walk", "Run", "Loop", "Pose", "Hold", "Spin" };
+        private static readonly string[] LoopingClipWords = { "Idle", "Walk", "Run", "Loop", "Pose", "Hold", "Spin", "Strafe", "Slide" };
 
         private void OnPreprocessModel()
         {

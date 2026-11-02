@@ -6,7 +6,7 @@ Source of truth for design, architecture, decisions and phases. Older plan versi
 
 Block Sauce is a third-person online physics party game for 2–8 players: build your tower, wreck everyone else's. There is no health and no death. Players only get knocked around, and stacks only fall when something hits them. Every feature should either help a player build or help them wreck; sauces tilt a block toward one or the other.
 
-**Player verbs:** walk/run, jump, crouch, slide (run + crouch), grab, carry, hold and swing, place, throw, jumpshot (throw while airborne). A held block is available in every movement state.
+**Player verbs:** walk/run, jump, sit, slide (sit while moving fast), grab, carry, hold and swing, place, throw, jumpshot (throw while airborne). A held block is available in every movement state.
 
 **Stack:** Unity 6000.3.14f1 + URP 17.3 (view, animation, VFX); Photon Quantum 3.1.0 Preview build 2189 (deterministic simulation and networking), pinned; Blender 5.1 (Guy's model, rig and animation).
 
@@ -26,10 +26,11 @@ Reference implementation: Photon's Friendslop sample (grab, carry, throw, force-
 
 ### Character
 
+- **Sit and slide:** the crouch button sits. A sitting character is stationary: no steering, turning or jumping, it only brakes (a shove still slides it). Pressing it while moving 4 m/s or faster slides instead (7.5 m/s for 0.75 s), ending in a sit while the button is held. The capsule is 1.30 m tall while sitting or sliding. The view plays the sit-down, blending into the slide clip while a sitting body moves faster than 2 m/s.
 - **Control tiers:** in control (forces chase the stick's target velocity), staggered (no steering, light braking, drops the held block), knocked down (capsule off, ragdoll limbs take over and topple towers).
 - The view reads speed, direction, grounded and state, and plays Blender clips on top. Root motion stays off; animation follows the body.
 - Timed moves (slide length, throw release, get-up offset) are simulation numbers sized to the authored clips.
-- Foot IK and hand IK live entirely in the view.
+- Foot IK (feet planted per foot on statics and blocks, hips dropping up to 0.35 m) and hand IK live entirely in the view. A stagger plays a full-body flinch for the side that was hit.
 
 ### Holding a block
 
@@ -83,14 +84,16 @@ Each dip stores a plane in the block's local space; the shader turns those plane
 - [x] **Phase 2, Stack & Lock:** owned blocks, stack detection, settling and counting, match flow, HUD placeholder, win check.
 - [x] **Phase 3, Knockdown:** knockdown tier, Guy's 11-limb ragdoll, get-up, carrying bodies, falling out, 8 players down at once profiled online (sim held 64 Hz).
 
-### Phase 4: Character (next)
-Already in: Idle, forward and backward walk/run blends, jump start/loop/land, `GrabBlock` hold layer with spine turn and two-bone hand IK on the block, `Throw` follow-through, ragdoll pose on Guy's bones, get-up blends, the grabbed block squaring to Guy's facing.
-- [ ] Integrate the remaining clips (A-017 to A-023): strafe, stagger, crouch, slide, two-handed aim and jumpshot, place, win and lose
-- [ ] Locomotion as a 2D blend (forward, back, strafe) from simulation velocity relative to facing; crouch and slide states; stagger flinch on the upper body
-- [ ] Foot IK on uneven terrain
-- [ ] Widen the physics capsule to Guy's measured 0.40 m radius (from 0.35 m) and retest grab reach, hold and stacking
-- [ ] Fix hold visuals: hands slightly inside the block's faces; a block raised above about 40° reaching into Guy's chest
-- [ ] Win and lose clips on Round end / Results
+### Phase 4: Character (in progress)
+In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/land; sit and slide; stagger flinches by hit side; `GrabBlock` hold layer with spine turn and two-bone hand IK on the block; `Throw` follow-through; foot IK on uneven ground and blocks; ragdoll pose on Guy's bones; get-up blends; the grabbed block squaring to Guy's facing; capsule at Guy's 0.40 m radius.
+- [x] Strafe, stagger, sit and slide clips integrated (2026-11-02)
+- [x] Crouch replaced by sit (stationary, slides above 4 m/s)
+- [x] Capsule widened to 0.40 m; grab reach and flush placing retested
+- [x] Foot IK on uneven terrain
+- [x] Hold visuals: hands on the block's faces, no chest clipping from 0° to 60° (checked 2026-11-02)
+- [ ] Two-handed aim pose and airborne jumpshot (A-021, in progress)
+- [ ] Place clip (A-022)
+- [ ] Win and lose clips on Round end / Results (A-023)
 - **Done when:** Guy plays a full match on uneven terrain with no state left unanimated.
 
 ### Phase 5: Sauces
@@ -125,6 +128,7 @@ Current decisions only; how they were reached is in git history.
 - **Holding and camera:** see Architecture › Holding a block. Vertical camera tilt at the swing's edge added 2026-11-02 at Jackson's request.
 - **Throwing** is hold-to-aim with a trajectory line and landing circle; a jumpshot aims the same way at 1.3× speed. The throw clip releases on frame 5 of 7.
 - **Movement input:** a gamepad stick's tilt sets speed from slow walk to full run; the keyboard walks, with Shift to run. The gamepad Start button starts a match; only Escape opens the menu.
+- **Sit replaces crouch** (Jackson, 2026-11-02): no movement while sitting except sliding; a sitting body moving fast plays the slide.
 - **Knockdown:** see Architecture › Knockdown. Numbers live on `PlayerKnockbackConfig` and `PlayerRagdollConfig` and stay open for tuning.
 - **Feel numbers** (aim angle, sensitivity, throw speed) stay as built until the Phase 6 tuning pass.
 - **Sauce strength:** 0–50% dipped maps to 0–100% of the effect.
