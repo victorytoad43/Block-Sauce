@@ -5,7 +5,7 @@ using UnityEngine;
 namespace BlockSauce.Editor
 {
     /// <summary>
-    /// Applies the Block Sauce import settings (docs/ASSETS.md, Pipeline spec) to every model under Assets/Art/, so
+    /// Applies the Block Sauce import settings (docs/PLAN.md, Art pipeline) to every model under Assets/Art/, so
     /// Jackson's FBX exports need no manual setup in Unity: scale factor 0.4 (his art is authored at about 2.5x
     /// real-world scale), Generic rig, no cameras or lights, and clips named after the Blender action without the
     /// exporter's "armature|" prefix. Clips whose names mark them as cycles loop.

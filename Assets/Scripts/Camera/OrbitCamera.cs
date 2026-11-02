@@ -7,6 +7,8 @@ namespace BlockSauce
     /// Its absolute yaw and pitch are sent as input every tick, so movement, aim and throws follow the camera.
     /// While the character holds a block, the same look input swings the block instead: the camera stops turning,
     /// eases round behind the character, and collects the look movement as swing degrees for the input poller.
+    /// Sideways, a swing far enough round turns the body (in the simulation) and the camera follows it. Vertically,
+    /// once the block reaches the top or bottom of its swing, further up or down input tilts the camera instead.
     /// This is view-only state: the simulation never reads it except through that input.
     /// </summary>
     public class OrbitCamera : MonoBehaviour
@@ -37,6 +39,10 @@ namespace BlockSauce
         private bool _isHolding;
         private float _followYaw;
         private Vector2 _pendingSwing;
+        private bool _canTiltWithSwing;
+        private float _swingPitch;
+        private float _swingPitchMin;
+        private float _swingPitchMax;
 
         /// <summary>
         /// The camera's absolute yaw, in degrees around world up.
@@ -65,10 +71,23 @@ namespace BlockSauce
             if (isHolding == false)
             {
                 _pendingSwing = Vector2.zero;
+                _canTiltWithSwing = false;
             }
 
             _isHolding = isHolding;
             _followYaw = bodyYaw;
+        }
+
+        /// <summary>
+        /// Gives the held block's swing pitch and its limits, in degrees, so vertical input past a limit can tilt the
+        /// camera; <paramref name="canTilt"/> is false while that input means something else (aiming a throw).
+        /// </summary>
+        public void SetSwingPitch(bool canTilt, float swingPitch, float swingPitchMin, float swingPitchMax)
+        {
+            _canTiltWithSwing = canTilt;
+            _swingPitch = swingPitch;
+            _swingPitchMin = swingPitchMin;
+            _swingPitchMax = swingPitchMax;
         }
 
         /// <summary>
@@ -107,7 +126,19 @@ namespace BlockSauce
 
             if (_isHolding)
             {
-                _pendingSwing += turn * _swingSensitivity;
+                Vector2 swing = turn * _swingSensitivity;
+                if (_canTiltWithSwing)
+                {
+                    // Where the block's pitch lands once the swing not yet sent arrives; anything past its limit
+                    // would be clamped away by the simulation, so it tilts the camera instead.
+                    float landed = Mathf.Clamp(_swingPitch + _pendingSwing.y, _swingPitchMin, _swingPitchMax);
+                    float target = landed + swing.y;
+                    float overflow = target - Mathf.Clamp(target, _swingPitchMin, _swingPitchMax);
+                    swing.y -= overflow;
+                    Pitch = Mathf.Clamp(Pitch - overflow / _swingSensitivity, _pitchMin, _pitchMax);
+                }
+
+                _pendingSwing += swing;
                 float t = 1f - Mathf.Exp(-_followSharpness * Time.deltaTime);
                 Yaw = Mathf.Repeat(Mathf.LerpAngle(Yaw, _followYaw, t) + 180f, 360f) - 180f;
                 return;

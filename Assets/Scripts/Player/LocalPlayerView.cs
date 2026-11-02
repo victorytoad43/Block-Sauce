@@ -4,7 +4,7 @@ namespace BlockSauce
 {
     /// <summary>
     /// On a player character's view: when the character belongs to this client, points the orbit camera at it,
-    /// and tells the camera each frame whether it holds a block and which way it faces.
+    /// and tells the camera each frame whether it holds a block, which way it faces, and how high the block swings.
     /// </summary>
     public class LocalPlayerView : QuantumEntityViewComponent
     {
@@ -30,6 +30,13 @@ namespace BlockSauce
 
             bool isHolding = TryGetPredictedQuantumComponent(out Grabber grabber) && grabber.Held != EntityRef.None;
             OrbitCamera.Instance.SetHolding(isHolding, transform.eulerAngles.y);
+            if (isHolding)
+            {
+                // Aiming spends vertical input on the throw angle, so the camera only tilts with a plain swing.
+                GrabConfig config = PredictedFrame.FindAsset(grabber.Config);
+                OrbitCamera.Instance.SetSwingPitch(grabber.IsAiming == false, grabber.SwingPitch.AsFloat,
+                    config.SwingPitchMin.AsFloat, config.SwingPitchMax.AsFloat);
+            }
         }
 
         public override void OnDeactivate()
