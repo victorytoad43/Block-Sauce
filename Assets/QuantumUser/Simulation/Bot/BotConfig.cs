@@ -14,6 +14,16 @@ namespace Quantum
         public AssetRef<EntityPrototype> Avatar;
 
         /// <summary>
+        /// The bot's brain: a Bot SDK state machine (built by Block Sauce › Build Bot Brain).
+        /// </summary>
+        public AssetRef<HFSMRoot> Brain;
+
+        /// <summary>
+        /// The chance, 0 to 1, that a bot dunks a block of its own in Stack sauce before building with it.
+        /// </summary>
+        public FP DunkChance = FP._0_25;
+
+        /// <summary>
         /// Seconds any task may take before it fails.
         /// </summary>
         [Header("Tasks")]

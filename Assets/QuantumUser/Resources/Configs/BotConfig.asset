@@ -19,5 +19,64 @@ MonoBehaviour:
   Avatar:
     Id:
       Value: 1321604829851767200
-  WanderTurnSpeed:
-    RawValue: 2949120
+  Brain:
+    Id:
+      Value: 305851804599218721
+  DunkChance:
+    RawValue: 16384
+  TaskSeconds:
+    RawValue: 983040
+  RunDistance:
+    RawValue: 327680
+  ProbeLength:
+    RawValue: 98304
+  ProbeStepDegrees:
+    RawValue: 1966080
+  StuckSeconds:
+    RawValue: 65536
+  StuckDistance:
+    RawValue: 16384
+  DetourSeconds:
+    RawValue: 45875
+  MaxSwingStep:
+    RawValue: 393216
+  CarryPitch:
+    RawValue: 1310720
+  GrabDistance:
+    RawValue: 81920
+  GrabAttempts: 6
+  PlaceClearance:
+    RawValue: 5242
+  PlaceStandDistance:
+    RawValue: 62259
+  PlaceJumpAbove:
+    RawValue: 65536
+  PlaceLineUpDistance:
+    RawValue: 85196
+  PlaceJumpReachPitch:
+    RawValue: 1966080
+  PlaceJumpMove:
+    RawValue: 32768
+  PlaceJumpStandDistance:
+    RawValue: 75366
+  PlaceOffset:
+    RawValue: 19660
+  PlaceJumpOffset:
+    RawValue: 22937
+  PlaceAttempts: 3
+  ThrowMinRange:
+    RawValue: 196608
+  ThrowMaxRange:
+    RawValue: 524288
+  AimTolerance:
+    RawValue: 131072
+  MinAimSeconds:
+    RawValue: 32768
+  DunkApproachDistance:
+    RawValue: 196608
+  DunkLowerSeconds:
+    RawValue: 131072
+  DunkSoakSeconds:
+    RawValue: 65536
+  DunkLiftSeconds:
+    RawValue: 98304

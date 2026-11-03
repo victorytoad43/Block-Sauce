@@ -11,7 +11,9 @@ enum BotTaskType
     // Throw the held block at the Target entity.
     ThrowAt,
     // Carry the held block to the Target vat, dunk it and lift it out.
-    Dunk
+    Dunk,
+    // Set the held block down where the bot stands.
+    Drop
 }
 
 enum BotTaskStatus
@@ -27,6 +29,8 @@ component Bot
 {
     // The yaw, in degrees, the bot is looking and walking toward.
     [HideInInspector] FP Heading;
+    // The ground block the bot builds its tower on, chosen by its brain.
+    [HideInInspector] EntityRef Home;
 
     [HideInInspector] BotTaskType Task;
     [HideInInspector] BotTaskStatus Status;

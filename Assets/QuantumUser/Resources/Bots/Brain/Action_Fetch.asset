@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcfca3189e053084fa5c72cb890b3d71, type: 3}
+  m_Name: Action_Fetch
+  m_EditorClassIdentifier: Quantum.Simulation::Quantum.BotFetchAction
+  Identifier:
+    Path: QuantumUser/Resources/Bots/Brain/Action_Fetch
+    Guid:
+      Value: 333289799385518462
+  CircuitId: 
+  Label: Fetch

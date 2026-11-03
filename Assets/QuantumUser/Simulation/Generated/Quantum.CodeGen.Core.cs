@@ -61,6 +61,7 @@ namespace Quantum {
     PlaceOn,
     ThrowAt,
     Dunk,
+    Drop,
   }
   public enum ControlTier : int {
     InControl,
@@ -927,21 +928,24 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Bot : Quantum.IComponent {
-    public const Int32 SIZE = 128;
+    public const Int32 SIZE = 136;
     public const Int32 ALIGNMENT = 8;
-    [FieldOffset(40)]
+    [FieldOffset(48)]
     [HideInInspector()]
     public FP Heading;
+    [FieldOffset(24)]
+    [HideInInspector()]
+    public EntityRef Home;
     [FieldOffset(8)]
     [HideInInspector()]
     public BotTaskType Task;
     [FieldOffset(4)]
     [HideInInspector()]
     public BotTaskStatus Status;
-    [FieldOffset(24)]
+    [FieldOffset(32)]
     [HideInInspector()]
     public EntityRef Target;
-    [FieldOffset(80)]
+    [FieldOffset(88)]
     [HideInInspector()]
     public FPVector3 Point;
     [FieldOffset(16)]
@@ -953,28 +957,29 @@ namespace Quantum {
     [FieldOffset(0)]
     [HideInInspector()]
     public Byte Attempts;
-    [FieldOffset(64)]
-    [HideInInspector()]
-    public FrameTimer StepTimer;
     [FieldOffset(72)]
     [HideInInspector()]
+    public FrameTimer StepTimer;
+    [FieldOffset(80)]
+    [HideInInspector()]
     public FrameTimer TaskTimer;
-    [FieldOffset(104)]
+    [FieldOffset(112)]
     [HideInInspector()]
     public FPVector3 ProgressPosition;
-    [FieldOffset(56)]
+    [FieldOffset(64)]
     [HideInInspector()]
     public FrameTimer ProgressTimer;
-    [FieldOffset(32)]
+    [FieldOffset(40)]
     [HideInInspector()]
     public FP DetourYaw;
-    [FieldOffset(48)]
+    [FieldOffset(56)]
     [HideInInspector()]
     public FrameTimer DetourTimer;
     public override readonly Int32 GetHashCode() {
       unchecked { 
         var hash = 419;
         hash = hash * 31 + Heading.GetHashCode();
+        hash = hash * 31 + Home.GetHashCode();
         hash = hash * 31 + (Int32)Task;
         hash = hash * 31 + (Int32)Status;
         hash = hash * 31 + Target.GetHashCode();
@@ -998,6 +1003,7 @@ namespace Quantum {
       serializer.Stream.Serialize((Int32*)&p->Status);
       serializer.Stream.Serialize((Int32*)&p->Task);
       EntityRef.Serialize(&p->Carried, serializer);
+      EntityRef.Serialize(&p->Home, serializer);
       EntityRef.Serialize(&p->Target, serializer);
       FP.Serialize(&p->DetourYaw, serializer);
       FP.Serialize(&p->Heading, serializer);

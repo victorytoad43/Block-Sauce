@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b274abdeecfdf544091dfc79238bcf58, type: 3}
+  m_Name: BotBrain
+  m_EditorClassIdentifier: Quantum.Simulation::Quantum.HFSMRoot
+  Identifier:
+    Path: QuantumUser/Resources/Bots/Brain/BotBrain
+    Guid:
+      Value: 305851804599218721
+  CircuitId: 
+  Label: Bot brain
+  StatesLinks:
+  - Id:
+      Value: 443257783694954059
+  - Id:
+      Value: 509688232998864883
+  - Id:
+      Value: 384824622115598195
+  - Id:
+      Value: 533371904353887518
+  EventsNames: []

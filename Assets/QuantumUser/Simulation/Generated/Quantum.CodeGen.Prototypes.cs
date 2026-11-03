@@ -187,6 +187,8 @@ namespace Quantum.Prototypes {
     [HideInInspector()]
     public FP Heading;
     [HideInInspector()]
+    public MapEntityId Home;
+    [HideInInspector()]
     public Quantum.QEnum32<BotTaskType> Task;
     [HideInInspector()]
     public Quantum.QEnum32<BotTaskStatus> Status;
@@ -219,6 +221,7 @@ namespace Quantum.Prototypes {
     }
     public void Materialize(Frame frame, ref Quantum.Bot result, in PrototypeMaterializationContext context = default) {
       result.Heading = this.Heading;
+      PrototypeValidator.FindMapEntity(this.Home, in context, out result.Home);
       result.Task = this.Task;
       result.Status = this.Status;
       PrototypeValidator.FindMapEntity(this.Target, in context, out result.Target);

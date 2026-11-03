@@ -39,6 +39,12 @@ namespace Quantum
             EntityRef character = PlayerSystem.SpawnCharacter(frame, slot, config.Avatar);
             FP heading = frame.TryGet(character, out PlayerLook look) ? look.Yaw : FP._0;
             frame.Add(character, new Bot { Heading = heading });
+            if (config.Brain.IsValid)
+            {
+                frame.Add<HFSMAgent>(character);
+                HFSMManager.Init(frame, character, config.Brain);
+            }
+
             frame.Events.BotAdded(slot);
             return true;
         }
@@ -130,14 +136,20 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Writes each bot's input for this tick: its task's intent, or, while knocked down, tapping Jump to get up.
-        /// Buttons keep their state from the last tick, so presses and releases register like a player's.
+        /// Runs each bot's brain, which sets its task, then writes its input for this tick: the task's intent, or, while
+        /// knocked down, tapping Jump to get up. Buttons keep their state from the last tick, so presses and releases
+        /// register like a player's.
         /// </summary>
         private static void DriveBots(Frame frame, BotConfig config)
         {
             var bots = frame.Filter<Bot, Player>();
             while (bots.NextUnsafe(out EntityRef entity, out Bot* bot, out Player* player))
             {
+                if (frame.Has<HFSMAgent>(entity))
+                {
+                    HFSMManager.Update(frame, frame.DeltaTime, entity);
+                }
+
                 BotIntent intent;
                 if (frame.Has<RagdollOwner>(entity))
                 {

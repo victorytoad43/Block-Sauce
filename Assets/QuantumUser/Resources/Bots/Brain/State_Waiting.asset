@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79963da21adf9554fad04af5fe13e681, type: 3}
+  m_Name: State_Waiting
+  m_EditorClassIdentifier: Quantum.Simulation::Quantum.HFSMState
+  Identifier:
+    Path: QuantumUser/Resources/Bots/Brain/State_Waiting
+    Guid:
+      Value: 443257783694954059
+  CircuitId: 
+  Label: Waiting
+  Index: 0
+  OnUpdateLinks: []
+  OnEnterLinks:
+  - Id:
+      Value: 495160158437735991
+  OnExitLinks: []
+  Transitions:
+  - Id: "Waiting \u2192 Fetching (Playing)"
+    EventKey: 0
+    DecisionLink:
+      Id:
+        Value: 497769305227800054
+    StateLink:
+      Id:
+        Value: 509688232998864883
+    TransitionSetLink:
+      Id:
+        Value: 0
+  ChildrenLinks: []
+  ParentLink:
+    Id:
+      Value: 0
+  Level: 0

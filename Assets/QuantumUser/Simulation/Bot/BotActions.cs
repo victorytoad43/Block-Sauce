@@ -22,7 +22,7 @@ namespace Quantum
 
     /// <summary>
     /// Carries out a bot's task (docs/PLAN.md, Phase 6): walking with simple obstacle avoidance, and the hand work of
-    /// fetching, placing on a tower, throwing at a target and dunking in a vat, through the same input a player gives.
+    /// fetching, placing on a tower, throwing at a target, dunking in a vat and setting a block down, through the same input a player gives.
     /// Each task reports Done or Failed on the bot; the brain chooses the next one.
     /// </summary>
     public static unsafe class BotActions
@@ -91,6 +91,17 @@ namespace Quantum
                     break;
                 case BotTaskType.Dunk:
                     Dunk(ref context, ref intent);
+                    break;
+                case BotTaskType.Drop:
+                    if (context.Grabber.Held == EntityRef.None)
+                    {
+                        bot->Status = BotTaskStatus.Done;
+                    }
+                    else if (bot->StepTimer.IsRunning(frame) == false)
+                    {
+                        intent.Grab = true;
+                        bot->StepTimer = FrameTimer.FromSeconds(frame, FP._0_25);
+                    }
                     break;
             }
 

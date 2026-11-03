@@ -140,6 +140,8 @@ namespace Quantum.Prototypes.Unity {
     [HideInInspector()]
     public FP Heading;
     [HideInInspector()]
+    public Quantum.QuantumEntityPrototype Home;
+    [HideInInspector()]
     public Quantum.QEnum32<BotTaskType> Task;
     [HideInInspector()]
     public Quantum.QEnum32<BotTaskStatus> Status;
@@ -169,6 +171,7 @@ namespace Quantum.Prototypes.Unity {
     public override Quantum.Prototypes.BotPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
       var result = new Quantum.Prototypes.BotPrototype();
       converter.Convert(this.Heading, out result.Heading);
+      converter.Convert(this.Home, out result.Home);
       converter.Convert(this.Task, out result.Task);
       converter.Convert(this.Status, out result.Status);
       converter.Convert(this.Target, out result.Target);

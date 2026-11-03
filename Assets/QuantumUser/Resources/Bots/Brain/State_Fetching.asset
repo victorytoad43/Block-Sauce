@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79963da21adf9554fad04af5fe13e681, type: 3}
+  m_Name: State_Fetching
+  m_EditorClassIdentifier: Quantum.Simulation::Quantum.HFSMState
+  Identifier:
+    Path: QuantumUser/Resources/Bots/Brain/State_Fetching
+    Guid:
+      Value: 509688232998864883
+  CircuitId: 
+  Label: Fetching
+  Index: 1
+  OnUpdateLinks: []
+  OnEnterLinks:
+  - Id:
+      Value: 333289799385518462
+  OnExitLinks: []
+  Transitions:
+  - Id: "Fetching \u2192 Waiting (Not playing)"
+    EventKey: 0
+    DecisionLink:
+      Id:
+        Value: 406074137004419037
+    StateLink:
+      Id:
+        Value: 443257783694954059
+    TransitionSetLink:
+      Id:
+        Value: 0
+  - Id: "Fetching \u2192 Using (Task Done, holding Yes)"
+    EventKey: 0
+    DecisionLink:
+      Id:
+        Value: 431985930786644326
+    StateLink:
+      Id:
+        Value: 384824622115598195
+    TransitionSetLink:
+      Id:
+        Value: 0
+  - Id: "Fetching \u2192 Pausing (Task Failed, holding Either)"
+    EventKey: 0
+    DecisionLink:
+      Id:
+        Value: 507130802924508656
+    StateLink:
+      Id:
+        Value: 533371904353887518
+    TransitionSetLink:
+      Id:
+        Value: 0
+  - Id: "Fetching \u2192 Pausing (Task Done, holding No)"
+    EventKey: 0
+    DecisionLink:
+      Id:
+        Value: 443471220141959964
+    StateLink:
+      Id:
+        Value: 533371904353887518
+    TransitionSetLink:
+      Id:
+        Value: 0
+  ChildrenLinks: []
+  ParentLink:
+    Id:
+      Value: 0
+  Level: 0

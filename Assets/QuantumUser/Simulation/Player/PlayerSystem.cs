@@ -68,6 +68,7 @@ namespace Quantum
                 if (frame.Has<Bot>(existing))
                 {
                     frame.Remove<Bot>(existing);
+                    frame.Remove<HFSMAgent>(existing);
                     frame.Events.BotRemoved(player);
                 }
 
