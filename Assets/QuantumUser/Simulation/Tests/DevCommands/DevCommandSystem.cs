@@ -242,6 +242,7 @@ namespace Quantum
                 if (skip-- > 0)
                     continue;
 
+                SauceSystem.ReleaseGlue(frame, entity);
                 transform->Position = new FPVector3(foot.X, size * FP._0_50 + size * level, foot.Z);
                 transform->Rotation = FPQuaternion.Identity;
                 body->Velocity = FPVector3.Zero;
@@ -295,6 +296,7 @@ namespace Quantum
                 return;
             }
 
+            SauceSystem.ReleaseGlue(frame, next);
             Transform3D* transform = frame.Unsafe.GetPointer<Transform3D>(next);
             transform->Position = position;
             transform->Rotation = FPQuaternion.Identity;

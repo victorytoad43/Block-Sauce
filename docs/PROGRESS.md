@@ -4,7 +4,7 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-03)
 
-**Phases 0–5 are done. Phase 5 (Sauces) has Jackson's first round of tweaks in (Stack as sticky friction, grab keeps the top face, cup-shaped vat collision, a coat with volume) and waits for his review.**
+**Phases 0–5 are done. Phase 5 (Sauces) has Jackson's first round of tweaks in (Stack as sticky friction and glue, grab keeps the top face, cup-shaped vat collision, a coat with volume) and waits for his review.**
 
 What plays today, online with up to 8 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
@@ -12,7 +12,7 @@ What plays today, online with up to 8 players, in the Lobby scene:
 - Stack & Lock: 3 owned blocks each, settle dither, counting, win, full match loop back to the lobby.
 - Knockdown: Guy's 11-limb ragdoll, Jump to recover faster, carrying bodies, get-up clips, dazed indicator, falling out of the world resets.
 - Animation: idle; walk and run blending forward, back and strafe; jump; sit and slide; stagger flinches by hit side; GrabBlock hold with spine turn and hand IK; aim pose (`Throw` frame 4) and follow-through, grounded and airborne; foot IK on steps, ramps and blocks; win and lose placeholders after a round.
-- Sauces: two vats (Jackson's cup) in the middle of the Lobby. Dunk a held block (or throw one in) to coat it; how deep sets the strength. Stack sauce makes a block sticky (high friction); Slip sauce makes a block slide (7.9 m after a throw against 1.1 m plain), so a Slip tower comes apart when pushed. The coat is a thick, lumpy, glossy shell that changes the block's silhouette, with bubbles (Stack) or glints (Slip); drips are off for now. Dev keys: F8 coats your held block or all your blocks with Stack sauce, Shift+F8 with Slip.
+- Sauces: two vats (Jackson's cup) in the middle of the Lobby. Dunk a held block (or throw one in) to coat it; how deep sets the strength. Stack sauce makes a block sticky: high friction, and it glues to the blocks and ground it rests against until a throw-hard hit or a grab tears it free; Slip sauce makes a block slide (7.9 m after a throw against 1.1 m plain), so a Slip tower comes apart when pushed. The coat is a thick, lumpy, glossy shell that changes the block's silhouette, with bubbles (Stack) or glints (Slip); drips are off for now. Dev keys: F8 coats your held block or all your blocks with Stack sauce, Shift+F8 with Slip.
 
 ### Known issues
 - Sitting while holding a block keeps the block at the standing hold height; the arms reach up to it. If it reads badly, lower the hold pivot while sitting (simulation).
@@ -30,7 +30,7 @@ What plays today, online with up to 8 players, in the Lobby scene:
 - Matches only run in the Lobby scene; Arena_Graybox has no `Match` yet (Phase 6).
 
 ### Waiting on Jackson
-- Review of Phase 5 and its tweaks: a play-test of the sauces and of grabbing a block on its side, and the new open question in the plan (Stack sauce: is grip enough, or should Stack blocks glue to what they touch?).
+- Review of Phase 5 and its tweaks: a play-test of the sauces and of grabbing a block on its side, and the new open question in the plan (Stack glue strength, and whether it should glue to the ground).
 - The older open questions (settle numbers; pickup swings through your own tower).
 
 ### Placeholders in use
@@ -78,13 +78,21 @@ Phase report format:
 - Placeholders still in use: `PH_SauceVat_Stack`/`_Slip` and `PH_SauceCoat`/`PH_SauceLooks` (A-009), `PH_PlayerCapsule`, `PH_Block`, `PH_LockDither` (A-007/A-013), `PH_` terrain (A-008), IMGUI `MatchHud` (A-006), stock start UI (A-002); Win and Lose clips are Jackson's placeholders (A-023).
 - Ready for review: yes
 
+## 2026-11-03: Stack glue; block pivot
+- Did: Stack sauce glues a block to each block it touches and to the ground (character joints at the shared face, 2° of bend), torn by a hit of 3–7 m/s into the contact by strength, a grab, or 10 cm of stretch; `SauceSystem.ReleaseGlue` frees a block before a dev command or the fall reset moves it. Removed the block model's 0.4 m offset in `PH_Block` now that `BL_Block`'s pivot is at its center.
+- Verified (one client): a lone Stack block walked into didn't move (0.00 m, plain 0.29); a 3-block Stack tower walked into moved at most 0.04 m and under a ragdoll slam at most 0.14 m, glue intact; with the break speed lowered to 2 m/s the same slam tore it and the tower fell, then the blocks re-glued where they landed; grabbing a ground-glued block freed it. Block model sits on its collider (render). Console clean.
+- Decided: glue is to the ground too, so a Stack tower can't be tipped over whole (without it the glued tower fell over as one piece under the slam).
+- Assets: none new (the centered block came with this morning's export).
+- Questions for Jackson: glue strength, and glue to the ground or only to blocks.
+- Next: Jackson's play-test and review of Phase 5.
+
 ## 2026-11-03: Phase 5 tweaks from Jackson's review
 - Did: Stack sauce reworked from a shove to sticky friction (four high-friction materials, the opposite of Slip; the shove, its cooldown, event and pulse ring are gone). Grab keeps the block's most-upward face on top (nearest of a cube's 24 square orientations) and placing keeps it. Vat collision reshaped to the cup: 24 walls leaning out 14° along the inner wall, plus its floor; Lobby map rebaked. Sauce coat drawn on its own evenly divided rounded-box shell with lumpy, bead-edged volume and lit by the displaced surface; drips off.
 - Verified (one client): a block landed on its side (local +Z up) stayed +Z up when grabbed, held and placed. Dunking still works (68% dipped, full Stack strength); a block let go in the cup rests on the floor; a player running at the cup stops at the wall (1.17 m from center) without riding up. Stack and Slip towers under a ragdoll slam: plain and Stack stood (blocks moved about 0.4–0.6 m), Slip fell apart. Coat checked in close-up renders. Console clean. Not rechecked with two clients: the changes are simulation-side FP math and physics materials, with no new input or events.
 - Tried and dropped: extra weight on resting Stack blocks (to resist tipping) made Stack towers shed their top block under hits.
 - Decided: a block with both sauces takes the stronger one by the difference; drips wait until the coat's volume is settled (Jackson).
 - Assets: `block.fbx` (lower subdivision) over `BL_Block`; `sauce_cup.fbx` over `EN_SauceVat`. A-009 no longer needs a cup re-export.
-- Questions for Jackson: is grip enough for Stack sauce, or should Stack blocks also glue to the blocks they touch?
+- Questions for Jackson: is grip enough for Stack sauce, or should Stack blocks also glue to the blocks they touch? (Glue next.)
 - Next: Jackson's play-test and review of Phase 5, then Phase 6.
 
 ## 2026-11-02: Phase 5, done-when verified

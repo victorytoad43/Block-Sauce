@@ -31,6 +31,18 @@ MonoBehaviour:
       Value: 320338381048073784
   - Id:
       Value: 443606960140978550
+  GlueMaxSpeed:
+    RawValue: 32768
+  GlueReach:
+    RawValue: 1966
+  GlueAngleDegrees:
+    RawValue: 131072
+  GlueMinBreakSpeed:
+    RawValue: 196608
+  GlueMaxBreakSpeed:
+    RawValue: 458752
+  GlueTearDistance:
+    RawValue: 6554
   SlipMaterials:
   - Id:
       Value: 425974018395263163

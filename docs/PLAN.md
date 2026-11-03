@@ -70,7 +70,7 @@ Each dip stores a plane in the block's local space; the shader turns those plane
 **Simulation (`SauceSystem`, tuning on `SauceConfig`, referenced by the game mode):**
 - A block reaching into a vat's sauce volume is dipped, held or loose: the surface is recorded as a plane in block-local space (normal + offset) with the sauce type, keeping the deepest the block went. A dip ends 0.25 s after the block leaves (so an edge bobbing across the surface stays one dip). Up to 3 dips per block; a fourth replaces the shallowest. Dips under 5% leave nothing.
 - Strength per sauce = its deepest dip's fraction ÷ 0.5, capped at 1. Fraction = the share of the block's height, along the plane normal, below the plane.
-- **Stack sauce:** the block takes a high-friction physics material in four steps by strength (friction 1.5, 2.25, 3, 4, combined by multiplying; plain blocks 0.8, the ground 0.6), so it grips instead of sliding. Where a block has both sauces, the stronger wins by the difference.
+- **Stack sauce:** the block takes a high-friction physics material in four steps by strength (friction 1.5, 2.25, 3, 4, combined by multiplying; plain blocks 0.8, the ground 0.6), and it glues itself to whatever it touches while nearly at rest (under 0.5 m/s against it): to each touching block, and to the ground or any static surface. Glue is a stiff joint (a character joint bending at most 2°) at the shared face, or at the block's center for the ground. It tears when either glued block is hit at 3 m/s into the contact at the lowest strength to 7 m/s at full (a throw is 12, a jumpshot 15.6; walking, running and a flying ragdoll stay under it), when either block is grabbed, or when it is pulled more than 10 cm apart. Torn blocks glue again wherever they come to rest. A glued Stack tower stands up to shoves and ragdoll slams; a throw breaks it. Where a block has both sauces, the stronger wins by the difference.
 - **Slip sauce:** the block takes a low-friction physics material in four steps by strength (friction 0.6, 0.4, 0.2, 0.03; plain blocks 0.8), so it slides, and what is stacked on it slides off.
 - New blocks every match, so sauce never carries over.
 
@@ -103,7 +103,7 @@ In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/lan
 
 ### Phase 5: Sauces (done 2026-11-02, awaiting review)
 - [x] Dip vats (Jackson's cup); dip planes and depth-based strength in the simulation (2026-11-02)
-- [x] Stack sauce and Slip sauce gameplay; Stack reworked from a shove to sticky friction (2026-11-03)
+- [x] Stack sauce and Slip sauce gameplay; Stack reworked from a shove to sticky friction and glue (2026-11-03)
 - [x] Sauce coat shader: noise edge, lumpy volume on its own shell, wet shading (drips off for now, 2026-11-03)
 - [x] Subdivided block mesh (A-005) in; owner readability (A-013) moved to Phase 6
 - [x] Aimed block collides with nothing; its model arcs over the head
@@ -151,7 +151,7 @@ Current decisions only; how they were reached is in git history.
 
 - Settle feel: 3 s to count; a 1 m/s touch restarts settling; stacked means within half a block of center and 12° of level. Right numbers? (Play-test.)
 - Should a pickup swing that passes through your own tower be able to knock it over, or should the grab ignore your own blocks? (Play-test.)
-- Stack sauce as friction only barely changes a walking shove: a shove tips a block rather than sliding it, so a Stack block moved 0.27 m against 0.29 m plain. Is grip enough, or should Stack blocks also stick to the blocks they touch (glued while touching, pulled apart by a hard hit)?
+- Stack glue: how strong? Built so walking, running and ragdolls can't break a full-strength Stack tower and a throw can (`SauceConfig` glue speeds). Should Stack blocks also glue to the ground, as built, or only to other blocks?
 
 ## Art pipeline
 

@@ -29,6 +29,30 @@ namespace Quantum
         /// </summary>
         [Header("Stack sauce")]
         public AssetRef<PhysicsMaterial>[] StackMaterials;
+        /// <summary>
+        /// A Stack-sauced block glues itself to any block it touches while the two move slower than this against each
+        /// other, in m/s, so a placed block sticks but one bouncing off doesn't.
+        /// </summary>
+        public FP GlueMaxSpeed = FP._0_50;
+        /// <summary>
+        /// How close, in meters, another block's surface must be to count as touching.
+        /// </summary>
+        public FP GlueReach = (FP)3 / 100;
+        /// <summary>
+        /// How far, in degrees, glued blocks can bend against each other.
+        /// </summary>
+        public FP GlueAngleDegrees = 2;
+        /// <summary>
+        /// The speed into a contact, in m/s, of a hit that tears a glued block free, at the lowest strength and at full
+        /// strength. Running into a tower is about 5; a throw, jumpshot or flying body more. Grabbing a block frees it too.
+        /// </summary>
+        public FP GlueMinBreakSpeed = 3;
+        public FP GlueMaxBreakSpeed = 7;
+        /// <summary>
+        /// How far apart, in meters, glued points can be pulled (by a teleport, or forces the joint can't hold) before
+        /// the glue tears.
+        /// </summary>
+        public FP GlueTearDistance = FP._0_10;
 
         /// <summary>
         /// The materials a Slip-sauced block takes, from weakest to full strength: the strength picks one in equal steps.

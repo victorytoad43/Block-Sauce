@@ -84,6 +84,7 @@ namespace Quantum
                 position = spawn.Position;
             }
 
+            SauceSystem.ReleaseGlue(frame, filter.Entity);
             filter.Transform->Position = position + FPVector3.Up * BlockDropHeight;
             filter.Transform->Rotation = FPQuaternion.Identity;
             ResetVelocities(filter.PhysicsBody);
