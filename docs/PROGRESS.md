@@ -78,6 +78,14 @@ Phase report format:
 - Placeholders still in use: `PH_SauceVat_Stack`/`_Slip` and `PH_SauceCoat`/`PH_SauceLooks` (A-009), `PH_PlayerCapsule`, `PH_Block`, `PH_LockDither` (A-007/A-013), `PH_` terrain (A-008), IMGUI `MatchHud` (A-006), stock start UI (A-002); Win and Lose clips are Jackson's placeholders (A-023).
 - Ready for review: yes
 
+## 2026-11-03: Bot SDK check
+- Did: checked Jackson's import of the Quantum Bot SDK 3.10.6 (Oct 16, 2026) against our pinned Quantum 3.1.0 Preview 2189. Its simulation and view code compile into our own assemblies through asmrefs, with its `.qtn` types in our codegen; the visual editor is a prebuilt DLL.
+- Verified: a clean full recompile has no errors or warnings (the errors right after the import were from before codegen ran); all agent, blackboard and config types load; the editor menu (Tools › Quantum Bot SDK) and window open without errors; a match still plays (glued Stack tower push: same result as before, 0.00–0.04 m); console clean. No Quantum update needed.
+- Decided: bots on the Bot SDK (Jackson).
+- Assets: main menu mock-up, logo, menu button and Jaro font filed under `Assets/Art/UI` (A-002).
+- Questions for Jackson: the next phase's shape (menu, spectator and bots before a plan review).
+- Next: replan the next phase with Jackson.
+
 ## 2026-11-03: Stack glue; block pivot
 - Did: Stack sauce glues a block to each block it touches and to the ground (character joints at the shared face, 2° of bend), torn by a hit of 3–7 m/s into the contact by strength, a grab, or 10 cm of stretch; `SauceSystem.ReleaseGlue` frees a block before a dev command or the fall reset moves it. Removed the block model's 0.4 m offset in `PH_Block` now that `BL_Block`'s pivot is at its center.
 - Verified (one client): a lone Stack block walked into didn't move (0.00 m, plain 0.29); a 3-block Stack tower walked into moved at most 0.04 m and under a ragdoll slam at most 0.14 m, glue intact; with the break speed lowered to 2 m/s the same slam tore it and the tower fell, then the blocks re-glued where they landed; grabbing a ground-glued block freed it. Block model sits on its collider (render). Console clean.

@@ -1,0 +1,24 @@
+﻿union BlackboardValue
+{
+    QBoolean BooleanValue;
+    byte ByteValue;
+    Int32 IntegerValue;
+    FP FPValue;
+    FPVector2 FPVector2Value;
+    FPVector3 FPVector3Value;
+    entity_ref EntityRefValue;
+    AssetRef AssetRefValue;
+}
+
+[CodeGen(NotMainUnityWrapper)]
+component AIBlackboardComponent
+{
+    asset_ref<AIBlackboard> Board;
+    dictionary<Int32, BlackboardEntry> Entries;
+}
+
+struct BlackboardEntry
+{
+    BlackboardValue Value;
+    [ExcludeFromPrototype] list<asset_ref<BTDecorator>> ReactiveDecorators;
+}

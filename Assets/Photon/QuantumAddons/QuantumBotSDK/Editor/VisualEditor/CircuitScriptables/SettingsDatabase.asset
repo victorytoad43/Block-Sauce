@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 774803542, guid: ac6ccf3f9f959c0478b7968b94ac9704, type: 3}
+  m_Name: SettingsDatabase
+  m_EditorClassIdentifier: 
+  LineWidth: 7
+  EditorFPS: 60
+  ForceDark: 0
+  PlaySystemErrorSound: 1
+  DebugEnabled: 1
+  CacheEnabled: 1
+  DevelopmentMode: 0
+  VariableSingleClickEdit: 0
+  ShowOperatorNodeNames: 1
+  NewVariableAutoEdit: 1
+  NewFunctionAutoEdit: 1
+  ShowIconsInLeftPanel: 0
+  SnapNodeSizeToGrid: 0
+  CompilerAllowStructDefaultValues: 0
+  UseAdvancedIcons: 0
+  ShowSlotHoverLabel: 1
+  ShowNodeDocumentationTooltips: 1
+  AllowTypeOverlay: 1
+  ShowCircuitLogoInGraphView: 1
+  DisableNodeOverlay: 0
+  OverlayTexture: {fileID: 2800000, guid: f879c5acc5d456a44936bb9f2a831a7d, type: 3}
+  OverlayBorderLeft: 8
+  OverlayBorderRight: 8
+  OverlayBorderTop: 8
+  OverlayBorderBottom: 8
+  DarkTheme:
+    Inited: 1
+    SlotExecColor: {r: 1, g: 1, b: 1, a: 1}
+    SlotDefaultColor: {r: 0, g: 0.63529414, b: 0.9098039, a: 1}
+    SlotInterfaceColor: {r: 1, g: 0.68235296, b: 0.94509804, a: 1}
+    SlotValueTypeColor: {r: 0.7019608, g: 0.54901963, b: 0.2509804, a: 1}
+    SlotEnumColor: {r: 1, g: 0.3529412, b: 0, a: 1}
+    SlotStringColor: {r: 0.7019608, g: 0.25490198, b: 0.7019608, a: 1}
+    SlotTagColor: {r: 0.88235295, g: 0.2784314, b: 0.81960785, a: 1}
+    SlotBooleanColor: {r: 0.42745098, g: 0.8156863, b: 0.14509805, a: 1}
+    SlotIntegerColor: {r: 1, g: 0.11764706, b: 0, a: 1}
+    SlotFloatColor: {r: 1, g: 0.6117647, b: 0, a: 1}
+    SlotQuaternionColor: {r: 0.84705883, g: 1, b: 0, a: 1}
+    SlotVectorColor: {r: 1, g: 0.89411765, b: 0, a: 1}
+    SlotUnityObjectColor: {r: 0, g: 0.5647059, b: 1, a: 1}
+    SlotGameObjectColor: {r: 0, g: 0.7294118, b: 1, a: 1}
+    SlotTransformColor: {r: 0, g: 0.91764706, b: 1, a: 1}
+    NodeCommentTint: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+    NodeNameColor: {r: 1, g: 1, b: 1, a: 1}
+    SlotHoverLabelTint: {r: 0.25, g: 0.25, b: 0.25, a: 1}
+    SlotNameColor: {r: 1, g: 1, b: 1, a: 1}
+    SlotNameErrorColor: {r: 1, g: 0.49803922, b: 0.15294118, a: 1}
+    SlotValueColor: {r: 1, g: 1, b: 1, a: 1}
+    SlotTransitionColor: {r: 1, g: 0.7882353, b: 0.05490196, a: 1}
+    SelectionBox: {r: 0.21176471, g: 0.7529412, b: 0.9372549, a: 1}
+    ActivePrimaryColor: {r: 1, g: 0.7882353, b: 0.05490196, a: 1}
+    ActiveSecondaryColor: {r: 0.21176471, g: 0.7529412, b: 0.9372549, a: 1}
+    SlotAssetColor: {r: 0, g: 1, b: 1, a: 1}
+    BTLinkSuccess: {r: 0, g: 1, b: 0, a: 0.5}
+    BTLinkFailure: {r: 1, g: 0, b: 0, a: 0.5}
+    BTLinkAbort: {r: 0, g: 0, b: 0, a: 0.5019608}
+  LightTheme:
+    Inited: 1
+    SlotExecColor: {r: 1, g: 1, b: 1, a: 1}
+    SlotDefaultColor: {r: 0, g: 0.63529414, b: 0.9098039, a: 1}
+    SlotInterfaceColor: {r: 1, g: 0.68235296, b: 0.94509804, a: 1}
+    SlotValueTypeColor: {r: 0.7019608, g: 0.54901963, b: 0.2509804, a: 1}
+    SlotEnumColor: {r: 1, g: 0.3529412, b: 0, a: 1}
+    SlotStringColor: {r: 0.7019608, g: 0.25490198, b: 0.7019608, a: 1}
+    SlotTagColor: {r: 0.88235295, g: 0.2784314, b: 0.81960785, a: 1}
+    SlotBooleanColor: {r: 0.42745098, g: 0.8156863, b: 0.14509805, a: 1}
+    SlotIntegerColor: {r: 1, g: 0.11764706, b: 0, a: 1}
+    SlotFloatColor: {r: 1, g: 0.6117647, b: 0, a: 1}
+    SlotQuaternionColor: {r: 0.84705883, g: 1, b: 0, a: 1}
+    SlotVectorColor: {r: 1, g: 0.89411765, b: 0, a: 1}
+    SlotUnityObjectColor: {r: 0, g: 0.5647059, b: 1, a: 1}
+    SlotGameObjectColor: {r: 0, g: 0.7294118, b: 1, a: 1}
+    SlotTransformColor: {r: 0, g: 0.91764706, b: 1, a: 1}
+    NodeCommentTint: {r: 0.6, g: 0.6, b: 0.6, a: 1}
+    NodeNameColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    SlotHoverLabelTint: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    SlotNameColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+    SlotNameErrorColor: {r: 1, g: 0.49803922, b: 0.15294118, a: 1}
+    SlotValueColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+    SlotTransitionColor: {r: 1, g: 0.7882353, b: 0.05490196, a: 1}
+    SelectionBox: {r: 0, g: 0.22352941, b: 0.5568628, a: 1}
+    ActivePrimaryColor: {r: 0.58431375, g: 0.2901961, b: 0, a: 1}
+    ActiveSecondaryColor: {r: 0.22352941, g: 0.3372549, b: 0.49019608, a: 1}
+    SlotAssetColor: {r: 0, g: 1, b: 1, a: 1}
+    BTLinkSuccess: {r: 0, g: 1, b: 0, a: 0.5}
+    BTLinkFailure: {r: 1, g: 0, b: 0, a: 0.5}
+    BTLinkAbort: {r: 0, g: 0, b: 0, a: 0.5019608}
+  LeftPanelWidth: 298
+  SaveHistoryCount: 0
+  BotSDKOutputFolder: Assets/QuantumUser/Resources/DB
+  UserAssemblies: []

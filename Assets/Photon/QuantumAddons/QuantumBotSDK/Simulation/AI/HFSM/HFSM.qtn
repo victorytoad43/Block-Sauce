@@ -1,0 +1,23 @@
+﻿[CodeGen(NotMainUnityWrapper)]
+component HFSMAgent
+{
+    HFSMData Data;
+    asset_ref<AIConfig> Config;
+}
+
+struct HFSMData
+{
+    asset_ref<HFSMRoot> Root;
+    [ExcludeFromPrototype] asset_ref<HFSMState> CurrentState;
+
+    // Updates to the Timers array position of the currently executed state when updating the HFSM
+    [ExcludeFromPrototype] FP StateTimer;
+    [ExcludeFromPrototype] array<FP>[8] Timers;
+
+    // History used to resume the work when going back to a sub-hfsm which already had left its Default state
+    // Every State has an id which is registered in a single byte
+    // When entering a State, the bit is activated. When leaving to a sibling State, it is deactivated
+    // When the state change was not between siblings, the flag is kept up as to keep registered that was the last sub-state entered
+    bool UsesStateHistory;
+    [ExcludeFromPrototype] byte StatesHistory;
+}

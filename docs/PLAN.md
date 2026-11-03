@@ -129,6 +129,7 @@ In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/lan
 Current decisions only; how they were reached is in git history.
 
 - **Engine:** Quantum 3.1.0 Preview build 2189, pinned; URP; Generic rigs (keeps bone scale for squash and stretch). 3.1 is a preview SDK; revisit when it goes stable.
+- **Bots** use Photon's Quantum Bot SDK 3.10.6 (`Assets/Photon/QuantumAddons/QuantumBotSDK`, pinned like Quantum): its decision layer (state machine first, utility AI once there are real tactical choices) drives our own action code, and bots send the same input a player does (Jackson, 2026-11-03). Its compiled AI assets go to `Assets/QuantumUser/Resources/DB`.
 - **Scale:** every FBX imports at scale factor 0.4 (Guy about 1.62 m, block 0.8 m); Jackson keeps authoring at the current Blender scale.
 - **Guy's clips** arrive as one animated FBX (mesh, skeleton, all actions).
 - **Towers** can be built anywhere; any hit during settling restarts it; rivals' blocks can be grabbed, thrown and placed on your tower.

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1196492183, guid: ac6ccf3f9f959c0478b7968b94ac9704, type: 3}
+  m_Name: BotSDKIconsDatabase
+  m_EditorClassIdentifier: 
+  UseIcons: 1
+  NodesIcons:
+  - ClassName: BTSelector
+    Light: {fileID: 2800000, guid: dfb1741332836f74389536c2d9fd8b4c, type: 3}
+    Dark: {fileID: 2800000, guid: 7a3d446be9b00c347a521b07624a696d, type: 3}
+  - ClassName: BTSequence
+    Light: {fileID: 2800000, guid: 5198d586e542a7c4e882d1f37f020b1d, type: 3}
+    Dark: {fileID: 2800000, guid: 6fc775cdbaed64340918dcbf66a93f47, type: 3}
+  - ClassName: DebugLeaf
+    Light: {fileID: 2800000, guid: 6ba32b203848f3349a74d239ec3d613c, type: 3}
+    Dark: {fileID: 2800000, guid: dcd7b591ff77d0b41830494ae79960f0, type: 3}
+  - ClassName: WaitLeaf
+    Light: {fileID: 2800000, guid: f2e205b5aa452dc4387f8eebf38163d0, type: 3}
+    Dark: {fileID: 2800000, guid: a6d979c6c493ead40a832b4dac08bb3b, type: 3}
+  - ClassName: BTSelectorRandom
+    Light: {fileID: 2800000, guid: 82cba1734785f544b9ee02fca37cd613, type: 3}
+    Dark: {fileID: 2800000, guid: af3aa5bb0e2b67544b5a3471ba0773be, type: 3}
+  - ClassName: SharedBT
+    Light: {fileID: 2800000, guid: c83ef558b32a8e84c80c1acef8f72c70, type: 3}
+    Dark: {fileID: 2800000, guid: 5e9091a7cf56ca44281529c0f810295f, type: 3}

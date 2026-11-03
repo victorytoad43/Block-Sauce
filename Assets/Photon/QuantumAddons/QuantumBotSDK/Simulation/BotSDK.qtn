@@ -1,0 +1,18 @@
+﻿struct BotSDKData
+{
+    FP OriginalDeltaTime;
+    Int32 ElapsedTicks;
+    FP ElapsedPartialTicks;
+    FP GameTime;
+}
+
+// Even though this data would better fit Globals, this is a singleton component because this has to be accessed from FrameThreadSafe
+// which, at the current Quantum version, doesn't have access to Globals
+// This could also fit being part of Frame.User.cs, but this solution does not have access to the Frame class, only FrameBase and FTS
+// The singleton then has to be created preemptively in a single threaded system, or via Entity Prototypes
+// When using BT agents, this is usually done via the BotSDKTimerSystem
+[CodeGen(NotMainUnityWrapper)]
+singleton component BotSDKGlobals
+{
+    BotSDKData Data;
+}

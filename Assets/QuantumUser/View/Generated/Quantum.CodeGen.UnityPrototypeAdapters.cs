@@ -50,6 +50,59 @@ namespace Quantum.Prototypes.Unity {
   #endif //;
   
   [System.SerializableAttribute()]
+  public unsafe partial class AIBlackboardComponentPrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.AIBlackboardComponentPrototype> {
+    public AssetRef<AIBlackboard> Board;
+    [DictionaryAttribute()]
+    [DynamicCollectionAttribute()]
+    public Quantum.Prototypes.Unity.DictionaryEntry_Int32_BlackboardEntry[] Entries = {};
+    partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.AIBlackboardComponentPrototype prototype);
+    public override Quantum.Prototypes.AIBlackboardComponentPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
+      var result = new Quantum.Prototypes.AIBlackboardComponentPrototype();
+      converter.Convert(this.Board, out result.Board);
+      converter.Convert(this.Entries, out result.Entries);
+      ConvertUser(converter, ref result);
+      return result;
+    }
+  }
+  [System.SerializableAttribute()]
+  public unsafe partial class BlackboardEntryPrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.BlackboardEntryPrototype> {
+    public Quantum.Prototypes.Unity.BlackboardValuePrototype Value;
+    partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.BlackboardEntryPrototype prototype);
+    public override Quantum.Prototypes.BlackboardEntryPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
+      var result = new Quantum.Prototypes.BlackboardEntryPrototype();
+      converter.Convert(this.Value, out result.Value);
+      ConvertUser(converter, ref result);
+      return result;
+    }
+  }
+  [System.SerializableAttribute()]
+  public unsafe partial class BlackboardValuePrototype : Quantum.QuantumUnityUnionPrototypeAdapter<Quantum.Prototypes.BlackboardValuePrototype> {
+    public string _field_used_;
+    public QBoolean BooleanValue;
+    public Byte ByteValue;
+    public Int32 IntegerValue;
+    public FP FPValue;
+    public FPVector2 FPVector2Value;
+    public FPVector3 FPVector3Value;
+    public Quantum.QuantumEntityPrototype EntityRefValue;
+    public AssetRef AssetRefValue;
+    partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.BlackboardValuePrototype prototype);
+    public override Quantum.Prototypes.BlackboardValuePrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
+      var result = new Quantum.Prototypes.BlackboardValuePrototype();
+      converter.Convert(this._field_used_, out result._field_used_);
+      converter.Convert(this.BooleanValue, out result.BooleanValue);
+      converter.Convert(this.ByteValue, out result.ByteValue);
+      converter.Convert(this.IntegerValue, out result.IntegerValue);
+      converter.Convert(this.FPValue, out result.FPValue);
+      converter.Convert(this.FPVector2Value, out result.FPVector2Value);
+      converter.Convert(this.FPVector3Value, out result.FPVector3Value);
+      converter.Convert(this.EntityRefValue, out result.EntityRefValue);
+      converter.Convert(this.AssetRefValue, out result.AssetRefValue);
+      ConvertUser(converter, ref result);
+      return result;
+    }
+  }
+  [System.SerializableAttribute()]
   public unsafe partial class BlockPrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.BlockPrototype> {
     [HideInInspector()]
     public PlayerRef Owner;
@@ -208,6 +261,17 @@ namespace Quantum.Prototypes.Unity {
       converter.Convert(this.SlipStrength, out result.SlipStrength);
       converter.Convert(this.PlainMaterial, out result.PlainMaterial);
       ConvertUser(converter, ref result);
+      return result;
+    }
+  }
+  [System.SerializableAttribute()]
+  public unsafe partial class DictionaryEntry_Int32_BlackboardEntry : Quantum.Prototypes.DictionaryEntry, Quantum.IQuantumPrototypeConvertible<Quantum.Prototypes.DictionaryEntry_Int32_BlackboardEntry> {
+    public Int32 Key;
+    public Quantum.Prototypes.Unity.BlackboardEntryPrototype Value;
+    public Quantum.Prototypes.DictionaryEntry_Int32_BlackboardEntry Convert(Quantum.QuantumEntityPrototypeConverter converter) {
+      var result = new Quantum.Prototypes.DictionaryEntry_Int32_BlackboardEntry();
+      converter.Convert(Key, out result.Key);
+      converter.Convert(Value, out result.Value);
       return result;
     }
   }

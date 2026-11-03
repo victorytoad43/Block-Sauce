@@ -1,0 +1,29 @@
+﻿[CodeGen(NotMainUnityWrapper)]
+component UTAgent
+{
+    UtilityReasoner UtilityReasoner;
+    asset_ref<AIConfig> Config;
+}
+
+struct UtilityReasoner
+{
+    asset_ref<UTRoot> UTRoot;
+    [ExcludeFromPrototype] list<asset_ref<Consideration>> Considerations;
+    [ExcludeFromPrototype] list<asset_ref<Consideration>> HighRankConsiderations;
+    [ExcludeFromPrototype] list<UTMomentumPack> MomentumList;
+    [ExcludeFromPrototype] FP TimeToTick;
+    [ExcludeFromPrototype] dictionary<long, FP> CooldownsDict;
+    [ExcludeFromPrototype] list<asset_ref<Consideration>> PreviousExecution;
+}
+
+struct UTMomentumPack
+{
+    asset_ref<Consideration> ConsiderationRef;
+    UTMomentumData MomentumData;
+}
+
+struct UTMomentumData
+{
+    FP Value;
+    Byte DecayAmount;
+}

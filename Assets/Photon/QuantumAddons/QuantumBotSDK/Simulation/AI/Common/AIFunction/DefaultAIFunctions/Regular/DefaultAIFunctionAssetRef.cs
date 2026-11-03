@@ -1,0 +1,14 @@
+﻿namespace Quantum
+{
+    [BotSDKHidden]
+    [System.Serializable]
+    public unsafe partial class DefaultAIFunctionAssetRef : AIFunction<AssetRef>
+    {
+        // ========== AIFunction INTERFACE ============================================================================
+
+        public override AssetRef Execute(FrameThreadSafe frame, EntityRef entity, ref AIContext aiContext)
+        {
+            return null;
+        }
+    }
+}

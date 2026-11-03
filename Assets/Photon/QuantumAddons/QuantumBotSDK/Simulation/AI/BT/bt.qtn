@@ -1,0 +1,25 @@
+﻿import BTRoot;
+
+[CodeGen(NotMainUnityWrapper)]
+component BTAgent
+{
+    asset_ref<BTRoot> Tree;
+    [ExcludeFromPrototype] asset_ref<BTNode> Current;
+    asset_ref<AIConfig> Config;
+
+    [ExcludeFromPrototype] list<Byte> NodesStatus;
+    [ExcludeFromPrototype] list<BTDataValue> BTDataValues;
+
+    [ExcludeFromPrototype] list<asset_ref<BTService>> ActiveServices;
+    [ExcludeFromPrototype] list<FP> ServicesEndTimes;
+
+    [ExcludeFromPrototype] list<asset_ref<BTComposite>> DynamicComposites;
+
+    [ExcludeFromPrototype] Int32 AbortNodeId;
+}
+
+union BTDataValue
+{
+    FP FPValue;
+    Int32 IntValue;
+}

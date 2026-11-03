@@ -50,6 +50,103 @@ namespace Quantum.Prototypes {
   #endif //;
   
   [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.AIBlackboardComponent))]
+  public unsafe class AIBlackboardComponentPrototype : ComponentPrototype<Quantum.AIBlackboardComponent> {
+    public AssetRef<AIBlackboard> Board;
+    [DictionaryAttribute()]
+    [DynamicCollectionAttribute()]
+    public DictionaryEntry_Int32_BlackboardEntry[] Entries = {};
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.AIBlackboardComponent component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.AIBlackboardComponent result, in PrototypeMaterializationContext context = default) {
+      result.Board = this.Board;
+      if (this.Entries.Length == 0) {
+        result.Entries = default;
+      } else {
+        var dict = frame.AllocateDictionary(out result.Entries, this.Entries.Length);
+        for (int i = 0; i < this.Entries.Length; ++i) {
+          Int32 tmpKey = default;
+          Quantum.BlackboardEntry tmpValue = default;
+          tmpKey = this.Entries[i].Key;
+          this.Entries[i].Value.Materialize(frame, ref tmpValue, in context);
+          PrototypeValidator.AddToDictionary(dict, tmpKey, tmpValue, in context);
+        }
+      }
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.BTAgent))]
+  public unsafe partial class BTAgentPrototype : ComponentPrototype<Quantum.BTAgent> {
+    public AssetRef<BTRoot> Tree;
+    public AssetRef<AIConfig> Config;
+    partial void MaterializeUser(Frame frame, ref Quantum.BTAgent result, in PrototypeMaterializationContext context);
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.BTAgent component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.BTAgent result, in PrototypeMaterializationContext context = default) {
+      result.Tree = this.Tree;
+      result.Config = this.Config;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.BTDataValue))]
+  public unsafe partial class BTDataValuePrototype : UnionPrototype {
+    public string _field_used_;
+    public FP FPValue;
+    public Int32 IntValue;
+    partial void MaterializeUser(Frame frame, ref Quantum.BTDataValue result, in PrototypeMaterializationContext context);
+    public void Materialize(Frame frame, ref Quantum.BTDataValue result, in PrototypeMaterializationContext context = default) {
+      switch (_field_used_) {
+        case "FPVALUE": *result.FPValue = this.FPValue; break;
+        case "INTVALUE": *result.IntValue = this.IntValue; break;
+        case "": case null: break;
+        default: PrototypeValidator.UnknownUnionField(_field_used_, in context); break;
+      }
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.BlackboardEntry))]
+  public unsafe class BlackboardEntryPrototype : StructPrototype {
+    public Quantum.Prototypes.BlackboardValuePrototype Value;
+    public void Materialize(Frame frame, ref Quantum.BlackboardEntry result, in PrototypeMaterializationContext context = default) {
+      this.Value.Materialize(frame, ref result.Value, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.BlackboardValue))]
+  public unsafe class BlackboardValuePrototype : UnionPrototype {
+    public string _field_used_;
+    public QBoolean BooleanValue;
+    public Byte ByteValue;
+    public Int32 IntegerValue;
+    public FP FPValue;
+    public FPVector2 FPVector2Value;
+    public FPVector3 FPVector3Value;
+    public MapEntityId EntityRefValue;
+    public AssetRef AssetRefValue;
+    public void Materialize(Frame frame, ref Quantum.BlackboardValue result, in PrototypeMaterializationContext context = default) {
+      switch (_field_used_) {
+        case "BOOLEANVALUE": *result.BooleanValue = this.BooleanValue; break;
+        case "BYTEVALUE": *result.ByteValue = this.ByteValue; break;
+        case "INTEGERVALUE": *result.IntegerValue = this.IntegerValue; break;
+        case "FPVALUE": *result.FPValue = this.FPValue; break;
+        case "FPVECTOR2VALUE": *result.FPVector2Value = this.FPVector2Value; break;
+        case "FPVECTOR3VALUE": *result.FPVector3Value = this.FPVector3Value; break;
+        case "ENTITYREFVALUE": PrototypeValidator.FindMapEntity(this.EntityRefValue, in context, out *result.EntityRefValue); break;
+        case "ASSETREFVALUE": *result.AssetRefValue = this.AssetRefValue; break;
+        case "": case null: break;
+        default: PrototypeValidator.UnknownUnionField(_field_used_, in context); break;
+      }
+    }
+  }
+  [System.SerializableAttribute()]
   [Quantum.Prototypes.Prototype(typeof(Quantum.Block))]
   public unsafe class BlockPrototype : ComponentPrototype<Quantum.Block> {
     [HideInInspector()]
@@ -82,6 +179,37 @@ namespace Quantum.Prototypes {
       PrototypeValidator.FindMapEntity(this.Base, in context, out result.Base);
       result.Supported = this.Supported;
       result.HasAbove = this.HasAbove;
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.BotSDKData))]
+  public unsafe partial class BotSDKDataPrototype : StructPrototype {
+    public FP OriginalDeltaTime;
+    public Int32 ElapsedTicks;
+    public FP ElapsedPartialTicks;
+    public FP GameTime;
+    partial void MaterializeUser(Frame frame, ref Quantum.BotSDKData result, in PrototypeMaterializationContext context);
+    public void Materialize(Frame frame, ref Quantum.BotSDKData result, in PrototypeMaterializationContext context = default) {
+      result.OriginalDeltaTime = this.OriginalDeltaTime;
+      result.ElapsedTicks = this.ElapsedTicks;
+      result.ElapsedPartialTicks = this.ElapsedPartialTicks;
+      result.GameTime = this.GameTime;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.BotSDKGlobals))]
+  public unsafe partial class BotSDKGlobalsPrototype : ComponentPrototype<Quantum.BotSDKGlobals> {
+    public Quantum.Prototypes.BotSDKDataPrototype Data;
+    partial void MaterializeUser(Frame frame, ref Quantum.BotSDKGlobals result, in PrototypeMaterializationContext context);
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.BotSDKGlobals component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.BotSDKGlobals result, in PrototypeMaterializationContext context = default) {
+      this.Data.Materialize(frame, ref result.Data, in context);
+      MaterializeUser(frame, ref result, in context);
     }
   }
   [System.SerializableAttribute()]
@@ -168,6 +296,35 @@ namespace Quantum.Prototypes {
       result.LastGroundedPosition = this.LastGroundedPosition;
       result.LastGroundContactFrame = this.LastGroundContactFrame;
       result.GroundNormal = this.GroundNormal;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.HFSMAgent))]
+  public unsafe partial class HFSMAgentPrototype : ComponentPrototype<Quantum.HFSMAgent> {
+    public Quantum.Prototypes.HFSMDataPrototype Data;
+    public AssetRef<AIConfig> Config;
+    partial void MaterializeUser(Frame frame, ref Quantum.HFSMAgent result, in PrototypeMaterializationContext context);
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.HFSMAgent component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.HFSMAgent result, in PrototypeMaterializationContext context = default) {
+      this.Data.Materialize(frame, ref result.Data, in context);
+      result.Config = this.Config;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.HFSMData))]
+  public unsafe partial class HFSMDataPrototype : StructPrototype {
+    public AssetRef<HFSMRoot> Root;
+    public QBoolean UsesStateHistory;
+    partial void MaterializeUser(Frame frame, ref Quantum.HFSMData result, in PrototypeMaterializationContext context);
+    public void Materialize(Frame frame, ref Quantum.HFSMData result, in PrototypeMaterializationContext context = default) {
+      result.Root = this.Root;
+      result.UsesStateHistory = this.UsesStateHistory;
       MaterializeUser(frame, ref result, in context);
     }
   }
@@ -522,6 +679,69 @@ namespace Quantum.Prototypes {
       result.Id = this.Id;
       MaterializeUser(frame, ref result, in context);
     }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.UTAgent))]
+  public unsafe partial class UTAgentPrototype : ComponentPrototype<Quantum.UTAgent> {
+    public Quantum.Prototypes.UtilityReasonerPrototype UtilityReasoner;
+    public AssetRef<AIConfig> Config;
+    partial void MaterializeUser(Frame frame, ref Quantum.UTAgent result, in PrototypeMaterializationContext context);
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.UTAgent component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.UTAgent result, in PrototypeMaterializationContext context = default) {
+      this.UtilityReasoner.Materialize(frame, ref result.UtilityReasoner, in context);
+      result.Config = this.Config;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.UTMomentumData))]
+  public unsafe partial class UTMomentumDataPrototype : StructPrototype {
+    public FP Value;
+    public Byte DecayAmount;
+    partial void MaterializeUser(Frame frame, ref Quantum.UTMomentumData result, in PrototypeMaterializationContext context);
+    public void Materialize(Frame frame, ref Quantum.UTMomentumData result, in PrototypeMaterializationContext context = default) {
+      result.Value = this.Value;
+      result.DecayAmount = this.DecayAmount;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.UTMomentumPack))]
+  public unsafe partial class UTMomentumPackPrototype : StructPrototype {
+    public AssetRef<Consideration> ConsiderationRef;
+    public Quantum.Prototypes.UTMomentumDataPrototype MomentumData;
+    partial void MaterializeUser(Frame frame, ref Quantum.UTMomentumPack result, in PrototypeMaterializationContext context);
+    public void Materialize(Frame frame, ref Quantum.UTMomentumPack result, in PrototypeMaterializationContext context = default) {
+      result.ConsiderationRef = this.ConsiderationRef;
+      this.MomentumData.Materialize(frame, ref result.MomentumData, in context);
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.UtilityReasoner))]
+  public unsafe partial class UtilityReasonerPrototype : StructPrototype {
+    public AssetRef<UTRoot> UTRoot;
+    partial void MaterializeUser(Frame frame, ref Quantum.UtilityReasoner result, in PrototypeMaterializationContext context);
+    public void Materialize(Frame frame, ref Quantum.UtilityReasoner result, in PrototypeMaterializationContext context = default) {
+      result.UTRoot = this.UTRoot;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(System.Collections.Generic.KeyValuePair<Int32, BlackboardEntry>))]
+  public unsafe class DictionaryEntry_Int32_BlackboardEntry : Quantum.Prototypes.DictionaryEntry {
+    public Int32 Key;
+    public Quantum.Prototypes.BlackboardEntryPrototype Value;
+  }
+  [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(System.Collections.Generic.KeyValuePair<Int64, FP>))]
+  public unsafe class DictionaryEntry_Int64_FP : Quantum.Prototypes.DictionaryEntry {
+    public Int64 Key;
+    public FP Value;
   }
 }
 #pragma warning restore 0109
