@@ -15,8 +15,9 @@ Guy clips go in the one animated `CH_Guy.fbx` (mesh, deform skeleton, all action
     - Top-down sketch with rough size, elevation changes, landmarks, room for 8 towers anywhere, and vat placement (the Lobby has two vats in the middle, 4.2 m apart).
 5. **A-006 Match HUD and results screen mock-ups**: Phase 6.
     - States: Lobby (press Start or Enter), Countdown 3 s, Playing, Round end 3 s with the winner, Results 6 s. Per player: their color and 3 slots for their best stack, each empty, settling (0 to 100%) or counted. Mock-ups at 1920×1080 for 2 and 8 players.
-6. **A-002 Main menu and lobby UI mock-ups**: Phase 6.
-    - Main menu (play, settings, quit), create or join room, lobby overlay (player list in colors, start). 1920×1080, controller focus states shown.
+6. **A-002 Main menu and lobby UI mock-ups** (main menu delivered 2026-11-03): Phase 6.
+    - In: the main menu mock-up (`UI_Mockup_MainMenu`: logo and three buttons on the right, Start Game, Join Game, Settings, over a bot match seen from the spectator camera), `UI_Logo` (669×387), `UI_MenuButton` (496×101) and the Jaro font in two optical sizes (`UI_Jaro_36pt` for headings, `UI_Jaro_9pt` for small text; OFL license alongside).
+    - Still needed: the logo and button at 2× for sharp 4K (1338×774, 992×202), the button's highlighted and pressed looks (controller focus), and mock-ups for Join Game (room code or list), Settings, and the in-room lobby overlay (player list in colors, start).
 7. **A-023 Guy win and lose, final**: Phase 6.
    - Placeholders are in: `Win.Jump` (0.33 s, plays once and holds) and `Sitdown` (1 s) for lose, played through round end (3 s) and results (6 s). The lose action is named `Guy,Lose.Sitdown` (a comma, not a dot); it imports fine as `Sitdown`. Final clips can loop or hold, any length.
 8. **A-024 Guy slide polish**: Phase 6 (nice to have).
