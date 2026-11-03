@@ -4,7 +4,7 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-02)
 
-**Phases 0–4 are done (Phase 4 reviewed by Jackson). Phase 5 (Sauces) is built and checked on one client; its two-client done-when check is next.**
+**Phases 0–5 are done. Phase 5 (Sauces) is verified with two clients and waiting for Jackson's review.**
 
 What plays today, online with up to 8 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
@@ -12,7 +12,7 @@ What plays today, online with up to 8 players, in the Lobby scene:
 - Stack & Lock: 3 owned blocks each, settle dither, counting, win, full match loop back to the lobby.
 - Knockdown: Guy's 11-limb ragdoll, Jump to recover faster, carrying bodies, get-up clips, dazed indicator, falling out of the world resets.
 - Animation: idle; walk and run blending forward, back and strafe; jump; sit and slide; stagger flinches by hit side; GrabBlock hold with spine turn and hand IK; aim pose (`Throw` frame 4) and follow-through, grounded and airborne; foot IK on steps, ramps and blocks; win and lose placeholders after a round.
-- Sauces: two vats (Jackson's cup) in the middle of the Lobby. Dunk a held block (or throw one in) to coat it; how deep sets the strength. Stack sauce shoves rivals away from a stacked block; Slip sauce makes a block slide (7.9 m after a throw against 1.1 m plain). The coat is a ragged, drippy, glossy shell with bubbles (Stack) or glints (Slip). Dev keys: F8 coats your held block or all your blocks with Stack sauce, Shift+F8 with Slip.
+- Sauces: two vats (Jackson's cup) in the middle of the Lobby. Dunk a held block (or throw one in) to coat it; how deep sets the strength. Stack sauce shoves rivals away from a stacked block; Slip sauce makes a block slide (7.9 m after a throw against 1.1 m plain), so a Slip tower comes apart when pushed. The coat is a ragged, drippy, glossy shell with bubbles (Stack) or glints (Slip). Dev keys: F8 coats your held block or all your blocks with Stack sauce, Shift+F8 with Slip.
 
 ### Known issues
 - Sitting while holding a block keeps the block at the standing hold height; the arms reach up to it. If it reads badly, lower the hold pivot while sitting (simulation).
@@ -20,7 +20,7 @@ What plays today, online with up to 8 players, in the Lobby scene:
 - Sauce particles emit over the whole block, not only the coated part.
 - The cup's art is wider at the top than its collision ring (inner radius 0.86 m), so a block can look like it sinks into the flared wall (A-009).
 - With the hips dropped for a low foot, Guy's long arms can touch the ground beside him.
-- Flinches were checked by playing each one through the view; a real stagger in play still needs a look (the event path is unchanged from the knockback system).
+- MPPM: starting the `TwoClients` scenario sometimes hangs the main editor while the clone launches; stopping and starting the scenario again recovers it.
 - The camera has no wall collision. Phase 6.
 - A ragdoll that spawns half inside a block can launch it; the fall reset recovers it. If it shows up in play, spawn the ragdoll in a tucked pose.
 - A body still airborne when its knockdown ends stands up mid-air and falls.
@@ -30,16 +30,14 @@ What plays today, online with up to 8 players, in the Lobby scene:
 - Matches only run in the Lobby scene; Arena_Graybox has no `Match` yet (Phase 6).
 
 ### Waiting on Jackson
-- A play-test of the sauces, and the two new open questions in the plan (Stack sauce: a shove every 2 s or a single burst; drip direction).
+- Review of Phase 5: a play-test of the sauces, and the two new open questions in the plan (Stack sauce: a shove every 2 s or a single burst; drip direction).
+- The cup re-exported at the new size (1.3×) with straighter outer walls, so the art matches its collision (A-009).
 - The older open questions (settle numbers; pickup swings through your own tower).
 
 ### Placeholders in use
 `PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the subdivided `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_SauceVat_Stack`/`_Slip` (the cup at 1.3× with placeholder sauce), `PH_SauceCoat` and `PH_SauceLooks` (A-009), `PH_PlayerColors` (holds the real palette), `PH_` terrain (A-008), the IMGUI `MatchHud` (A-006), the stock Quantum start UI (A-002), `PH_RagdollTest` (stress-test scene only).
 
-## Phase 5 (Sauces): what's left
-
-- Done-when, with two clients (MPPM `TwoClients`): a Stack-sauced tower shoves a rival running at it, a Slip-sauced block changes a stack, and both read at a glance. Scripts are ready (A: start, F8 sauce, stack two; B: run at A's tower twice).
-- Then the phase report, and Jackson's review.
+## Next: Phase 6 (Arena and polish), after Jackson's review of Phase 5
 
 ## Log
 
@@ -65,6 +63,28 @@ Phase report format:
 - Placeholders still in use: <list with asset IDs>
 - Ready for review: yes
 ```
+
+## Phase 5 report: Sauces
+- Built: two dip vats (Jackson's cup at 1.3×) in the Lobby. A block dipped in a vat records the sauce surface as a plane in its own space, up to three dips; the deepest dip sets the sauce's strength. Stack sauce: a stacked block shoves rivals within 2.5 m (stagger, drop what they hold), then waits 2 s. Slip sauce: the block takes a low-friction material in four steps. Coat shader (ragged edge, drips growing after the dip, lip bulge, wet shading), bubbles and glints by strength, dip splash, Stack pulse ring. Dev keys F8 / Shift+F8. Also this phase: the aimed block collides with nothing and its model arcs over the head; thrown blocks clear their thrower; Win and Lose placeholders after a round; the subdivided block.
+- Done-when verification ("dipping changes how a round plays and reads at a glance"), two clients through MPPM `TwoClients` in one online room:
+  - Stack: A started a match, coated its blocks with Stack sauce and stacked three. B (scripted) ran at A's tower twice. Each approach ended in one shove at 2.5 m, staggered, and B was thrown back out of range; A logged one pulse each time. On B, each shove arrived as one event.
+  - Slip: A ran into the base of its own three-block tower. Plain, the tower moved 0.15 m and still counted. Slip-sauced, it came apart: all three blocks fell to the ground and slid 2.9, 4.4 and 6.8 m.
+  - Dipping: a block dunked in a cup came out 69% coated at full Stack strength, the player outside the cup throughout. A Slip-thrown block slid 7.9 m after landing against 1.1 m plain.
+  - Reads at a glance: the coat (dark and warm for Stack, pale and glossy for Slip), bubbles or glints, the splash and the shove ring, checked in a capture. Jackson's play-test is the real check.
+  - Round end, seen on B: A (winner) in Win, B in Lose.
+  - Consoles on both clients: no game errors.
+- Fixed during verification: a three-block Stack tower shoved a rival three times in one tick (now once per player per tick, with the tower firing and cooling down together). The shoved client flinched twice per shove because the knockback event's impulse differed between the predicted and the verified frame; the impulse and the pulse position are now `nothashed`.
+- Known issues: see Current state (sauce particles cover the whole block; the cup art is wider than its collision; a hard dunk can stick for a moment; MPPM scenario start sometimes hangs).
+- Placeholders still in use: `PH_SauceVat_Stack`/`_Slip` and `PH_SauceCoat`/`PH_SauceLooks` (A-009), `PH_PlayerCapsule`, `PH_Block`, `PH_LockDither` (A-007/A-013), `PH_` terrain (A-008), IMGUI `MatchHud` (A-006), stock start UI (A-002); Win and Lose clips are Jackson's placeholders (A-023).
+- Ready for review: yes
+
+## 2026-11-02: Phase 5, done-when verified
+- Did: Stack shove once per player per tick; knockback and pulse events no longer fire twice on a predicting client (`nothashed` fields).
+- Verified: the Phase 5 done-when with two clients (report above).
+- Decided: a tower's sauced blocks fire and cool down together; a player takes one shove per tick.
+- Assets: none.
+- Questions for Jackson: as in the entry below.
+- Next: Jackson's review of Phase 5, then Phase 6.
 
 ## 2026-11-02: Phase 5, sauces; aim collisions; Guy and block deliveries
 - Did: aimed block on an `AimedBlock` layer that collides with nothing, model arcs over the head (runtime trigger toggling broke Quantum's broadphase; a disabled collider froze the body). Thrown blocks pass through their thrower and whatever they were released inside for 0.15 s. Sauce simulation (`SauceSystem`, `SauceConfig`): vats, dip planes, strength, Stack shove, Slip friction. Coat shader and view, bubbles, glints, splash, Stack pulse ring. Dev command `CommandDevSauce` (F8 / Shift+F8). Win and lose states in the Animator.

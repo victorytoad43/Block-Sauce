@@ -70,7 +70,7 @@ Each dip stores a plane in the block's local space; the shader turns those plane
 **Simulation (`SauceSystem`, tuning on `SauceConfig`, referenced by the game mode):**
 - A block reaching into a vat's sauce volume is dipped, held or loose: the surface is recorded as a plane in block-local space (normal + offset) with the sauce type, keeping the deepest the block went. A dip ends 0.25 s after the block leaves (so an edge bobbing across the surface stays one dip). Up to 3 dips per block; a fourth replaces the shallowest. Dips under 5% leave nothing.
 - Strength per sauce = its deepest dip's fraction ÷ 0.5, capped at 1. Fraction = the share of the block's height, along the plane normal, below the plane.
-- **Stack sauce:** a stacked (settling or counted) Stack-sauced block shoves every rival within 2.5 m away from it, 3 m/s at the lowest strength to 5.5 m/s at full (staggers, drops what they hold, never knocks down), then waits 2 s.
+- **Stack sauce:** a stacked (settling or counted) Stack-sauced block shoves every rival within 2.5 m away from it, 3 m/s at the lowest strength to 5.5 m/s at full (staggers, drops what they hold, never knocks down), then waits 2 s. A tower's sauced blocks fire together and share the wait; a player takes one shove per tick, however many blocks reach them.
 - **Slip sauce:** the block takes a low-friction physics material in four steps by strength (friction 0.6, 0.4, 0.2, 0.03; plain blocks 0.8), so it slides, and what is stacked on it slides off.
 - New blocks every match, so sauce never carries over.
 
@@ -89,7 +89,7 @@ Each dip stores a plane in the block's local space; the shader turns those plane
 - [x] **Phase 2, Stack & Lock:** owned blocks, stack detection, settling and counting, match flow, HUD placeholder, win check.
 - [x] **Phase 3, Knockdown:** knockdown tier, Guy's 11-limb ragdoll, get-up, carrying bodies, falling out, 8 players down at once profiled online (sim held 64 Hz).
 
-### Phase 4: Character (done 2026-11-02, awaiting review)
+### Phase 4: Character (done 2026-11-02, reviewed)
 In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/land; sit and slide; stagger flinches by hit side; `GrabBlock` hold layer with spine turn and two-bone hand IK on the block; aim pose and `Throw` follow-through, grounded and airborne; foot IK on uneven ground and blocks; ragdoll pose on Guy's bones; get-up blends; the grabbed block squaring to Guy's facing; capsule at Guy's 0.40 m radius.
 - [x] Strafe, stagger, sit and slide clips integrated (2026-11-02)
 - [x] Crouch replaced by sit (stationary, slides above 4 m/s)
@@ -102,13 +102,13 @@ In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/lan
 - [x] Done-when verified: a full match with 2 clients (MPPM `TwoClients` scenario), every state cycled; win and lose play `Idle` until A-023
 - **Done when:** Guy plays a full match on uneven terrain with no state left unanimated.
 
-### Phase 5: Sauces
+### Phase 5: Sauces (done 2026-11-02, awaiting review)
 - [x] Dip vats (Jackson's cup); dip planes and depth-based strength in the simulation (2026-11-02)
 - [x] Stack sauce and Slip sauce gameplay
 - [x] Sauce coat shader: noise edge, drips, bulge, wet shading, drip growth after a dip
 - [x] Subdivided block mesh (A-005) in; owner readability (A-013) moved to Phase 6
 - [x] Aimed block collides with nothing; its model arcs over the head
-- [ ] Done-when verified with two clients
+- [x] Done-when verified with two clients (2026-11-02): Stack tower shoves a rival on approach, Slip tower comes apart when pushed
 - **Done when:** dipping changes how a round plays and reads at a glance.
 
 ### Phase 6: Arena and polish
