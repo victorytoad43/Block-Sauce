@@ -112,25 +112,53 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Writes each bot's input for this tick. For now a bot wanders: it walks forward, turning slowly.
+        /// Gives a bot a task, replacing whatever it was doing; <see cref="BotActions"/> carries it out and sets its
+        /// status to Done or Failed.
+        /// </summary>
+        public static void SetTask(Frame frame, Bot* bot, BotConfig config, BotTaskType task, EntityRef target,
+            FPVector3 point)
+        {
+            bot->Task = task;
+            bot->Status = BotTaskStatus.Running;
+            bot->Target = target;
+            bot->Point = point;
+            bot->Carried = EntityRef.None;
+            bot->Step = 0;
+            bot->Attempts = 0;
+            bot->StepTimer = default;
+            bot->TaskTimer = FrameTimer.FromSeconds(frame, config.TaskSeconds);
+        }
+
+        /// <summary>
+        /// Writes each bot's input for this tick: its task's intent, or, while knocked down, tapping Jump to get up.
+        /// Buttons keep their state from the last tick, so presses and releases register like a player's.
         /// </summary>
         private static void DriveBots(Frame frame, BotConfig config)
         {
             var bots = frame.Filter<Bot, Player>();
-            while (bots.NextUnsafe(out EntityRef _, out Bot* bot, out Player* player))
+            while (bots.NextUnsafe(out EntityRef entity, out Bot* bot, out Player* player))
             {
-                bot->Heading += config.WanderTurnSpeed * frame.DeltaTime;
-                if (bot->Heading > 180)
+                BotIntent intent;
+                if (frame.Has<RagdollOwner>(entity))
                 {
-                    bot->Heading -= 360;
+                    intent = new BotIntent { MoveYaw = bot->Heading, Jump = frame.Number % 8 < 2 };
+                }
+                else
+                {
+                    intent = BotActions.Tick(frame, entity, bot, config);
                 }
 
-                Input input = default;
-                input.HasCamera = true;
-                input.Camera.Yaw = bot->Heading;
-                input.Camera.Pitch = 15;
-                input.Move = new FPVector2(FP._0, FP._1);
-                player->Input = input;
+                Input* input = &player->Input;
+                input->HasCamera = true;
+                input->Camera.Yaw = intent.MoveYaw;
+                input->Camera.Pitch = 15;
+                input->Move = intent.MoveAmount > FP._0 ? new FPVector2(FP._0, intent.MoveAmount) : FPVector2.Zero;
+                input->Swing = intent.Swing;
+                input->Run.Update(frame.Number, intent.Run);
+                input->Grab.Update(frame.Number, intent.Grab);
+                input->Throw.Update(frame.Number, intent.Throw);
+                input->Jump.Update(frame.Number, intent.Jump);
+                input->Crouch.Update(frame.Number, false);
             }
         }
 

@@ -1,9 +1,50 @@
+// What a bot is doing; the brain sets a task and reads its status (BotActions carries it out).
+enum BotTaskType
+{
+    None,
+    // Walk to Point.
+    GoTo,
+    // Walk to the Target block and pick it up (any block picked up counts; Target becomes it).
+    Fetch,
+    // Carry the held block to the Target block and place it on top.
+    PlaceOn,
+    // Throw the held block at the Target entity.
+    ThrowAt,
+    // Carry the held block to the Target vat, dunk it and lift it out.
+    Dunk
+}
+
+enum BotTaskStatus
+{
+    Running,
+    Done,
+    Failed
+}
+
 // A character the simulation drives. It holds a player slot nobody is connected to, so ownership, teams, colors and
 // scoring treat it as a player, and its brain writes that slot's Player.Input instead of a client sending it.
 component Bot
 {
     // The yaw, in degrees, the bot is looking and walking toward.
     [HideInInspector] FP Heading;
+
+    [HideInInspector] BotTaskType Task;
+    [HideInInspector] BotTaskStatus Status;
+    [HideInInspector] EntityRef Target;
+    [HideInInspector] FPVector3 Point;
+    // The block the bot was carrying when it placed or threw it, to check where it went.
+    [HideInInspector] EntityRef Carried;
+    // The task's own progress (which step of a place or dunk it is on) and how long the step or task may take.
+    [HideInInspector] byte Step;
+    [HideInInspector] byte Attempts;
+    [HideInInspector] FrameTimer StepTimer;
+    [HideInInspector] FrameTimer TaskTimer;
+
+    // Stuck detection: where the bot was at the last check, and a detour heading it follows for a moment when stuck.
+    [HideInInspector] FPVector3 ProgressPosition;
+    [HideInInspector] FrameTimer ProgressTimer;
+    [HideInInspector] FP DetourYaw;
+    [HideInInspector] FrameTimer DetourTimer;
 }
 
 event BotAdded

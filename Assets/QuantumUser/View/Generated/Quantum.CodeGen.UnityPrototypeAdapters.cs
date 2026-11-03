@@ -136,6 +136,57 @@ namespace Quantum.Prototypes.Unity {
     }
   }
   [System.SerializableAttribute()]
+  public unsafe partial class BotPrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.BotPrototype> {
+    [HideInInspector()]
+    public FP Heading;
+    [HideInInspector()]
+    public Quantum.QEnum32<BotTaskType> Task;
+    [HideInInspector()]
+    public Quantum.QEnum32<BotTaskStatus> Status;
+    [HideInInspector()]
+    public Quantum.QuantumEntityPrototype Target;
+    [HideInInspector()]
+    public FPVector3 Point;
+    [HideInInspector()]
+    public Quantum.QuantumEntityPrototype Carried;
+    [HideInInspector()]
+    public Byte Step;
+    [HideInInspector()]
+    public Byte Attempts;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype StepTimer;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype TaskTimer;
+    [HideInInspector()]
+    public FPVector3 ProgressPosition;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype ProgressTimer;
+    [HideInInspector()]
+    public FP DetourYaw;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype DetourTimer;
+    partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.BotPrototype prototype);
+    public override Quantum.Prototypes.BotPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
+      var result = new Quantum.Prototypes.BotPrototype();
+      converter.Convert(this.Heading, out result.Heading);
+      converter.Convert(this.Task, out result.Task);
+      converter.Convert(this.Status, out result.Status);
+      converter.Convert(this.Target, out result.Target);
+      converter.Convert(this.Point, out result.Point);
+      converter.Convert(this.Carried, out result.Carried);
+      converter.Convert(this.Step, out result.Step);
+      converter.Convert(this.Attempts, out result.Attempts);
+      converter.Convert(this.StepTimer, out result.StepTimer);
+      converter.Convert(this.TaskTimer, out result.TaskTimer);
+      converter.Convert(this.ProgressPosition, out result.ProgressPosition);
+      converter.Convert(this.ProgressTimer, out result.ProgressTimer);
+      converter.Convert(this.DetourYaw, out result.DetourYaw);
+      converter.Convert(this.DetourTimer, out result.DetourTimer);
+      ConvertUser(converter, ref result);
+      return result;
+    }
+  }
+  [System.SerializableAttribute()]
   public unsafe partial class GrabbablePrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.GrabbablePrototype> {
     [HideInInspector()]
     public Quantum.QuantumEntityPrototype Holder;

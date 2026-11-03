@@ -94,6 +94,39 @@ namespace Quantum
     }
 
     /// <summary>
+    /// Test-only: gives a bot (or every bot) a task (BotSystem.SetTask). A negative target index picks the obvious
+    /// target: Fetch the nearest free block on the ground with nothing on it, PlaceOn the top of the bot's own tower (or its nearest own block on the
+    /// ground), ThrowAt the sender's character, Dunk the nearest vat (of VatType, unless None). Only debug builds act
+    /// on it.
+    /// </summary>
+    public class CommandDevBotTask : DeterministicCommand
+    {
+        /// <summary>The bot's player slot; -1 for every bot.</summary>
+        public int Slot = -1;
+        public BotTaskType Task;
+        public int TargetIndex = -1;
+        public int TargetVersion;
+        public SauceType VatType;
+        public FPVector3 Point;
+
+        public override void Serialize(BitStream stream)
+        {
+            int task = (int)Task;
+            int vatType = (int)VatType;
+            stream.Serialize(ref Slot);
+            stream.Serialize(ref task);
+            stream.Serialize(ref TargetIndex);
+            stream.Serialize(ref TargetVersion);
+            stream.Serialize(ref vatType);
+            stream.Serialize(ref Point.X.RawValue);
+            stream.Serialize(ref Point.Y.RawValue);
+            stream.Serialize(ref Point.Z.RawValue);
+            Task = (BotTaskType)task;
+            VatType = (SauceType)vatType;
+        }
+    }
+
+    /// <summary>
     /// Test-only: runs dev commands in debug builds. Does nothing in release builds.
     /// </summary>
     public unsafe class DevCommandSystem : SystemMainThread
@@ -125,6 +158,11 @@ namespace Quantum
                 {
                     Sauce(frame, player, command.Type);
                 }
+
+                foreach (CommandDevBotTask command in frame.GetPlayerCommands<CommandDevBotTask>(player))
+                {
+                    GiveBotTask(frame, player, command);
+                }
             }
 
             if (frame.TryGetSingleton(out Match match) == false || match.State != MatchState.Playing)
@@ -140,6 +178,100 @@ namespace Quantum
                 }
             }
 #endif
+        }
+
+        private static void GiveBotTask(Frame frame, PlayerRef sender, CommandDevBotTask command)
+        {
+            if (frame.TryGetSingleton(out Match match) == false)
+                return;
+
+            BotConfig config = BotSystem.GetConfig(frame, match);
+            var bots = frame.Filter<Bot, Player, Transform3D>();
+            while (bots.NextUnsafe(out EntityRef entity, out Bot* bot, out Player* player, out Transform3D* transform))
+            {
+                if (command.Slot >= 0 && (int)player->Ref != command.Slot)
+                    continue;
+
+                EntityRef target = command.TargetIndex >= 0
+                    ? new EntityRef { Index = command.TargetIndex, Version = command.TargetVersion }
+                    : FindObviousTarget(frame, command, entity, player->Ref, sender, transform->Position);
+                BotSystem.SetTask(frame, bot, config, command.Task, target, command.Point);
+            }
+        }
+
+        private static EntityRef FindObviousTarget(Frame frame, CommandDevBotTask command, EntityRef bot, PlayerRef owner,
+            PlayerRef sender, FPVector3 position)
+        {
+            EntityRef held = frame.Get<Grabber>(bot).Held;
+            EntityRef best = EntityRef.None;
+            FP bestDistance = FP.UseableMax;
+            switch (command.Task)
+            {
+                case BotTaskType.Fetch:
+                case BotTaskType.PlaceOn:
+                {
+                    if (command.Task == BotTaskType.PlaceOn)
+                    {
+                        EntityRef towerBase = BlockTower.GetBestBase(frame, owner);
+                        if (towerBase != EntityRef.None)
+                            return BlockTower.GetTop(frame, towerBase);
+                    }
+
+                    var blocks = frame.Filter<Block, Transform3D, Grabbable>();
+                    while (blocks.NextUnsafe(out EntityRef entity, out Block* block, out Transform3D* transform, out Grabbable* grabbable))
+                    {
+                        bool wanted = command.Task == BotTaskType.Fetch
+                            ? grabbable->Holder == EntityRef.None && block->Stack == StackState.Loose
+                                && transform->Position.Y < FP._0_50
+                            : entity != held && block->Owner == owner && grabbable->Holder == EntityRef.None;
+                        FP distance = (transform->Position - position).SqrMagnitude;
+                        if (wanted && distance < bestDistance && IsCovered(frame, entity, transform->Position) == false)
+                        {
+                            best = entity;
+                            bestDistance = distance;
+                        }
+                    }
+
+                    return best;
+                }
+                case BotTaskType.ThrowAt:
+                    PlayerSystem.TryGetCharacter(frame, sender, out best);
+                    return best;
+                case BotTaskType.Dunk:
+                {
+                    var vats = frame.Filter<SauceVat, Transform3D>();
+                    while (vats.NextUnsafe(out EntityRef entity, out SauceVat* vat, out Transform3D* transform))
+                    {
+                        FP distance = (transform->Position - position).SqrMagnitude;
+                        if ((command.VatType == SauceType.None || vat->Type == command.VatType) && distance < bestDistance)
+                        {
+                            best = entity;
+                            bestDistance = distance;
+                        }
+                    }
+
+                    return best;
+                }
+                default:
+                    return EntityRef.None;
+            }
+        }
+
+        /// <summary>
+        /// Returns whether another block rests on the block at <paramref name="position"/>.
+        /// </summary>
+        private static bool IsCovered(Frame frame, EntityRef block, FPVector3 position)
+        {
+            var blocks = frame.Filter<Block, Transform3D>();
+            while (blocks.NextUnsafe(out EntityRef other, out Block* _, out Transform3D* transform))
+            {
+                FPVector3 offset = transform->Position - position;
+                if (other != block && offset.Y > FP._0_50 && offset.Y < FP._1 + FP._0_20
+                    && offset.X * offset.X + offset.Z * offset.Z < FP._0_50 * FP._0_50)
+                    return true;
+            }
+
+            return false;
         }
 
         private static void Sauce(Frame frame, PlayerRef sender, SauceType type)

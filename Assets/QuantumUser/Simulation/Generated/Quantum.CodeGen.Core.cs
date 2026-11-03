@@ -49,6 +49,19 @@ namespace Quantum {
   using RuntimeInitializeOnLoadMethodAttribute = UnityEngine.RuntimeInitializeOnLoadMethodAttribute;
   #endif //;
   
+  public enum BotTaskStatus : int {
+    Running,
+    Done,
+    Failed,
+  }
+  public enum BotTaskType : int {
+    None,
+    GoTo,
+    Fetch,
+    PlaceOn,
+    ThrowAt,
+    Dunk,
+  }
   public enum ControlTier : int {
     InControl,
     Staggered,
@@ -914,21 +927,86 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Bot : Quantum.IComponent {
-    public const Int32 SIZE = 8;
+    public const Int32 SIZE = 128;
     public const Int32 ALIGNMENT = 8;
-    [FieldOffset(0)]
+    [FieldOffset(40)]
     [HideInInspector()]
     public FP Heading;
+    [FieldOffset(8)]
+    [HideInInspector()]
+    public BotTaskType Task;
+    [FieldOffset(4)]
+    [HideInInspector()]
+    public BotTaskStatus Status;
+    [FieldOffset(24)]
+    [HideInInspector()]
+    public EntityRef Target;
+    [FieldOffset(80)]
+    [HideInInspector()]
+    public FPVector3 Point;
+    [FieldOffset(16)]
+    [HideInInspector()]
+    public EntityRef Carried;
+    [FieldOffset(1)]
+    [HideInInspector()]
+    public Byte Step;
+    [FieldOffset(0)]
+    [HideInInspector()]
+    public Byte Attempts;
+    [FieldOffset(64)]
+    [HideInInspector()]
+    public FrameTimer StepTimer;
+    [FieldOffset(72)]
+    [HideInInspector()]
+    public FrameTimer TaskTimer;
+    [FieldOffset(104)]
+    [HideInInspector()]
+    public FPVector3 ProgressPosition;
+    [FieldOffset(56)]
+    [HideInInspector()]
+    public FrameTimer ProgressTimer;
+    [FieldOffset(32)]
+    [HideInInspector()]
+    public FP DetourYaw;
+    [FieldOffset(48)]
+    [HideInInspector()]
+    public FrameTimer DetourTimer;
     public override readonly Int32 GetHashCode() {
       unchecked { 
         var hash = 419;
         hash = hash * 31 + Heading.GetHashCode();
+        hash = hash * 31 + (Int32)Task;
+        hash = hash * 31 + (Int32)Status;
+        hash = hash * 31 + Target.GetHashCode();
+        hash = hash * 31 + Point.GetHashCode();
+        hash = hash * 31 + Carried.GetHashCode();
+        hash = hash * 31 + Step.GetHashCode();
+        hash = hash * 31 + Attempts.GetHashCode();
+        hash = hash * 31 + StepTimer.GetHashCode();
+        hash = hash * 31 + TaskTimer.GetHashCode();
+        hash = hash * 31 + ProgressPosition.GetHashCode();
+        hash = hash * 31 + ProgressTimer.GetHashCode();
+        hash = hash * 31 + DetourYaw.GetHashCode();
+        hash = hash * 31 + DetourTimer.GetHashCode();
         return hash;
       }
     }
     public static void Serialize(void* ptr, FrameSerializer serializer) {
       var p = (Bot*)ptr;
+      serializer.Stream.Serialize(&p->Attempts);
+      serializer.Stream.Serialize(&p->Step);
+      serializer.Stream.Serialize((Int32*)&p->Status);
+      serializer.Stream.Serialize((Int32*)&p->Task);
+      EntityRef.Serialize(&p->Carried, serializer);
+      EntityRef.Serialize(&p->Target, serializer);
+      FP.Serialize(&p->DetourYaw, serializer);
       FP.Serialize(&p->Heading, serializer);
+      FrameTimer.Serialize(&p->DetourTimer, serializer);
+      FrameTimer.Serialize(&p->ProgressTimer, serializer);
+      FrameTimer.Serialize(&p->StepTimer, serializer);
+      FrameTimer.Serialize(&p->TaskTimer, serializer);
+      FPVector3.Serialize(&p->Point, serializer);
+      FPVector3.Serialize(&p->ProgressPosition, serializer);
     }
   }
   [StructLayout(LayoutKind.Explicit)]
@@ -1567,6 +1645,8 @@ namespace Quantum {
   unsafe partial class FramePrinterPreserve {
     [Preserve()]
     private static void EnsureNotStripped_Core() {
+      FramePrinter.EnsurePrimitiveNotStripped<Quantum.BotTaskStatus>();
+      FramePrinter.EnsurePrimitiveNotStripped<Quantum.BotTaskType>();
       FramePrinter.EnsurePrimitiveNotStripped<CallbackFlags>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.ControlTier>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.InputButtons>();
@@ -1733,6 +1813,8 @@ namespace Quantum {
         registry.Register<Quantum.Bot>(Quantum.Bot.SIZE);
         registry.Register<Quantum.BotSDKData>(Quantum.BotSDKData.SIZE);
         registry.Register<Quantum.BotSDKGlobals>(Quantum.BotSDKGlobals.SIZE);
+        registry.Register<Quantum.BotTaskStatus>(4);
+        registry.Register<Quantum.BotTaskType>(4);
         registry.Register<Button>(Button.SIZE);
         registry.Register<CallbackFlags>(4);
         registry.Register<CharacterController2D>(CharacterController2D.SIZE);

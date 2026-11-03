@@ -183,10 +183,35 @@ namespace Quantum.Prototypes {
   }
   [System.SerializableAttribute()]
   [Quantum.Prototypes.Prototype(typeof(Quantum.Bot))]
-  public unsafe partial class BotPrototype : ComponentPrototype<Quantum.Bot> {
+  public unsafe class BotPrototype : ComponentPrototype<Quantum.Bot> {
     [HideInInspector()]
     public FP Heading;
-    partial void MaterializeUser(Frame frame, ref Quantum.Bot result, in PrototypeMaterializationContext context);
+    [HideInInspector()]
+    public Quantum.QEnum32<BotTaskType> Task;
+    [HideInInspector()]
+    public Quantum.QEnum32<BotTaskStatus> Status;
+    [HideInInspector()]
+    public MapEntityId Target;
+    [HideInInspector()]
+    public FPVector3 Point;
+    [HideInInspector()]
+    public MapEntityId Carried;
+    [HideInInspector()]
+    public Byte Step;
+    [HideInInspector()]
+    public Byte Attempts;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype StepTimer;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype TaskTimer;
+    [HideInInspector()]
+    public FPVector3 ProgressPosition;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype ProgressTimer;
+    [HideInInspector()]
+    public FP DetourYaw;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype DetourTimer;
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
       Quantum.Bot component = default;
       Materialize((Frame)f, ref component, in context);
@@ -194,7 +219,19 @@ namespace Quantum.Prototypes {
     }
     public void Materialize(Frame frame, ref Quantum.Bot result, in PrototypeMaterializationContext context = default) {
       result.Heading = this.Heading;
-      MaterializeUser(frame, ref result, in context);
+      result.Task = this.Task;
+      result.Status = this.Status;
+      PrototypeValidator.FindMapEntity(this.Target, in context, out result.Target);
+      result.Point = this.Point;
+      PrototypeValidator.FindMapEntity(this.Carried, in context, out result.Carried);
+      result.Step = this.Step;
+      result.Attempts = this.Attempts;
+      this.StepTimer.Materialize(frame, ref result.StepTimer, in context);
+      this.TaskTimer.Materialize(frame, ref result.TaskTimer, in context);
+      result.ProgressPosition = this.ProgressPosition;
+      this.ProgressTimer.Materialize(frame, ref result.ProgressTimer, in context);
+      result.DetourYaw = this.DetourYaw;
+      this.DetourTimer.Materialize(frame, ref result.DetourTimer, in context);
     }
   }
   [System.SerializableAttribute()]
