@@ -196,8 +196,6 @@ namespace Quantum.Prototypes.Unity {
     public FP SlipStrength;
     [HideInInspector()]
     public AssetRef<PhysicsMaterial> PlainMaterial;
-    [HideInInspector()]
-    public Quantum.Prototypes.FrameTimerPrototype StackCooldown;
     partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.SauceCoatPrototype prototype);
     public override Quantum.Prototypes.SauceCoatPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
       var result = new Quantum.Prototypes.SauceCoatPrototype();
@@ -209,7 +207,6 @@ namespace Quantum.Prototypes.Unity {
       converter.Convert(this.StackStrength, out result.StackStrength);
       converter.Convert(this.SlipStrength, out result.SlipStrength);
       converter.Convert(this.PlainMaterial, out result.PlainMaterial);
-      converter.Convert(this.StackCooldown, out result.StackCooldown);
       ConvertUser(converter, ref result);
       return result;
     }

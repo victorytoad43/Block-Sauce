@@ -777,9 +777,9 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct SauceCoat : Quantum.IComponent {
-    public const Int32 SIZE = 192;
+    public const Int32 SIZE = 184;
     public const Int32 ALIGNMENT = 8;
-    [FieldOffset(48)]
+    [FieldOffset(40)]
     [HideInInspector()]
     [FramePrinter.FixedArrayAttribute(typeof(SauceDip), 3)]
     private fixed Byte _Dips_[144];
@@ -804,9 +804,6 @@ namespace Quantum {
     [FieldOffset(8)]
     [HideInInspector()]
     public AssetRef<PhysicsMaterial> PlainMaterial;
-    [FieldOffset(40)]
-    [HideInInspector()]
-    public FrameTimer StackCooldown;
     public readonly FixedArray<SauceDip> Dips {
       get {
         fixed (byte* p = _Dips_) { return new FixedArray<SauceDip>(p, 48, 3); }
@@ -823,7 +820,6 @@ namespace Quantum {
         hash = hash * 31 + StackStrength.GetHashCode();
         hash = hash * 31 + SlipStrength.GetHashCode();
         hash = hash * 31 + PlainMaterial.GetHashCode();
-        hash = hash * 31 + StackCooldown.GetHashCode();
         return hash;
       }
     }
@@ -836,7 +832,6 @@ namespace Quantum {
       EntityRef.Serialize(&p->InVat, serializer);
       FP.Serialize(&p->SlipStrength, serializer);
       FP.Serialize(&p->StackStrength, serializer);
-      FrameTimer.Serialize(&p->StackCooldown, serializer);
       FixedArray.Serialize(p->Dips, serializer, Statics.SerializeSauceDip);
     }
   }

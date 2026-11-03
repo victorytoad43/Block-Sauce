@@ -1,16 +1,21 @@
-// Sauce coat (docs/PLAN.md, Sauce system), drawn as a shell over the block's own mesh. Each dip is a plane in the
-// mesh's object space (xyz = normal, w = offset): points p with dot(n, p) < w are under the sauce. The coat's edge is
-// ragged with 3D object-space noise seeded per block (identical on every client), and drips hang past it: noise in the
-// plane, stretched along its normal, growing over about a second after the dip (_DipAge). The shell is pushed out by
-// the coat's thickness, thicker at the lip. Shading is glossy and wet with a wrapped, tinted diffuse for a fake
-// subsurface look. Per-block values come from a MaterialPropertyBlock (SauceCoatView).
+// Sauce coat (docs/PLAN.md, Sauce system), drawn on an evenly divided rounded-box shell the size of the block, with
+// normals that turn smoothly over its edges (SauceCoatView builds it). Each dip is a plane in the shell's object space
+// (xyz = normal, w = offset): points p with dot(n, p) < w are under the sauce. The coat's edge is ragged with 3D
+// object-space noise seeded per block (identical on every client), and drips can hang past it: noise in the plane,
+// stretched along its normal, growing over about a second after the dip (_DipAge). Under the sauce the shell is pushed
+// out along its normals by a lumpy thickness, so the coat changes the block's silhouette, ramping up from the edge to a
+// bead at the lip; lighting uses the normals of the pushed-out surface. Shading is glossy and wet with a wrapped, tinted
+// diffuse for a fake subsurface look. Per-block values come from a MaterialPropertyBlock (SauceCoatView).
 Shader "BlockSauce/PH_SauceCoat"
 {
     Properties
     {
-        _CenterOS ("Block Center (object space)", Vector) = (0, 0, 0, 0)
-        _Thickness ("Coat Thickness", Float) = 0.012
-        _LipThickness ("Extra Thickness At The Lip", Float) = 0.018
+        _Offset ("Shell Offset Off The Block", Float) = 0.004
+        _Thickness ("Coat Thickness", Float) = 0.015
+        _LumpHeight ("Extra Thickness Of The Lumps", Float) = 0.03
+        _LumpScale ("Lump Noise Scale", Float) = 9
+        _EdgeRamp ("Depth Over Which The Coat Thickens From Its Edge", Float) = 0.06
+        _LipThickness ("Extra Thickness At The Lip", Float) = 0.012
         _LipWidth ("Lip Width", Float) = 0.05
         _EdgeNoise ("Edge Raggedness", Float) = 0.035
         _EdgeScale ("Edge Noise Scale", Float) = 9
@@ -37,8 +42,11 @@ Shader "BlockSauce/PH_SauceCoat"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
-                float4 _CenterOS;
+                float _Offset;
                 float _Thickness;
+                float _LumpHeight;
+                float _LumpScale;
+                float _EdgeRamp;
                 float _LipThickness;
                 float _LipWidth;
                 float _EdgeNoise;
@@ -118,22 +126,38 @@ Shader "BlockSauce/PH_SauceCoat"
                 return best;
             }
 
+            // The shell point p pushed out along its normal n by the coat there: lumps of low-frequency noise over a
+            // base thickness, ramping up from the coat's edge, with a bead at the lip.
+            float3 Displace(float3 p, float3 n)
+            {
+                half4 color;
+                float depth = CoatDepth(p, color);
+                float coat = smoothstep(0.0, _EdgeRamp, depth);
+                float lumps = saturate(Noise(p * _LumpScale) * 0.7 + Noise(p * _LumpScale * 2.1) * 0.12 + 0.5);
+                float lip = exp(-max(depth, 0.0) / _LipWidth) * coat;
+                return p + n * (_Offset + coat * (_Thickness + lumps * _LumpHeight) + lip * _LipThickness);
+            }
+
             Varyings Vert(Attributes input)
             {
                 Varyings output;
-                half4 color;
-                float depth = CoatDepth(input.positionOS.xyz, color);
-                // Thickness: a thin coat inside, bulging at the lip; pushed out from the block's center so the shell stays
-                // closed across the mesh's hard edges.
-                float coat = saturate(depth / 0.01);
-                float lip = exp(-max(depth, 0) / _LipWidth) * coat;
-                float3 outward = normalize(input.positionOS.xyz - _CenterOS.xyz);
-                float3 positionOS = input.positionOS.xyz + outward * (0.002 + coat * _Thickness + lip * _LipThickness);
+                float3 p = input.positionOS.xyz;
+                float3 n = normalize(input.normalOS);
+                float3 positionOS = Displace(p, n);
+
+                // The pushed-out surface's normal, from two nearby points on the shell pushed out the same way.
+                float3 tangent = normalize(cross(n, abs(n.y) < 0.9 ? float3(0, 1, 0) : float3(1, 0, 0)));
+                float3 bitangent = cross(n, tangent);
+                const float delta = 0.008;
+                float3 alongTangent = Displace(p + tangent * delta, n) - positionOS;
+                float3 alongBitangent = Displace(p + bitangent * delta, n) - positionOS;
+                float3 normalOS = normalize(cross(alongTangent, alongBitangent));
+                normalOS = dot(normalOS, n) < 0.0 ? -normalOS : normalOS;
 
                 VertexPositionInputs positions = GetVertexPositionInputs(positionOS);
                 output.positionCS = positions.positionCS;
                 output.positionWS = positions.positionWS;
-                output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+                output.normalWS = TransformObjectToWorldNormal(normalOS);
                 output.positionOS = input.positionOS.xyz;
                 return output;
             }
@@ -145,8 +169,8 @@ Shader "BlockSauce/PH_SauceCoat"
                 clip(depth);
 
                 float3 normal = normalize(input.normalWS);
-                // A little wobble in the normal so the highlight reads as liquid rather than paint.
-                normal = normalize(normal + 0.15 * float3(Noise(input.positionOS * 23.0), Noise(input.positionOS * 23.0 + 7.1), Noise(input.positionOS * 23.0 + 3.3)));
+                // A little fine wobble in the normal so the highlight reads as liquid rather than paint.
+                normal = normalize(normal + 0.03 * float3(Noise(input.positionOS * 23.0), Noise(input.positionOS * 23.0 + 7.1), Noise(input.positionOS * 23.0 + 3.3)));
                 float3 view = normalize(GetWorldSpaceViewDir(input.positionWS));
                 Light light = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
                 half shadow = light.shadowAttenuation;

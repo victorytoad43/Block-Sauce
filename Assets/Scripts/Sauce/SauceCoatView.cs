@@ -4,11 +4,12 @@ using UnityEngine;
 namespace BlockSauce
 {
     /// <summary>
-    /// On a block's view: draws its sauce coat. A shell over the block's mesh (PH_SauceCoat) is fed each dip's plane,
-    /// converted from the block's simulation space into the mesh's object space, with the sauce's color and the time
-    /// since the dip ended, which grows the drips. The entity index seeds the coat's noise, so the coat looks the same
-    /// on every client. A coated block also gives off its sauce's particle cue, more of it the stronger the sauce.
-    /// View only.
+    /// On a block's view: draws its sauce coat. The coat is a shell (PH_SauceCoat) over an evenly divided rounded box the
+    /// size of the block's mesh, shared by every block, so the shader has the vertices to give the sauce lumpy volume
+    /// however few the block's own mesh has. It is fed each dip's plane, converted from the block's simulation space into
+    /// the mesh's object space, with the sauce's color and the time since the dip ended. The entity index seeds the
+    /// coat's noise, so the coat looks the same on every client. A coated block also gives off its sauce's particle cue,
+    /// more of it the stronger the sauce. View only.
     /// </summary>
     public class SauceCoatView : QuantumEntityViewComponent
     {
@@ -24,10 +25,14 @@ namespace BlockSauce
         private static readonly int DipAgeId = Shader.PropertyToID("_DipAge");
         private static readonly int DipCountId = Shader.PropertyToID("_DipCount");
         private static readonly int SeedId = Shader.PropertyToID("_Seed");
-        private static readonly int CenterId = Shader.PropertyToID("_CenterOS");
+        private static readonly System.Collections.Generic.Dictionary<(Vector3, int), Mesh> ShellMeshes = new();
 
-        [Tooltip("The block's mesh renderer; the coat is a shell over the same mesh.")]
+        [Tooltip("The block's mesh renderer; the coat is a shell the size of its mesh.")]
         [SerializeField] private MeshRenderer _blockRenderer;
+        [Tooltip("Rounding of the coat's edges, in meters: rounder than the block's own, so sauce softens its edges.")]
+        [SerializeField] private float _shellRounding = 0.04f;
+        [Tooltip("Quads along each edge of each face of the coat's shell.")]
+        [SerializeField] private int _shellDivisions = 28;
         [Tooltip("The coat material (PH_SauceCoat).")]
         [SerializeField] private Material _coatMaterial;
         [Tooltip("The sauces' colors and particle material.")]
@@ -98,7 +103,7 @@ namespace BlockSauce
         /// </summary>
         private void UpdateCoat(SauceCoat coat)
         {
-            Transform mesh = _blockRenderer.transform;
+            Transform mesh = _coat.transform;
             Vector4 ages = Vector4.zero;
             for (int i = 0; i < MaxDips; i++)
             {
@@ -131,17 +136,17 @@ namespace BlockSauce
             if (_coat != null)
                 return;
 
-            MeshFilter source = _blockRenderer.GetComponent<MeshFilter>();
+            Bounds bounds = _blockRenderer.GetComponent<MeshFilter>().sharedMesh.bounds;
             GameObject shell = new GameObject("SauceCoat");
             shell.transform.SetParent(_blockRenderer.transform, false);
-            shell.AddComponent<MeshFilter>().sharedMesh = source.sharedMesh;
+            shell.transform.localPosition = bounds.center;
+            shell.AddComponent<MeshFilter>().sharedMesh = GetShellMesh(bounds.extents);
             _coat = shell.AddComponent<MeshRenderer>();
             _coat.sharedMaterial = _coatMaterial;
             _coat.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
             _properties = new MaterialPropertyBlock();
             _properties.SetFloat(SeedId, EntityRef.Index % 997);
-            _properties.SetVector(CenterId, source.sharedMesh.bounds.center);
 
             if (_looks != null && _looks.ParticleMaterial != null)
             {
@@ -150,6 +155,68 @@ namespace BlockSauce
                 SetColor(_bubbles, _looks.GetParticleColor(SauceType.Stack));
                 SetColor(_glints, _looks.GetParticleColor(SauceType.Slip));
             }
+        }
+
+        /// <summary>
+        /// Returns the coat's shell for a block of these half extents: a rounded box, each face an even grid, with
+        /// normals that turn smoothly over the rounded edges so the coat can be pushed out along them without cracks.
+        /// </summary>
+        private Mesh GetShellMesh(Vector3 extents)
+        {
+            int divisions = Mathf.Max(2, _shellDivisions);
+            if (ShellMeshes.TryGetValue((extents, divisions), out Mesh mesh))
+                return mesh;
+
+            float rounding = Mathf.Clamp(_shellRounding, 0.001f, Mathf.Min(extents.x, Mathf.Min(extents.y, extents.z)));
+            Vector3 inner = extents - Vector3.one * rounding;
+            int side = divisions + 1;
+            var vertices = new Vector3[6 * side * side];
+            var normals = new Vector3[vertices.Length];
+            var triangles = new int[6 * divisions * divisions * 6];
+            Vector3[] faceNormals = { Vector3.right, Vector3.left, Vector3.up, Vector3.down, Vector3.forward, Vector3.back };
+            int v = 0, t = 0;
+            foreach (Vector3 normal in faceNormals)
+            {
+                Vector3 u = new Vector3(normal.y, normal.z, normal.x);
+                Vector3 w = Vector3.Cross(normal, u);
+                int first = v;
+                for (int i = 0; i < side; i++)
+                {
+                    for (int j = 0; j < side; j++)
+                    {
+                        Vector3 onCube = normal + u * (2f * i / divisions - 1f) + w * (2f * j / divisions - 1f);
+                        Vector3 point = Vector3.Scale(onCube, extents);
+                        Vector3 core = Vector3.Max(-inner, Vector3.Min(inner, point));
+                        Vector3 outward = (point - core).normalized;
+                        vertices[v] = core + outward * rounding;
+                        normals[v] = outward;
+                        v++;
+                    }
+                }
+
+                for (int i = 0; i < divisions; i++)
+                {
+                    for (int j = 0; j < divisions; j++)
+                    {
+                        int a = first + i * side + j;
+                        triangles[t++] = a;
+                        triangles[t++] = a + side;
+                        triangles[t++] = a + 1;
+                        triangles[t++] = a + 1;
+                        triangles[t++] = a + side;
+                        triangles[t++] = a + side + 1;
+                    }
+                }
+            }
+
+            mesh = new Mesh { name = "SauceCoatShell", indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+            mesh.SetVertices(vertices);
+            mesh.SetNormals(normals);
+            mesh.SetTriangles(triangles, 0);
+            // The shader pushes the shell out by up to several centimeters.
+            mesh.bounds = new Bounds(Vector3.zero, extents * 2f + Vector3.one * 0.2f);
+            ShellMeshes[(extents, divisions)] = mesh;
+            return mesh;
         }
 
         private static void SetRate(ParticleSystem system, float rate)

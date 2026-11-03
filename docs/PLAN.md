@@ -63,23 +63,22 @@ A player wins the round when all three of their blocks stand stacked, and counte
 
 ## Sauce system (Phase 5)
 
-Each dip stores a plane in the block's local space; the shader turns those planes into a thick, ragged coat with drips.
+Each dip stores a plane in the block's local space; the shader turns those planes into a thick, lumpy, ragged coat that changes the block's silhouette as much as its color. The two sauces are opposites, both about grip: Stack is sticky, Slip is slippery. That leaves room for other kinds of sauce later.
 
-**Vats:** Jackson's cup (`EN_SauceVat`) at 1.3× (1.94 m across, rim 0.61 m, above Guy's 0.5 m step), two at the middle of the Lobby (Stack at x −2.1, Slip at x +2.1). Collision is a ring of 12 vertical wall boxes on the `Vat` layer; the hold's line-of-sight check ignores that layer, so a held block can be lifted over the rim and pushed down in. Sauce fills to 0.55 m; a block on the floor is about 70% dipped.
+**Vats:** Jackson's cup (`EN_SauceVat`) at 1.3× (1.94 m across, rim 0.61 m, above Guy's 0.5 m step), two at the middle of the Lobby (Stack at x −2.1, Slip at x +2.1). Collision follows the cup's shape, a flared paper sauce cup: 24 wall boxes leaning out 14° along the inner wall (0.71 m radius at the floor to 0.86 m at the rim) and a floor at the cup's inner bottom (0.05 m), all on the `Vat` layer. The hold's line-of-sight check ignores that layer, so a held block can be lifted over the rim and pushed down in. Sauce fills to 0.55 m; a block on the floor is about 60–70% dipped.
 
 **Simulation (`SauceSystem`, tuning on `SauceConfig`, referenced by the game mode):**
 - A block reaching into a vat's sauce volume is dipped, held or loose: the surface is recorded as a plane in block-local space (normal + offset) with the sauce type, keeping the deepest the block went. A dip ends 0.25 s after the block leaves (so an edge bobbing across the surface stays one dip). Up to 3 dips per block; a fourth replaces the shallowest. Dips under 5% leave nothing.
 - Strength per sauce = its deepest dip's fraction ÷ 0.5, capped at 1. Fraction = the share of the block's height, along the plane normal, below the plane.
-- **Stack sauce:** a stacked (settling or counted) Stack-sauced block shoves every rival within 2.5 m away from it, 3 m/s at the lowest strength to 5.5 m/s at full (staggers, drops what they hold, never knocks down), then waits 2 s. A tower's sauced blocks fire together and share the wait; a player takes one shove per tick, however many blocks reach them.
+- **Stack sauce:** the block takes a high-friction physics material in four steps by strength (friction 1.5, 2.25, 3, 4, combined by multiplying; plain blocks 0.8, the ground 0.6), so it grips instead of sliding. Where a block has both sauces, the stronger wins by the difference.
 - **Slip sauce:** the block takes a low-friction physics material in four steps by strength (friction 0.6, 0.4, 0.2, 0.03; plain blocks 0.8), so it slides, and what is stacked on it slides off.
 - New blocks every match, so sauce never carries over.
 
 **View:**
 - Coverage mask below each dip plane, with a ragged edge from 3D object-space noise seeded by the block's entity ID (identical on every client).
-- Drips: noise stretched along the plane normal. Bulge: vertices pushed along normals by mask × thickness, thicker at the lip. Glossy, wet shading with a fake subsurface tint.
-- About 1 s of drip growth and sag after a dip (view time).
-- The coat is a shell over the block's subdivided mesh (`PH_SauceCoat`), pushed out from the block's center so it stays closed over hard edges; URP has no tessellation.
-- Player colors own hue, so the sauces differ in value and cue: Stack is dark and warm with rising bubbles, Slip pale and glossy with glints (`PH_SauceLooks`). A dip splashes the vat's sauce; a Stack shove throws out a ring the size of its reach.
+- The coat is drawn on its own evenly divided rounded-box shell the block's size (28 quads per face edge, edges rounded 4 cm), not the block's mesh, so it has the vertices for volume however the block is modelled. Under the sauce the shell is pushed out along its smooth normals by 1.9 cm plus soft lumps of up to 3 cm, ramping up over 6 cm from the edge to a rounded bead; lighting uses the pushed-out surface's normals. URP has no tessellation.
+- Drips are off for now (`_DripLength` 0 on `PH_SauceCoat`), to be reconsidered once the coat's volume is settled (Jackson, 2026-11-03).
+- Player colors own hue, so the sauces differ in value and cue: Stack is dark and warm with rising bubbles, Slip pale and glossy with glints (`PH_SauceLooks`). A dip splashes the vat's sauce.
 
 ## Phases
 
@@ -104,11 +103,11 @@ In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/lan
 
 ### Phase 5: Sauces (done 2026-11-02, awaiting review)
 - [x] Dip vats (Jackson's cup); dip planes and depth-based strength in the simulation (2026-11-02)
-- [x] Stack sauce and Slip sauce gameplay
-- [x] Sauce coat shader: noise edge, drips, bulge, wet shading, drip growth after a dip
+- [x] Stack sauce and Slip sauce gameplay; Stack reworked from a shove to sticky friction (2026-11-03)
+- [x] Sauce coat shader: noise edge, lumpy volume on its own shell, wet shading (drips off for now, 2026-11-03)
 - [x] Subdivided block mesh (A-005) in; owner readability (A-013) moved to Phase 6
 - [x] Aimed block collides with nothing; its model arcs over the head
-- [x] Done-when verified with two clients (2026-11-02): Stack tower shoves a rival on approach, Slip tower comes apart when pushed
+- [x] Done-when verified with two clients (2026-11-02): Slip tower comes apart when pushed (the Stack shove it also checked is gone)
 - **Done when:** dipping changes how a round plays and reads at a glance.
 
 ### Phase 6: Arena and polish
@@ -134,7 +133,7 @@ Current decisions only; how they were reached is in git history.
 - **Guy's clips** arrive as one animated FBX (mesh, skeleton, all actions).
 - **Towers** can be built anywhere; any hit during settling restarts it; rivals' blocks can be grabbed, thrown and placed on your tower.
 - **Stacking:** no locking. Blocks stay physical and grabbable and only count for the score. Counted blocks at rest are put to sleep (performance only). Blocks keep a plain box collider with restitution 0. Placing over another block squares it to that block and lifts it out of any overlap (toggle: Settle Placed On Block Below on `PlayerGrabConfig`). Placement is otherwise free: no snapping.
-- **Grab:** the nearest free block within 2 m in a 60° cone in front of the character; it turns level and square to Guy.
+- **Grab:** the nearest free block within 2 m in a 60° cone in front of the character. It turns the least it can to sit level and square to Guy: the face nearest facing up stays on top, and of the faces beside it, the one nearest Guy faces him (one of a cube's 24 square orientations). Placing levels it the same way, onto whichever face is down, so you choose the top face by how the block lies when you pick it up (Jackson, 2026-11-03). A rotate button waits until this has been played.
 - **Holding and camera:** see Architecture › Holding a block. The camera never locks while holding: it follows the swing on a gradient (Jackson, 2026-11-02).
 - **Throwing** is hold-to-aim with a trajectory line and landing circle; a jumpshot aims the same way at 1.3× speed. One clip, `Throw`, covers both: frame 4 is the aim pose, the rest is the follow-through (Jackson, 2026-11-02). No place clip. While aiming, the real block collides with nothing and its model arcs over the head (Jackson, 2026-11-02).
 - **Win and lose:** after a round the winner plays `Win.Jump` and everyone else `Sitdown`, through round end and results (Jackson's placeholders, 2026-11-02).
@@ -152,8 +151,7 @@ Current decisions only; how they were reached is in git history.
 
 - Settle feel: 3 s to count; a 1 m/s touch restarts settling; stacked means within half a block of center and 12° of level. Right numbers? (Play-test.)
 - Should a pickup swing that passes through your own tower be able to knock it over, or should the grab ignore your own blocks? (Play-test.)
-- Stack sauce: is "shove rivals near the stacked block every 2 s" the intent, or a single burst when it is first stacked? (Built as the former; `SauceConfig`.)
-- Sauce drips: they hang past the coat's edge, away from the dipped end (a cartoon glaze), not down with gravity. Right look?
+- Stack sauce as friction only barely changes a walking shove: a shove tips a block rather than sliding it, so a Stack block moved 0.27 m against 0.29 m plain. Is grip enough, or should Stack blocks also stick to the blocks they touch (glued while touching, pulled apart by a hard hit)?
 
 ## Art pipeline
 

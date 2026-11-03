@@ -17,7 +17,7 @@ namespace BlockSauce
         [Tooltip("Slip sauce: coat color, and the color of its glints.")]
         [SerializeField] private Color _slipColor = new Color(0.86f, 0.9f, 0.92f);
         [SerializeField] private Color _slipParticleColor = new Color(1f, 1f, 1f);
-        [Tooltip("Material for the sauce particles (bubbles, glints, splashes, the Stack pulse).")]
+        [Tooltip("Material for the sauce particles (bubbles, glints, splashes).")]
         [SerializeField] private Material _particleMaterial;
 
         public Material ParticleMaterial => _particleMaterial;

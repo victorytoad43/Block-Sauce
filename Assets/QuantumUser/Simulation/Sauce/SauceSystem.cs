@@ -7,13 +7,14 @@ namespace Quantum
     /// Dipping and sauce effects (docs/PLAN.md, Sauce system). A block reaching into a vat's sauce is dipped: the sauce
     /// surface is recorded as a plane in the block's local space, keeping the deepest the block went before it came
     /// out, up to three dips per block (a fourth replaces the shallowest). A sauce's strength is its deepest dip's
-    /// fraction over SauceConfig.FullStrengthFraction. Stack sauce: a stacked block shoves rivals away from its tower.
-    /// Slip sauce: the block takes a low-friction physics material, so what rests on it, or it on, slides off.
+    /// fraction over SauceConfig.FullStrengthFraction. The two sauces are opposites, both through the block's physics
+    /// material: Stack sauce makes it sticky, so it grips the ground and the blocks it touches instead of sliding; Slip
+    /// sauce makes it slippery, so what rests on it, or it on, slides off. Where a block has both, the stronger wins by
+    /// the difference.
     /// </summary>
     public unsafe class SauceSystem : SystemMainThread
     {
         private const int MaxDips = 3;
-        private const int MaxShovedPerTick = 32;
 
         public override void Update(Frame frame)
         {
@@ -26,7 +27,6 @@ namespace Quantum
 
             DipBlocksInVats(frame, config);
             EndDips(frame, config);
-            ShoveRivals(frame, config);
         }
 
         /// <summary>
@@ -122,77 +122,6 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Shoves every rival standing near a stacked Stack-sauced block away from it, harder the stronger the sauce,
-        /// then waits out the cooldown before that block shoves again.
-        /// </summary>
-        private static void ShoveRivals(Frame frame, SauceConfig config)
-        {
-            EntityRef* shovedPlayers = stackalloc EntityRef[MaxShovedPerTick];
-            int shovedCount = 0;
-
-            var coats = frame.Filter<SauceCoat, Block, Transform3D>();
-            while (coats.NextUnsafe(out EntityRef block, out SauceCoat* coat, out Block* owned, out Transform3D* transform))
-            {
-                if (coat->StackStrength <= FP._0 || owned->Stack == StackState.Loose || owned->Owner.IsValid == false
-                    || coat->StackCooldown.IsRunning(frame))
-                    continue;
-
-                byte team = frame.TryGet(block, out Team blockTeam) ? blockTeam.Id : TeamIds.None;
-                FP speedChange = FPMath.Lerp(config.StackMinSpeedChange, config.StackMaxSpeedChange, coat->StackStrength);
-                bool shoved = false;
-                bool fired = false;
-
-                var players = frame.Filter<Player, Transform3D, PhysicsBody3D>();
-                while (players.NextUnsafe(out EntityRef player, out Player* _, out Transform3D* playerTransform,
-                           out PhysicsBody3D* body))
-                {
-                    if (frame.TryGet(player, out Team playerTeam) && playerTeam.Id == team)
-                        continue;
-
-                    FPVector3 away = playerTransform->Position - transform->Position;
-                    away.Y = FP._0;
-                    if (away.SqrMagnitude > config.StackRadius * config.StackRadius || frame.Has<RagdollOwner>(player))
-                        continue;
-
-                    // Every sauced block of a tower in range fires and cools down together, but a player takes one
-                    // shove per tick, not one per block.
-                    fired = true;
-                    if (WasShoved(shovedPlayers, shovedCount, player))
-                        continue;
-
-                    if (shovedCount < MaxShovedPerTick)
-                        shovedPlayers[shovedCount++] = player;
-
-                    away = away.SqrMagnitude > FP._0 ? away.Normalized : FPVector3.Forward;
-                    FPVector3 impulse = (away + FPVector3.Up * config.StackUpBias) * (speedChange * body->Mass);
-                    frame.Signals.ApplyKnockback(player, impulse, block);
-                    shoved = true;
-                }
-
-                if (fired)
-                {
-                    coat->StackCooldown = FrameTimer.FromSeconds(frame, config.StackCooldownSeconds);
-                }
-
-                if (shoved)
-                {
-                    frame.Events.StackSaucePulse(block, transform->Position, config.StackRadius, coat->StackStrength);
-                }
-            }
-        }
-
-        private static bool WasShoved(EntityRef* shovedPlayers, int shovedCount, EntityRef player)
-        {
-            for (int i = 0; i < shovedCount; i++)
-            {
-                if (shovedPlayers[i] == player)
-                    return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// Coats a block as if it had just been dipped level to <paramref name="fraction"/> of its height, through the
         /// same coat, strength and event path as a real dip. For dev tools and modes that hand out sauced blocks.
         /// </summary>
@@ -254,8 +183,8 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Sets each sauce's strength from its deepest dip, and gives the block the Slip material for that strength (or
-        /// its own material back).
+        /// Sets each sauce's strength from its deepest dip, and gives the block the sticky (Stack) or slippery (Slip)
+        /// material for whichever sauce is stronger, stepped by how much stronger, or its own material back.
         /// </summary>
         private static void UpdateStrengths(Frame frame, SauceConfig config, EntityRef block, SauceCoat* coat)
         {
@@ -278,16 +207,25 @@ namespace Quantum
             coat->StackStrength = stack;
             coat->SlipStrength = slip;
 
+            FP net = stack - slip;
+            AssetRef<PhysicsMaterial>[] materials = net > FP._0 ? config.StackMaterials : config.SlipMaterials;
             PhysicsCollider3D* collider = frame.Unsafe.GetPointer<PhysicsCollider3D>(block);
-            int steps = config.SlipMaterials != null ? config.SlipMaterials.Length : 0;
-            if (slip <= FP._0 || steps == 0)
-            {
-                collider->Material = coat->PlainMaterial;
-                return;
-            }
+            collider->Material = GetSteppedMaterial(materials, FPMath.Abs(net), coat->PlainMaterial);
+        }
 
-            int step = System.Math.Min(System.Math.Max(FPMath.CeilToInt(slip * steps) - 1, 0), steps - 1);
-            collider->Material = config.SlipMaterials[step];
+        /// <summary>
+        /// Returns the material for <paramref name="strength"/> from weakest-to-strongest steps, or
+        /// <paramref name="plain"/> at no strength.
+        /// </summary>
+        private static AssetRef<PhysicsMaterial> GetSteppedMaterial(AssetRef<PhysicsMaterial>[] steps, FP strength,
+            AssetRef<PhysicsMaterial> plain)
+        {
+            int count = steps != null ? steps.Length : 0;
+            if (strength <= FP._0 || count == 0)
+                return plain;
+
+            int step = System.Math.Min(System.Math.Max(FPMath.CeilToInt(strength * count) - 1, 0), count - 1);
+            return steps[step];
         }
     }
 }

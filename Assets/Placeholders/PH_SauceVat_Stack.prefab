@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &387623990088182142
+--- !u!1 &758810036826141312
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,37 +8,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2909801353209482345}
-  - component: {fileID: 8359727761294787644}
+  - component: {fileID: 741369262370658303}
+  - component: {fileID: 4530992210855208390}
   m_Layer: 9
-  m_Name: Wall_6
+  m_Name: Floor_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2909801353209482345
+--- !u!4 &741369262370658303
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 387623990088182142}
+  m_GameObject: {fileID: 758810036826141312}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: -0.00000004371139}
-  m_LocalPosition: {x: -0.0000000786805, y: 0.31, z: -0.9}
-  m_LocalScale: {x: 0.50230855, y: 0.62, z: 0.08}
+  m_LocalRotation: {x: 0, y: 0.25881907, z: 0, w: 0.9659259}
+  m_LocalPosition: {x: 0, y: 0.025, z: 0}
+  m_LocalScale: {x: 1, y: 0.05, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2319186183898519736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8359727761294787644
+--- !u!114 &4530992210855208390
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 387623990088182142}
+  m_GameObject: {fileID: 758810036826141312}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
@@ -56,11 +56,11 @@ MonoBehaviour:
   SourceCollider: {fileID: 0}
   Size:
     X:
-      RawValue: 65536
+      RawValue: 0
     Y:
-      RawValue: 65536
+      RawValue: 0
     Z:
-      RawValue: 65536
+      RawValue: 0
   PositionOffset:
     X:
       RawValue: 0
@@ -75,7 +75,7 @@ MonoBehaviour:
       RawValue: 0
     Z:
       RawValue: 0
---- !u!1 &524239508195544244
+--- !u!1 &1165588514008394216
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -83,37 +83,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2029131570020977619}
-  - component: {fileID: 3826684058635434971}
+  - component: {fileID: 1793593955358812550}
+  - component: {fileID: 7791959644738932678}
   m_Layer: 9
-  m_Name: Wall_10
+  m_Name: Wall_5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2029131570020977619
+--- !u!4 &1793593955358812550
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 524239508195544244}
+  m_GameObject: {fileID: 1165588514008394216}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.50000006, z: 0, w: -0.8660254}
-  m_LocalPosition: {x: -0.77942294, y: 0.31, z: 0.44999987}
-  m_LocalScale: {x: 0.50230855, y: 0.62, z: 0.08}
+  m_LocalRotation: {x: 0.09841512, y: 0.6040594, z: -0.07551658, w: 0.78722554}
+  m_LocalPosition: {x: 0.784035, y: 0.29638362, z: 0.21008155}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2319186183898519736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3826684058635434971
+--- !u!114 &7791959644738932678
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 524239508195544244}
+  m_GameObject: {fileID: 1165588514008394216}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
@@ -131,11 +131,86 @@ MonoBehaviour:
   SourceCollider: {fileID: 0}
   Size:
     X:
-      RawValue: 65536
+      RawValue: 0
     Y:
-      RawValue: 65536
+      RawValue: 0
     Z:
-      RawValue: 65536
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &1195170113551622129
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8306602833259981146}
+  - component: {fileID: 2217942992579392664}
+  m_Layer: 9
+  m_Name: Wall_20
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8306602833259981146
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195170113551622129}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.107430056, y: 0.4961381, z: -0.06202478, w: -0.85933626}
+  m_LocalPosition: {x: -0.70294666, y: 0.29638362, z: 0.4058463}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2217942992579392664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195170113551622129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
   PositionOffset:
     X:
       RawValue: 0
@@ -178,7 +253,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.55, z: 0}
-  m_LocalScale: {x: 1.72, y: 0.005, z: 1.72}
+  m_LocalScale: {x: 1.6800001, y: 0.005, z: 1.6800001}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2094689486569108402}
@@ -240,7 +315,7 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &1788375844936225177
+--- !u!1 &1513982971719576067
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -248,37 +323,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8906236203075210078}
-  - component: {fileID: 2806499082128634261}
+  - component: {fileID: 7898083053293487227}
+  - component: {fileID: 7957569802477571503}
   m_Layer: 9
-  m_Name: Wall_5
+  m_Name: Wall_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8906236203075210078
+--- !u!4 &7898083053293487227
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1788375844936225177}
+  m_GameObject: {fileID: 1513982971719576067}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.9659258, z: 0, w: 0.25881907}
-  m_LocalPosition: {x: 0.45000005, y: 0.31, z: -0.77942276}
-  m_LocalScale: {x: 0.50230855, y: 0.62, z: 0.08}
+  m_LocalRotation: {x: 0.11982265, y: 0.25681996, z: -0.03210638, w: 0.9584651}
+  m_LocalPosition: {x: 0.4058464, y: 0.29638362, z: 0.70294654}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2319186183898519736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2806499082128634261
+--- !u!114 &7957569802477571503
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1788375844936225177}
+  m_GameObject: {fileID: 1513982971719576067}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
@@ -296,11 +371,11 @@ MonoBehaviour:
   SourceCollider: {fileID: 0}
   Size:
     X:
-      RawValue: 65536
+      RawValue: 0
     Y:
-      RawValue: 65536
+      RawValue: 0
     Z:
-      RawValue: 65536
+      RawValue: 0
   PositionOffset:
     X:
       RawValue: 0
@@ -315,7 +390,7 @@ MonoBehaviour:
       RawValue: 0
     Z:
       RawValue: 0
---- !u!1 &3822880731042898852
+--- !u!1 &1802810364458010220
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -323,37 +398,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6192032050370342546}
-  - component: {fileID: 662599670602868258}
+  - component: {fileID: 2350277852386024594}
+  - component: {fileID: 2136739909107127966}
   m_Layer: 9
-  m_Name: Wall_11
+  m_Name: Wall_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6192032050370342546
+--- !u!4 &2350277852386024594
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3822880731042898852}
+  m_GameObject: {fileID: 1802810364458010220}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.25881913, z: 0, w: -0.9659258}
-  m_LocalPosition: {x: -0.45000014, y: 0.31, z: 0.77942276}
-  m_LocalScale: {x: 0.50230855, y: 0.62, z: 0.08}
+  m_LocalRotation: {x: 0.122988276, y: 0.12951802, z: -0.016191715, w: 0.983787}
+  m_LocalPosition: {x: 0.21008158, y: 0.29638362, z: 0.784035}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2319186183898519736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &662599670602868258
+--- !u!114 &2136739909107127966
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3822880731042898852}
+  m_GameObject: {fileID: 1802810364458010220}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
@@ -371,11 +446,461 @@ MonoBehaviour:
   SourceCollider: {fileID: 0}
   Size:
     X:
-      RawValue: 65536
+      RawValue: 0
     Y:
-      RawValue: 65536
+      RawValue: 0
     Z:
-      RawValue: 65536
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &1808712095270758664
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4857876487547843006}
+  - component: {fileID: 3817938205763730863}
+  m_Layer: 9
+  m_Name: Wall_16
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4857876487547843006
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808712095270758664}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.06202478, y: 0.85933626, z: -0.107430056, w: -0.4961381}
+  m_LocalPosition: {x: -0.70294666, y: 0.29638362, z: -0.4058464}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3817938205763730863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808712095270758664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &2080666472120762285
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6488799818148609948}
+  - component: {fileID: 3402482565857994304}
+  m_Layer: 9
+  m_Name: Floor_2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6488799818148609948
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2080666472120762285}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.5, z: 0, w: 0.8660254}
+  m_LocalPosition: {x: 0, y: 0.025, z: 0}
+  m_LocalScale: {x: 1, y: 0.05, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3402482565857994304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2080666472120762285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &2968252271997168904
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8173157991132962810}
+  - component: {fileID: 7025363600406028466}
+  m_Layer: 9
+  m_Name: Wall_14
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8173157991132962810
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2968252271997168904}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.03210638, y: 0.9584651, z: -0.11982265, w: -0.25681996}
+  m_LocalPosition: {x: -0.4058464, y: 0.29638362, z: -0.7029465}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7025363600406028466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2968252271997168904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &3012852105934042314
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3899146007975192546}
+  - component: {fileID: 7768184372732711184}
+  m_Layer: 9
+  m_Name: Wall_18
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3899146007975192546
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3012852105934042314}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.087716274, y: 0.70164514, z: -0.087716274, w: -0.70164514}
+  m_LocalPosition: {x: -0.8116927, y: 0.29638362, z: 0.00000004838066}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7768184372732711184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3012852105934042314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &3026453615925829012
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2204822752259045357}
+  - component: {fileID: 2832691524315192494}
+  m_Layer: 9
+  m_Name: Wall_12
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2204822752259045357
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3026453615925829012}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.0000000054223777, y: 0.992276, z: -0.12404954, w: -0.000000043373763}
+  m_LocalPosition: {x: -0.00000007096044, y: 0.29638362, z: -0.8116928}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2832691524315192494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3026453615925829012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &3966184641562024185
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3103098786403968583}
+  - component: {fileID: 2367393788270630185}
+  m_Layer: 9
+  m_Name: Wall_13
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3103098786403968583
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3966184641562024185}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.016191717, y: 0.983787, z: -0.122988276, w: -0.12951803}
+  m_LocalPosition: {x: -0.21008159, y: 0.29638362, z: -0.7840351}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2367393788270630185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3966184641562024185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
   PositionOffset:
     X:
       RawValue: 0
@@ -419,20 +944,185 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2555098572804457043}
-  - {fileID: 8167880553006917069}
-  - {fileID: 3931895834341142898}
-  - {fileID: 2077012937051216595}
-  - {fileID: 99932789292775383}
-  - {fileID: 8906236203075210078}
-  - {fileID: 2909801353209482345}
-  - {fileID: 6883062184158179390}
-  - {fileID: 5886865451228683210}
-  - {fileID: 6388996630845627329}
-  - {fileID: 2029131570020977619}
-  - {fileID: 6192032050370342546}
+  - {fileID: 4123497003907986816}
+  - {fileID: 2350277852386024594}
+  - {fileID: 7898083053293487227}
+  - {fileID: 8469210043140056770}
+  - {fileID: 7928591175331591141}
+  - {fileID: 1793593955358812550}
+  - {fileID: 2644695999998364240}
+  - {fileID: 4295139828758875772}
+  - {fileID: 2260413770889130493}
+  - {fileID: 7915655879506340267}
+  - {fileID: 2765000933661519494}
+  - {fileID: 8008330268331469688}
+  - {fileID: 2204822752259045357}
+  - {fileID: 3103098786403968583}
+  - {fileID: 8173157991132962810}
+  - {fileID: 3593957624673584981}
+  - {fileID: 4857876487547843006}
+  - {fileID: 6209420051071785164}
+  - {fileID: 3899146007975192546}
+  - {fileID: 134152583234305002}
+  - {fileID: 8306602833259981146}
+  - {fileID: 7111339063836001225}
+  - {fileID: 4254837327078630149}
+  - {fileID: 2906619021551816204}
+  - {fileID: 1602270087044003714}
+  - {fileID: 741369262370658303}
+  - {fileID: 6488799818148609948}
   m_Father: {fileID: 2094689486569108402}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4045272873630371293
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8469210043140056770}
+  - component: {fileID: 3503593869625690660}
+  m_Layer: 9
+  m_Name: Wall_3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8469210043140056770
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4045272873630371293}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.114606835, y: 0.37972763, z: -0.04747171, w: 0.9167435}
+  m_LocalPosition: {x: 0.5739535, y: 0.29638362, z: 0.57395345}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3503593869625690660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4045272873630371293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &4090198365819081444
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4254837327078630149}
+  - component: {fileID: 2527680705821382145}
+  m_Layer: 9
+  m_Name: Wall_22
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4254837327078630149
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4090198365819081444}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.11982265, y: 0.25682002, z: -0.032106392, w: -0.95846504}
+  m_LocalPosition: {x: -0.40584654, y: 0.29638362, z: 0.7029465}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2527680705821382145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4090198365819081444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
 --- !u!1 &4094421211097920355
 GameObject:
   m_ObjectHideFlags: 0
@@ -729,7 +1419,7 @@ MonoBehaviour:
         RawValue: 78643
     SurfaceHeight:
       RawValue: 36044
---- !u!1 &5174402509438280768
+--- !u!1 &4985106312681341306
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -737,37 +1427,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2077012937051216595}
-  - component: {fileID: 4393528999478777827}
+  - component: {fileID: 8008330268331469688}
+  - component: {fileID: 5172237786114790735}
   m_Layer: 9
-  m_Name: Wall_3
+  m_Name: Wall_11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2077012937051216595
+--- !u!4 &8008330268331469688
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5174402509438280768}
+  m_GameObject: {fileID: 4985106312681341306}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0.9000001, y: 0.31, z: -0.00000010728836}
-  m_LocalScale: {x: 0.50230855, y: 0.62, z: 0.08}
+  m_LocalRotation: {x: 0.016191721, y: 0.983787, z: -0.12298827, w: 0.12951808}
+  m_LocalPosition: {x: 0.21008162, y: 0.29638362, z: -0.7840349}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2319186183898519736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4393528999478777827
+--- !u!114 &5172237786114790735
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5174402509438280768}
+  m_GameObject: {fileID: 4985106312681341306}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
@@ -785,11 +1475,11 @@ MonoBehaviour:
   SourceCollider: {fileID: 0}
   Size:
     X:
-      RawValue: 65536
+      RawValue: 0
     Y:
-      RawValue: 65536
+      RawValue: 0
     Z:
-      RawValue: 65536
+      RawValue: 0
   PositionOffset:
     X:
       RawValue: 0
@@ -804,7 +1494,7 @@ MonoBehaviour:
       RawValue: 0
     Z:
       RawValue: 0
---- !u!1 &5454307694564288808
+--- !u!1 &5231672724181446383
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -812,8 +1502,158 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6883062184158179390}
-  - component: {fileID: 7126143181330855530}
+  - component: {fileID: 7111339063836001225}
+  - component: {fileID: 7232244600381672023}
+  m_Layer: 9
+  m_Name: Wall_21
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7111339063836001225
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5231672724181446383}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.114606835, y: 0.37972766, z: -0.047471713, w: -0.9167435}
+  m_LocalPosition: {x: -0.5739535, y: 0.29638362, z: 0.5739534}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7232244600381672023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5231672724181446383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &5875965336393196537
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2644695999998364240}
+  - component: {fileID: 9165039070647648269}
+  m_Layer: 9
+  m_Name: Wall_6
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2644695999998364240
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5875965336393196537}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.087716274, y: 0.70164514, z: -0.087716274, w: 0.70164514}
+  m_LocalPosition: {x: 0.8116927, y: 0.29638362, z: 0.00000004838066}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9165039070647648269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5875965336393196537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &6073606586172004305
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4295139828758875772}
+  - component: {fileID: 8346801364871083498}
   m_Layer: 9
   m_Name: Wall_7
   m_TagString: Untagged
@@ -821,28 +1661,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6883062184158179390
+--- !u!4 &4295139828758875772
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5454307694564288808}
+  m_GameObject: {fileID: 6073606586172004305}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.9659259, z: 0, w: -0.25881907}
-  m_LocalPosition: {x: -0.45000005, y: 0.31, z: -0.779423}
-  m_LocalScale: {x: 0.50230855, y: 0.62, z: 0.08}
+  m_LocalRotation: {x: 0.07551658, y: 0.78722554, z: -0.09841512, w: 0.6040594}
+  m_LocalPosition: {x: 0.784035, y: 0.29638362, z: -0.2100815}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2319186183898519736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7126143181330855530
+--- !u!114 &8346801364871083498
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5454307694564288808}
+  m_GameObject: {fileID: 6073606586172004305}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
@@ -860,11 +1700,11 @@ MonoBehaviour:
   SourceCollider: {fileID: 0}
   Size:
     X:
-      RawValue: 65536
+      RawValue: 0
     Y:
-      RawValue: 65536
+      RawValue: 0
     Z:
-      RawValue: 65536
+      RawValue: 0
   PositionOffset:
     X:
       RawValue: 0
@@ -879,7 +1719,7 @@ MonoBehaviour:
       RawValue: 0
     Z:
       RawValue: 0
---- !u!1 &5991436531017402218
+--- !u!1 &6112128931024623854
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -887,37 +1727,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8167880553006917069}
-  - component: {fileID: 885647615460493604}
+  - component: {fileID: 134152583234305002}
+  - component: {fileID: 888874935923444039}
   m_Layer: 9
-  m_Name: Wall_1
+  m_Name: Wall_19
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8167880553006917069
+--- !u!4 &134152583234305002
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5991436531017402218}
+  m_GameObject: {fileID: 6112128931024623854}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.25881907, z: 0, w: 0.9659259}
-  m_LocalPosition: {x: 0.45000005, y: 0.31, z: 0.7794228}
-  m_LocalScale: {x: 0.50230855, y: 0.62, z: 0.08}
+  m_LocalRotation: {x: -0.09841512, y: 0.6040594, z: -0.07551658, w: -0.78722554}
+  m_LocalPosition: {x: -0.784035, y: 0.29638362, z: 0.21008155}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2319186183898519736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &885647615460493604
+--- !u!114 &888874935923444039
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5991436531017402218}
+  m_GameObject: {fileID: 6112128931024623854}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
@@ -935,11 +1775,11 @@ MonoBehaviour:
   SourceCollider: {fileID: 0}
   Size:
     X:
-      RawValue: 65536
+      RawValue: 0
     Y:
-      RawValue: 65536
+      RawValue: 0
     Z:
-      RawValue: 65536
+      RawValue: 0
   PositionOffset:
     X:
       RawValue: 0
@@ -954,7 +1794,7 @@ MonoBehaviour:
       RawValue: 0
     Z:
       RawValue: 0
---- !u!1 &6189326203559356702
+--- !u!1 &6606332371552313517
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -962,158 +1802,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6388996630845627329}
-  - component: {fileID: 3356765889089378527}
-  m_Layer: 9
-  m_Name: Wall_9
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6388996630845627329
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6189326203559356702}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: -0.7071068}
-  m_LocalPosition: {x: -0.9000001, y: 0.31, z: -0.00000010728836}
-  m_LocalScale: {x: 0.50230855, y: 0.62, z: 0.08}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2319186183898519736}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3356765889089378527
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6189326203559356702}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
-  Settings:
-    Trigger: 0
-    MutableMode: 0
-    PhysicsMaterial:
-      Id:
-        Value: 0
-    UserAsset:
-      Id:
-        Value: 0
-  SourceCollider: {fileID: 0}
-  Size:
-    X:
-      RawValue: 65536
-    Y:
-      RawValue: 65536
-    Z:
-      RawValue: 65536
-  PositionOffset:
-    X:
-      RawValue: 0
-    Y:
-      RawValue: 0
-    Z:
-      RawValue: 0
-  RotationOffset:
-    X:
-      RawValue: 0
-    Y:
-      RawValue: 0
-    Z:
-      RawValue: 0
---- !u!1 &6402655467012249203
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 99932789292775383}
-  - component: {fileID: 2992665097998501761}
-  m_Layer: 9
-  m_Name: Wall_4
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &99932789292775383
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6402655467012249203}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.86602545, z: 0, w: 0.49999997}
-  m_LocalPosition: {x: 0.7794228, y: 0.31, z: -0.4500001}
-  m_LocalScale: {x: 0.50230855, y: 0.62, z: 0.08}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2319186183898519736}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2992665097998501761
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6402655467012249203}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
-  Settings:
-    Trigger: 0
-    MutableMode: 0
-    PhysicsMaterial:
-      Id:
-        Value: 0
-    UserAsset:
-      Id:
-        Value: 0
-  SourceCollider: {fileID: 0}
-  Size:
-    X:
-      RawValue: 65536
-    Y:
-      RawValue: 65536
-    Z:
-      RawValue: 65536
-  PositionOffset:
-    X:
-      RawValue: 0
-    Y:
-      RawValue: 0
-    Z:
-      RawValue: 0
-  RotationOffset:
-    X:
-      RawValue: 0
-    Y:
-      RawValue: 0
-    Z:
-      RawValue: 0
---- !u!1 &6800152283468728396
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5886865451228683210}
-  - component: {fileID: 3784645628086343825}
+  - component: {fileID: 2260413770889130493}
+  - component: {fileID: 1980356680284075874}
   m_Layer: 9
   m_Name: Wall_8
   m_TagString: Untagged
@@ -1121,28 +1811,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5886865451228683210
+--- !u!4 &2260413770889130493
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6800152283468728396}
+  m_GameObject: {fileID: 6606332371552313517}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.8660254, z: 0, w: -0.50000006}
-  m_LocalPosition: {x: -0.77942294, y: 0.31, z: -0.45}
-  m_LocalScale: {x: 0.50230855, y: 0.62, z: 0.08}
+  m_LocalRotation: {x: 0.062024765, y: 0.85933626, z: -0.107430056, w: 0.49613798}
+  m_LocalPosition: {x: 0.70294654, y: 0.29638362, z: -0.40584648}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2319186183898519736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3784645628086343825
+--- !u!114 &1980356680284075874
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6800152283468728396}
+  m_GameObject: {fileID: 6606332371552313517}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
@@ -1160,11 +1850,11 @@ MonoBehaviour:
   SourceCollider: {fileID: 0}
   Size:
     X:
-      RawValue: 65536
+      RawValue: 0
     Y:
-      RawValue: 65536
+      RawValue: 0
     Z:
-      RawValue: 65536
+      RawValue: 0
   PositionOffset:
     X:
       RawValue: 0
@@ -1179,7 +1869,7 @@ MonoBehaviour:
       RawValue: 0
     Z:
       RawValue: 0
---- !u!1 &8542817971704019758
+--- !u!1 &7169933422309711201
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1187,8 +1877,83 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2555098572804457043}
-  - component: {fileID: 5326253545918005689}
+  - component: {fileID: 7915655879506340267}
+  - component: {fileID: 4039853146391769342}
+  m_Layer: 9
+  m_Name: Wall_9
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7915655879506340267
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7169933422309711201}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.047471706, y: 0.9167435, z: -0.114606835, w: 0.3797276}
+  m_LocalPosition: {x: 0.57395345, y: 0.29638362, z: -0.5739534}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4039853146391769342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7169933422309711201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &7661031389063195316
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4123497003907986816}
+  - component: {fileID: 7456189553403878837}
   m_Layer: 9
   m_Name: Wall_0
   m_TagString: Untagged
@@ -1196,28 +1961,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2555098572804457043
+--- !u!4 &4123497003907986816
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8542817971704019758}
+  m_GameObject: {fileID: 7661031389063195316}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.31, z: 0.9}
-  m_LocalScale: {x: 0.50230855, y: 0.62, z: 0.08}
+  m_LocalRotation: {x: 0.12404954, y: 0, z: 0, w: 0.992276}
+  m_LocalPosition: {x: 0, y: 0.29638362, z: 0.8116928}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2319186183898519736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5326253545918005689
+--- !u!114 &7456189553403878837
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8542817971704019758}
+  m_GameObject: {fileID: 7661031389063195316}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
@@ -1235,11 +2000,11 @@ MonoBehaviour:
   SourceCollider: {fileID: 0}
   Size:
     X:
-      RawValue: 65536
+      RawValue: 0
     Y:
-      RawValue: 65536
+      RawValue: 0
     Z:
-      RawValue: 65536
+      RawValue: 0
   PositionOffset:
     X:
       RawValue: 0
@@ -1254,7 +2019,7 @@ MonoBehaviour:
       RawValue: 0
     Z:
       RawValue: 0
---- !u!1 &8929279959820389485
+--- !u!1 &7674551797062691436
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1262,37 +2027,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3931895834341142898}
-  - component: {fileID: 4689034984103413906}
+  - component: {fileID: 2906619021551816204}
+  - component: {fileID: 5007112515701392900}
   m_Layer: 9
-  m_Name: Wall_2
+  m_Name: Wall_23
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3931895834341142898
+--- !u!4 &2906619021551816204
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8929279959820389485}
+  m_GameObject: {fileID: 7674551797062691436}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.5, z: 0, w: 0.8660254}
-  m_LocalPosition: {x: 0.7794228, y: 0.31, z: 0.45}
-  m_LocalScale: {x: 0.50230855, y: 0.62, z: 0.08}
+  m_LocalRotation: {x: -0.12298827, y: 0.12951815, z: -0.01619173, w: -0.983787}
+  m_LocalPosition: {x: -0.21008174, y: 0.29638362, z: 0.78403497}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2319186183898519736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4689034984103413906
+--- !u!114 &5007112515701392900
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8929279959820389485}
+  m_GameObject: {fileID: 7674551797062691436}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
@@ -1310,11 +2075,386 @@ MonoBehaviour:
   SourceCollider: {fileID: 0}
   Size:
     X:
-      RawValue: 65536
+      RawValue: 0
     Y:
-      RawValue: 65536
+      RawValue: 0
     Z:
-      RawValue: 65536
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &7695727278584572483
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3593957624673584981}
+  - component: {fileID: 793615648115739947}
+  m_Layer: 9
+  m_Name: Wall_15
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3593957624673584981
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7695727278584572483}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.0474717, y: 0.9167435, z: -0.114606835, w: -0.37972754}
+  m_LocalPosition: {x: -0.5739534, y: 0.29638362, z: -0.5739536}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &793615648115739947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7695727278584572483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &7706784456958081829
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2765000933661519494}
+  - component: {fileID: 7169542592862896025}
+  m_Layer: 9
+  m_Name: Wall_10
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2765000933661519494
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7706784456958081829}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.032106385, y: 0.95846504, z: -0.11982265, w: 0.25681996}
+  m_LocalPosition: {x: 0.40584645, y: 0.29638362, z: -0.7029465}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7169542592862896025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7706784456958081829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &8364190426487165974
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7928591175331591141}
+  - component: {fileID: 8539869748410073512}
+  m_Layer: 9
+  m_Name: Wall_4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7928591175331591141
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8364190426487165974}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.107430056, y: 0.49613804, z: -0.062024772, w: 0.85933626}
+  m_LocalPosition: {x: 0.70294654, y: 0.29638362, z: 0.4058464}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8539869748410073512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8364190426487165974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &8551175228759240954
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6209420051071785164}
+  - component: {fileID: 2041416607179404614}
+  m_Layer: 9
+  m_Name: Wall_17
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6209420051071785164
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8551175228759240954}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.07551658, y: 0.78722554, z: -0.09841512, w: -0.6040594}
+  m_LocalPosition: {x: -0.784035, y: 0.29638362, z: -0.2100815}
+  m_LocalScale: {x: 0.25, y: 0.64936984, z: 0.07}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2041416607179404614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8551175228759240954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  PositionOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+  RotationOffset:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
+--- !u!1 &8904375326945119870
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1602270087044003714}
+  - component: {fileID: 4760344259684460323}
+  m_Layer: 9
+  m_Name: Floor_0
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1602270087044003714
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8904375326945119870}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.025, z: 0}
+  m_LocalScale: {x: 1, y: 0.05, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2319186183898519736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4760344259684460323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8904375326945119870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adc94c3ce6de4c74989839aecde663d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Quantum.Unity::Quantum.QuantumStaticBoxCollider3D
+  Settings:
+    Trigger: 0
+    MutableMode: 0
+    PhysicsMaterial:
+      Id:
+        Value: 0
+    UserAsset:
+      Id:
+        Value: 0
+  SourceCollider: {fileID: 0}
+  Size:
+    X:
+      RawValue: 0
+    Y:
+      RawValue: 0
+    Z:
+      RawValue: 0
   PositionOffset:
     X:
       RawValue: 0

@@ -571,36 +571,6 @@ namespace Quantum {
       }
     }
   }
-  public unsafe partial class EventStackSaucePulse : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 19;
-    public EntityRef Block;
-    public FPVector3 Position;
-    public FP Radius;
-    public FP Strength;
-    protected EventStackSaucePulse(Int32 id, EventFlags flags) : 
-        base(id, flags) {
-    }
-    public EventStackSaucePulse() : 
-        base(ID, EventFlags.Server|EventFlags.Client) {
-    }
-    public new QuantumGame Game {
-      get {
-        return (QuantumGame)base.Game;
-      }
-      set {
-        base.Game = value;
-      }
-    }
-    public override Int32 GetHashCode() {
-      unchecked {
-        var hash = 519696935;
-        hash = hash * 31 + Block.GetHashCode();
-        hash = hash * 31 + Radius.GetHashCode();
-        hash = hash * 31 + Strength.GetHashCode();
-        return hash;
-      }
-    }
-  }
   public unsafe partial class Frame {
     public unsafe partial struct FrameEvents {
       public EventBlockSettleStarted BlockSettleStarted(EntityRef Block, PlayerRef Owner) {
@@ -741,15 +711,6 @@ namespace Quantum {
         _f.AddEvent(ev);
         return ev;
       }
-      public EventStackSaucePulse StackSaucePulse(EntityRef Block, FPVector3 Position, FP Radius, FP Strength) {
-        var ev = _f.Context.AcquireEvent<EventStackSaucePulse>(EventStackSaucePulse.ID);
-        ev.Block = Block;
-        ev.Position = Position;
-        ev.Radius = Radius;
-        ev.Strength = Strength;
-        _f.AddEvent(ev);
-        return ev;
-      }
     }
   }
   unsafe partial class Statics {
@@ -776,7 +737,6 @@ namespace Quantum {
         registry.Register<EventBrokeFree>(EventBrokeFree.ID);
         registry.Register<EventBlockDipStarted>(EventBlockDipStarted.ID);
         registry.Register<EventBlockDipEnded>(EventBlockDipEnded.ID);
-        registry.Register<EventStackSaucePulse>(EventStackSaucePulse.ID);
         return registry;
       }
     }

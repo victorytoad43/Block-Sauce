@@ -4,7 +4,7 @@ namespace BlockSauce
 {
     /// <summary>
     /// Builds the placeholder sauce particle systems in code (A-009 placeholders): a coated block's bubbles (Stack) or
-    /// glints (Slip), the splash when a block goes into a vat, and the ring a Stack-sauced block shoves rivals with.
+    /// glints (Slip) and the splash when a block goes into a vat.
     /// </summary>
     public static class SauceParticles
     {
@@ -76,35 +76,6 @@ namespace BlockSauce
             shape.angle = 35f;
             shape.radius = 0.3f;
             shape.rotation = new Vector3(-90f, 0f, 0f);
-            return system;
-        }
-
-        /// <summary>
-        /// A flat ring of particles flying outward, for the Stack sauce shove; <see cref="Burst"/> fires it.
-        /// </summary>
-        public static ParticleSystem CreatePulseRing(Transform parent, Material material)
-        {
-            ParticleSystem system = Create("PulseRing", parent, material);
-            ParticleSystem.MainModule main = system.main;
-            main.startLifetime = 0.35f;
-            main.startSize = new ParticleSystem.MinMaxCurve(0.12f, 0.2f);
-            main.simulationSpace = ParticleSystemSimulationSpace.World;
-
-            ParticleSystem.EmissionModule emission = system.emission;
-            emission.rateOverTime = 0f;
-
-            ParticleSystem.ShapeModule shape = system.shape;
-            shape.shapeType = ParticleSystemShapeType.Circle;
-            shape.radius = 0.4f;
-            shape.radiusThickness = 0f;
-            shape.rotation = new Vector3(90f, 0f, 0f);
-
-            ParticleSystem.ColorOverLifetimeModule color = system.colorOverLifetime;
-            color.enabled = true;
-            Gradient fade = new Gradient();
-            fade.SetKeys(new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
-                new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0f, 1f) });
-            color.color = fade;
             return system;
         }
 

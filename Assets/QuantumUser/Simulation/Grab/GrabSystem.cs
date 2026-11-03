@@ -151,10 +151,10 @@ namespace Quantum
             filter.Grabber->SwingPitch = FPMath.Clamp(FPMath.Atan2(localToBlock.Y, flatDistance) * FP.Rad2Deg,
                 config.SwingPitchMin, config.SwingPitchMax);
 
-            // The block is held level and square to the character: of its four sideways faces, the one already nearest
-            // the character stays toward it, so the grab only straightens it.
+            // The block is held level and square to the character, turned as little as possible: the face nearest
+            // facing up stays on top, and of the sideways faces, the one nearest the character stays toward it.
             FPQuaternion swingYaw = GetHoldRotation(filter.Transform, filter.Grabber, FPQuaternion.Identity);
-            filter.Grabber->HeldRotationOffset = GetQuarterTurn(swingYaw, heldTransform->Rotation);
+            filter.Grabber->HeldRotationOffset = GetCubeTurn(swingYaw, heldTransform->Rotation);
 
             AttachLeash(frame, ref filter, config, target);
 
@@ -339,12 +339,12 @@ namespace Quantum
             body->AngularVelocity = FPVector3.Zero;
 
             Transform3D* transform = frame.Unsafe.GetPointer<Transform3D>(held);
-            transform->Rotation = ThrowHelper.GetBodyYaw(transform->Rotation);
+            transform->Rotation = GetLevelRotation(transform->Rotation);
             if (config.SettlePlacedOnBlockBelow && TryGetBlockBelow(frame, held, transform->Position, out EntityRef below))
             {
                 Transform3D belowTransform = frame.Get<Transform3D>(below);
-                FPQuaternion belowYaw = ThrowHelper.GetBodyYaw(belowTransform.Rotation);
-                transform->Rotation = belowYaw * GetQuarterTurn(belowYaw, transform->Rotation);
+                FPQuaternion belowYaw = GetLevelYaw(belowTransform.Rotation);
+                transform->Rotation = belowYaw * GetCubeTurn(belowYaw, transform->Rotation);
 
                 FP restingY = belowTransform.Position.Y + GetHalfHeight(frame, below) + GetHalfHeight(frame, held);
                 if (transform->Position.Y < restingY)
@@ -391,14 +391,63 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Returns the quarter turn about world up that brings <paramref name="reference"/> closest to the heading of
-        /// <paramref name="rotation"/>: which of a cube's four sideways faces points where the reference's forward does.
+        /// Returns which of a cube's 24 square orientations, relative to <paramref name="reference"/>, is nearest
+        /// <paramref name="rotation"/>: the block's face nearest the reference's up goes up, and of the faces beside it,
+        /// the one nearest the reference's forward goes forward.
         /// </summary>
-        private static FPQuaternion GetQuarterTurn(FPQuaternion reference, FPQuaternion rotation)
+        private static FPQuaternion GetCubeTurn(FPQuaternion reference, FPQuaternion rotation)
         {
-            FPVector3 forward = FPQuaternion.Inverse(reference) * (rotation * FPVector3.Forward);
-            FP degrees = FPMath.Atan2(forward.X, forward.Z) * FP.Rad2Deg;
-            return FPQuaternion.AngleAxis(FPMath.Round(degrees / 90) * 90, FPVector3.Up);
+            FPQuaternion relative = FPQuaternion.Inverse(reference) * rotation;
+            FPVector3 up = GetNearestAxis(relative, FPVector3.Up, FPVector3.Zero);
+            FPVector3 forward = GetNearestAxis(relative, FPVector3.Forward, up);
+            return FPQuaternion.Inverse(FPQuaternion.LookRotation(forward, up));
+        }
+
+        /// <summary>
+        /// Returns <paramref name="rotation"/> levelled: turned the least way that puts one of the cube's faces straight up.
+        /// </summary>
+        private static FPQuaternion GetLevelRotation(FPQuaternion rotation)
+        {
+            FPQuaternion yaw = GetLevelYaw(rotation);
+            return yaw * GetCubeTurn(yaw, rotation);
+        }
+
+        /// <summary>
+        /// Returns the heading of a cube as a rotation about world up: the direction one of its sideways faces points,
+        /// whichever face is on top.
+        /// </summary>
+        private static FPQuaternion GetLevelYaw(FPQuaternion rotation)
+        {
+            FPVector3 up = GetNearestAxis(rotation, FPVector3.Up, FPVector3.Zero);
+            FPVector3 side = FPMath.Abs(up.Z) > FP._0_50 ? FPVector3.Right : FPVector3.Forward;
+            FPVector3 heading = rotation * side;
+            return FPQuaternion.AngleAxis(FPMath.Atan2(heading.X, heading.Z) * FP.Rad2Deg, FPVector3.Up);
+        }
+
+        /// <summary>
+        /// Returns the cube's local axis (±X, ±Y or ±Z) that <paramref name="rotation"/> points nearest
+        /// <paramref name="target"/>, skipping either direction of <paramref name="exclude"/>.
+        /// </summary>
+        private static FPVector3 GetNearestAxis(FPQuaternion rotation, FPVector3 target, FPVector3 exclude)
+        {
+            FPVector3 local = FPQuaternion.Inverse(rotation) * target;
+            FPVector3 best = FPVector3.Zero;
+            FP bestDot = FP.UseableMin;
+            for (int i = 0; i < 3; i++)
+            {
+                FPVector3 axis = i == 0 ? FPVector3.Right : i == 1 ? FPVector3.Up : FPVector3.Forward;
+                if (FPMath.Abs(FPVector3.Dot(axis, exclude)) > FP._0_50)
+                    continue;
+
+                FP dot = FPVector3.Dot(axis, local);
+                if (FPMath.Abs(dot) > bestDot)
+                {
+                    bestDot = FPMath.Abs(dot);
+                    best = dot >= FP._0 ? axis : -axis;
+                }
+            }
+
+            return best;
         }
 
         /// <summary>

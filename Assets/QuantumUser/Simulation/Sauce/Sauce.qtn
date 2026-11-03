@@ -38,9 +38,8 @@ component SauceCoat
     // 0..1 for each sauce: its deepest dip's fraction over SauceConfig.FullStrengthFraction.
     [HideInInspector] FP StackStrength;
     [HideInInspector] FP SlipStrength;
-    // The block's own physics material, which Slip sauce replaces.
+    // The block's own physics material, which Stack and Slip sauce replace.
     [HideInInspector] asset_ref<PhysicsMaterial> PlainMaterial;
-    [HideInInspector] FrameTimer StackCooldown;
 }
 
 event BlockDipStarted
@@ -56,12 +55,4 @@ event BlockDipEnded
     SauceType Type;
     byte Dip;
     FP Fraction;
-}
-
-event StackSaucePulse
-{
-    EntityRef Block;
-    nothashed FPVector3 Position;
-    FP Radius;
-    FP Strength;
 }

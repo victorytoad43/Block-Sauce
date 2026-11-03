@@ -5,7 +5,7 @@ Every asset still needed, in the order to make them. The top of the list is what
 Guy clips go in the one animated `CH_Guy.fbx` (mesh, deform skeleton, all actions), animated in place, at least two keyframes per action. Game speeds below are real-world (Blender units ÷ 2.5).
 
 1. **A-009 Sauce looks** (vat delivered): Phase 5/6.
-   - The cup (`EN_SauceVat`) is in, scaled 1.3× in its prefab so the rim (0.61 m) is above Guy's 0.5 m step and players can't walk in. Collision is a ring of vertical walls (inner radius 0.86 m), because the flared outer wall let players ride up and over. A re-export at that size, with walls near vertical outside, would make the art match the collision.
+   - The cup (`EN_SauceVat`, re-exported 2026-11-03) is in, scaled 1.3× in its prefab so the rim (0.61 m) is above Guy's 0.5 m step and players can't walk in. Its collision now follows the art (24 walls leaning out 14° along the inner wall, and its floor), so no re-export is needed.
    - Still needed for Stack sauce and Slip sauce: color, gloss and a cue that reads without hue (player colors own hue). Placeholders: Stack dark brown with rising bubbles, Slip pale silver with glints (`PH_SauceLooks`). A sauce surface mesh for the cup (a disc at 0.55 m in game, 0.42 m in Blender before the 1.3×) is optional; a flat disc stands in.
 2. **A-013 Block owner readability**: Phase 6 (visual polish).
    - Jackson is rethinking ownership at the top level; likely a personal UI that highlights your own blocks. Must leave room for the settle overlay (A-007) and a sauce coat.
@@ -24,6 +24,6 @@ Guy clips go in the one animated `CH_Guy.fbx` (mesh, deform skeleton, all action
    - `Slide` holds the sit pose; any motion in it (lean, arms out, dust-kicking feet) plays while a sitting Guy moves faster than 2 m/s.
 9. **A-014 Sound effects**: Phase 6; temporary sounds welcome any time.
     - WAV 48 kHz mono, short; one sound each, or a CC0 pack to pull from. Impacts want 2 to 3 variations and a light and heavy version.
-    - Events: jump, grab, drop, place, throw, block impact (by speed), knockback, knockdown thud, dazed loop, limb impacts, get-up, settle start, settle reset, count pop, uncount, countdown beeps, round start, win; sauce dip splash, Stack sauce shove, Slip sauce slide.
+    - Events: jump, grab, drop, place, throw, block impact (by speed), knockback, knockdown thud, dazed loop, limb impacts, get-up, settle start, settle reset, count pop, uncount, countdown beeps, round start, win; sauce dip splash, Stack sauce sticky landing, Slip sauce slide.
 10. **A-010 Logo and wordmark**: Phase 6.
     - SVG plus PNG at 2×, light and dark variants.

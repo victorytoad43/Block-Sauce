@@ -455,8 +455,6 @@ namespace Quantum.Prototypes {
     public FP SlipStrength;
     [HideInInspector()]
     public AssetRef<PhysicsMaterial> PlainMaterial;
-    [HideInInspector()]
-    public Quantum.Prototypes.FrameTimerPrototype StackCooldown;
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
       Quantum.SauceCoat component = default;
       Materialize((Frame)f, ref component, in context);
@@ -473,7 +471,6 @@ namespace Quantum.Prototypes {
       result.StackStrength = this.StackStrength;
       result.SlipStrength = this.SlipStrength;
       result.PlainMaterial = this.PlainMaterial;
-      this.StackCooldown.Materialize(frame, ref result.StackCooldown, in context);
     }
   }
   [System.SerializableAttribute()]

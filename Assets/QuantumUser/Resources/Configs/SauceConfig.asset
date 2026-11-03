@@ -22,16 +22,15 @@ MonoBehaviour:
     RawValue: 3276
   DipEndSeconds:
     RawValue: 16384
-  StackRadius:
-    RawValue: 163840
-  StackMinSpeedChange:
-    RawValue: 196608
-  StackMaxSpeedChange:
-    RawValue: 360448
-  StackUpBias:
-    RawValue: 19660
-  StackCooldownSeconds:
-    RawValue: 131072
+  StackMaterials:
+  - Id:
+      Value: 496407441055956511
+  - Id:
+      Value: 385046784697054559
+  - Id:
+      Value: 320338381048073784
+  - Id:
+      Value: 443606960140978550
   SlipMaterials:
   - Id:
       Value: 425974018395263163
