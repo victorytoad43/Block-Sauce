@@ -13,6 +13,7 @@ namespace Quantum
     public unsafe class SauceSystem : SystemMainThread
     {
         private const int MaxDips = 3;
+        private const int MaxShovedPerTick = 32;
 
         public override void Update(Frame frame)
         {
@@ -126,6 +127,9 @@ namespace Quantum
         /// </summary>
         private static void ShoveRivals(Frame frame, SauceConfig config)
         {
+            EntityRef* shovedPlayers = stackalloc EntityRef[MaxShovedPerTick];
+            int shovedCount = 0;
+
             var coats = frame.Filter<SauceCoat, Block, Transform3D>();
             while (coats.NextUnsafe(out EntityRef block, out SauceCoat* coat, out Block* owned, out Transform3D* transform))
             {
@@ -136,6 +140,7 @@ namespace Quantum
                 byte team = frame.TryGet(block, out Team blockTeam) ? blockTeam.Id : TeamIds.None;
                 FP speedChange = FPMath.Lerp(config.StackMinSpeedChange, config.StackMaxSpeedChange, coat->StackStrength);
                 bool shoved = false;
+                bool fired = false;
 
                 var players = frame.Filter<Player, Transform3D, PhysicsBody3D>();
                 while (players.NextUnsafe(out EntityRef player, out Player* _, out Transform3D* playerTransform,
@@ -149,18 +154,42 @@ namespace Quantum
                     if (away.SqrMagnitude > config.StackRadius * config.StackRadius || frame.Has<RagdollOwner>(player))
                         continue;
 
+                    // Every sauced block of a tower in range fires and cools down together, but a player takes one
+                    // shove per tick, not one per block.
+                    fired = true;
+                    if (WasShoved(shovedPlayers, shovedCount, player))
+                        continue;
+
+                    if (shovedCount < MaxShovedPerTick)
+                        shovedPlayers[shovedCount++] = player;
+
                     away = away.SqrMagnitude > FP._0 ? away.Normalized : FPVector3.Forward;
                     FPVector3 impulse = (away + FPVector3.Up * config.StackUpBias) * (speedChange * body->Mass);
                     frame.Signals.ApplyKnockback(player, impulse, block);
                     shoved = true;
                 }
 
-                if (shoved)
+                if (fired)
                 {
                     coat->StackCooldown = FrameTimer.FromSeconds(frame, config.StackCooldownSeconds);
+                }
+
+                if (shoved)
+                {
                     frame.Events.StackSaucePulse(block, transform->Position, config.StackRadius, coat->StackStrength);
                 }
             }
+        }
+
+        private static bool WasShoved(EntityRef* shovedPlayers, int shovedCount, EntityRef player)
+        {
+            for (int i = 0; i < shovedCount; i++)
+            {
+                if (shovedPlayers[i] == player)
+                    return true;
+            }
+
+            return false;
         }
 
         /// <summary>
