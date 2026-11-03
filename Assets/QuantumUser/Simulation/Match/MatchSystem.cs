@@ -5,8 +5,9 @@ namespace Quantum
 {
     /// <summary>
     /// Runs match flow on maps that have a Match: Lobby → Countdown → Playing → RoundEnd → Results → Lobby.
-    /// The lobby is a sandbox (free blocks, no locking, no win rule). Starting a match clears the sandbox blocks, moves
-    /// every player to a match spawn and gives each their own blocks; returning to the lobby removes the match blocks
+    /// The lobby is a sandbox (free blocks, no locking, no win rule). Starting a match fills the empty player slots with
+    /// bots unless the room turned that off, clears the sandbox blocks, moves every player to a match spawn and gives
+    /// each their own blocks; returning to the lobby removes the match blocks
     /// and puts the sandbox back. Rules come from the match's mode asset (see <see cref="GameModeConfig"/>).
     /// </summary>
     public unsafe class MatchSystem : SystemMainThread
@@ -28,9 +29,17 @@ namespace Quantum
             switch (match->State)
             {
                 case MatchState.Lobby:
-                    if (WasStartRequested(frame) && CountPlayers(frame) >= mode.MinPlayers)
+                    if (WasStartRequested(frame))
                     {
-                        StartMatch(frame, match, mode);
+                        if (match->LeaveSlotsEmpty == false)
+                        {
+                            BotSystem.FillEmptySlots(frame, frame.FindAsset(mode.Bots));
+                        }
+
+                        if (CountPlayers(frame) >= mode.MinPlayers)
+                        {
+                            StartMatch(frame, match, mode);
+                        }
                     }
                     break;
 

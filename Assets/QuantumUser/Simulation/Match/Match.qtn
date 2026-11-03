@@ -21,6 +21,8 @@ singleton component Match
     [HideInInspector] PlayerRef Winner;
     [HideInInspector] bool SandboxRecorded;
     [HideInInspector] list<SandboxBlockHome> SandboxBlocks;
+    // The room's setting: when false (the default), bots fill the empty player slots as a match starts.
+    [HideInInspector] bool LeaveSlotsEmpty;
 }
 
 event MatchStateChanged

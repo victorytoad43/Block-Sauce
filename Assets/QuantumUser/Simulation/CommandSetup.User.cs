@@ -8,6 +8,9 @@
         static partial void AddCommandFactoriesUser(ICollection<IDeterministicCommandFactory> factories, RuntimeConfig gameConfig, SimulationConfig simulationConfig)
         {
             factories.Add(new CommandStartMatch());
+            factories.Add(new CommandAddBot());
+            factories.Add(new CommandRemoveBot());
+            factories.Add(new CommandSetBotFill());
             factories.Add(new CommandDevStackTower());
             factories.Add(new CommandDevKnockdown());
             factories.Add(new CommandDevBuildColumn());

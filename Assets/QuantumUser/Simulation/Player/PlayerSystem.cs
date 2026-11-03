@@ -4,7 +4,8 @@ namespace Quantum
 {
     /// <summary>
     /// Spawns a character at a spawn point for each player who joins, feeds it that player's input every tick,
-    /// and destroys it when the player disconnects.
+    /// and destroys it when the player disconnects. A bot's character (<see cref="BotSystem"/>) writes its own input;
+    /// a player given a bot's slot takes over that character.
     /// </summary>
     public unsafe class PlayerSystem : SystemMainThreadFilter<PlayerSystem.Filter>, ISignalOnPlayerAdded, ISignalOnPlayerDisconnected
     {
@@ -18,21 +19,23 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Copies the player's input for this tick onto their character.
+        /// Copies the player's input for this tick onto their character (a bot has already written its own).
         /// When the input carries no camera angles, such as a slot the server zero-filled, the last ones are kept.
         /// </summary>
         public override void Update(Frame frame, ref Filter filter)
         {
             Player* player = filter.Player;
-            Input* input = frame.GetPlayerInput(player->Ref);
-
-            InputPitchYaw previousCamera = player->Input.Camera;
-
-            player->Input = *input;
-
-            if (input->HasCamera == false)
+            if (frame.Has<Bot>(filter.Entity) == false)
             {
-                player->Input.Camera = previousCamera;
+                Input* input = frame.GetPlayerInput(player->Ref);
+                InputPitchYaw previousCamera = player->Input.Camera;
+
+                player->Input = *input;
+
+                if (input->HasCamera == false)
+                {
+                    player->Input.Camera = previousCamera;
+                }
             }
 
             if (MatchSystem.IsInputFrozen(frame))
@@ -55,14 +58,52 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Spawns the player's character above the spawn point at the player's index, facing the way the spawn faces,
-        /// and puts it on a team of its own (free-for-all). Game modes reassign teams once match flow exists.
-        /// Without a matching spawn point, characters spawn 2 meters apart along X, starting at the origin.
+        /// Spawns the joining player's character, or, when a bot already holds the slot, hands that bot's character to
+        /// the player.
         /// </summary>
         void ISignalOnPlayerAdded.OnPlayerAdded(Frame frame, PlayerRef player, bool firstTime)
         {
-            RuntimePlayer data = frame.GetPlayerData(player);
-            EntityRef playerEntity = frame.Create(data.PlayerAvatar);
+            if (TryGetCharacter(frame, player, out EntityRef existing))
+            {
+                if (frame.Has<Bot>(existing))
+                {
+                    frame.Remove<Bot>(existing);
+                    frame.Events.BotRemoved(player);
+                }
+
+                return;
+            }
+
+            SpawnCharacter(frame, player, frame.GetPlayerData(player).PlayerAvatar);
+        }
+
+        /// <summary>
+        /// Finds the character in a player slot.
+        /// </summary>
+        public static bool TryGetCharacter(Frame frame, PlayerRef player, out EntityRef character)
+        {
+            var players = frame.Filter<Player>();
+            while (players.NextUnsafe(out EntityRef entity, out Player* candidate))
+            {
+                if (candidate->Ref == player)
+                {
+                    character = entity;
+                    return true;
+                }
+            }
+
+            character = EntityRef.None;
+            return false;
+        }
+
+        /// <summary>
+        /// Spawns a character for a player slot above the spawn point at the slot's index, facing the way the spawn
+        /// faces, and puts it on a team of its own (free-for-all). Game modes reassign teams once match flow exists.
+        /// Without a matching spawn point, characters spawn 2 meters apart along X, starting at the origin.
+        /// </summary>
+        public static EntityRef SpawnCharacter(Frame frame, PlayerRef player, AssetRef<EntityPrototype> avatar)
+        {
+            EntityRef playerEntity = frame.Create(avatar);
 
             frame.Unsafe.GetPointer<Player>(playerEntity)->Ref = player;
 
@@ -90,6 +131,8 @@ namespace Quantum
             {
                 transform->Position = FPVector3.Right * 2 * (int)player + yOffset;
             }
+
+            return playerEntity;
         }
 
         /// <summary>

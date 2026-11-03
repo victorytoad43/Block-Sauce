@@ -913,6 +913,25 @@ namespace Quantum {
     }
   }
   [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct Bot : Quantum.IComponent {
+    public const Int32 SIZE = 8;
+    public const Int32 ALIGNMENT = 8;
+    [FieldOffset(0)]
+    [HideInInspector()]
+    public FP Heading;
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 419;
+        hash = hash * 31 + Heading.GetHashCode();
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (Bot*)ptr;
+      FP.Serialize(&p->Heading, serializer);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct BotSDKGlobals : Quantum.IComponentSingleton {
     public const Int32 SIZE = 32;
     public const Int32 ALIGNMENT = 8;
@@ -1102,25 +1121,28 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Match : Quantum.IComponentSingleton {
-    public const Int32 SIZE = 32;
+    public const Int32 SIZE = 40;
     public const Int32 ALIGNMENT = 8;
-    [FieldOffset(16)]
+    [FieldOffset(24)]
     public AssetRef<GameModeConfig> Mode;
     [FieldOffset(0)]
     [HideInInspector()]
     public MatchState State;
-    [FieldOffset(24)]
+    [FieldOffset(32)]
     [HideInInspector()]
     public FrameTimer Timer;
     [FieldOffset(4)]
     [HideInInspector()]
     public PlayerRef Winner;
-    [FieldOffset(8)]
-    [HideInInspector()]
-    public QBoolean SandboxRecorded;
     [FieldOffset(12)]
     [HideInInspector()]
+    public QBoolean SandboxRecorded;
+    [FieldOffset(16)]
+    [HideInInspector()]
     public QListPtr<SandboxBlockHome> SandboxBlocks;
+    [FieldOffset(8)]
+    [HideInInspector()]
+    public QBoolean LeaveSlotsEmpty;
     public override readonly Int32 GetHashCode() {
       unchecked { 
         var hash = 13877;
@@ -1130,6 +1152,7 @@ namespace Quantum {
         hash = hash * 31 + Winner.GetHashCode();
         hash = hash * 31 + SandboxRecorded.GetHashCode();
         hash = hash * 31 + SandboxBlocks.GetHashCode();
+        hash = hash * 31 + LeaveSlotsEmpty.GetHashCode();
         return hash;
       }
     }
@@ -1144,6 +1167,7 @@ namespace Quantum {
       var p = (Match*)ptr;
       serializer.Stream.Serialize((Int32*)&p->State);
       PlayerRef.Serialize(&p->Winner, serializer);
+      QBoolean.Serialize(&p->LeaveSlotsEmpty, serializer);
       QBoolean.Serialize(&p->SandboxRecorded, serializer);
       QList.Serialize(&p->SandboxBlocks, serializer, Statics.SerializeSandboxBlockHome);
       AssetRef.Serialize(&p->Mode, serializer);
@@ -1593,6 +1617,7 @@ namespace Quantum {
       private ComponentSignals _componentSignals_AIBlackboardComponent = CreateComponentSignals<Quantum.AIBlackboardComponent>(frame);
       private ComponentSignals _componentSignals_BTAgent = CreateComponentSignals<Quantum.BTAgent>(frame);
       private ComponentSignals _componentSignals_Block = CreateComponentSignals<Quantum.Block>(frame);
+      private ComponentSignals _componentSignals_Bot = CreateComponentSignals<Quantum.Bot>(frame);
       private ComponentSignals _componentSignals_BotSDKGlobals = CreateComponentSignals<Quantum.BotSDKGlobals>(frame);
       private ComponentSignals _componentSignals_CharacterController2D = CreateComponentSignals<CharacterController2D>(frame);
       private ComponentSignals _componentSignals_CharacterController3D = CreateComponentSignals<CharacterController3D>(frame);
@@ -1705,6 +1730,7 @@ namespace Quantum {
         registry.Register<Quantum.BlackboardEntry>(Quantum.BlackboardEntry.SIZE);
         registry.Register<Quantum.BlackboardValue>(Quantum.BlackboardValue.SIZE);
         registry.Register<Quantum.Block>(Quantum.Block.SIZE);
+        registry.Register<Quantum.Bot>(Quantum.Bot.SIZE);
         registry.Register<Quantum.BotSDKData>(Quantum.BotSDKData.SIZE);
         registry.Register<Quantum.BotSDKGlobals>(Quantum.BotSDKGlobals.SIZE);
         registry.Register<Button>(Button.SIZE);
@@ -1820,6 +1846,7 @@ namespace Quantum {
         registry.Register<Quantum.AIBlackboardComponent>(Quantum.AIBlackboardComponent.Serialize, null, Quantum.AIBlackboardComponent.OnRemoved, ComponentFlags.None);
         registry.Register<Quantum.BTAgent>(Quantum.BTAgent.Serialize, null, Quantum.BTAgent.OnRemoved, ComponentFlags.None);
         registry.Register<Quantum.Block>(Quantum.Block.Serialize, null, null, ComponentFlags.None);
+        registry.Register<Quantum.Bot>(Quantum.Bot.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.BotSDKGlobals>(Quantum.BotSDKGlobals.Serialize, null, null, ComponentFlags.Singleton);
         registry.Register<Quantum.Grabbable>(Quantum.Grabbable.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.Grabber>(Quantum.Grabber.Serialize, null, null, ComponentFlags.None);

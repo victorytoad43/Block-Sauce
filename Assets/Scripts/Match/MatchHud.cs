@@ -47,6 +47,12 @@ namespace BlockSauce
                 game.AddCommand(new CommandDevSauce { Type = slip ? SauceType.Slip : SauceType.Stack });
             }
 
+            // Dev shortcut until the room screen: add a bot in the lobby (F7), or remove one (Shift+F7).
+            if (match.State == MatchState.Lobby && Keyboard.current != null && Keyboard.current.f7Key.wasPressedThisFrame)
+            {
+                game.AddCommand(Keyboard.current.shiftKey.isPressed ? new CommandRemoveBot() : new CommandAddBot());
+            }
+
             // Dev shortcut: knock yourself down.
             if (Keyboard.current != null && Keyboard.current.f10Key.wasPressedThisFrame)
             {

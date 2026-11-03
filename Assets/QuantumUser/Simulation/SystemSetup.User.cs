@@ -7,12 +7,13 @@
     {
         /// <summary>
         /// Adds Block Sauce's gameplay systems after the core systems from the SystemsConfig, in update order:
-        /// input and camera first, then grounding, then the movement that reads both, then grabbing (which can turn
+        /// bots writing their input, then input and camera, then grounding, then the movement that reads both, then grabbing (which can turn
         /// the body while swinging), then stacking and the sauces that act on stacked blocks. Signal-only systems react to physics callbacks and other systems' signals.
         /// </summary>
         static partial void AddSystemsUser(ICollection<SystemBase> systems, RuntimeConfig gameConfig, SimulationConfig simulationConfig, SystemsConfig systemsConfig)
         {
             systems.Add(new MatchSystem());
+            systems.Add(new BotSystem());
             systems.Add(new PlayerSystem());
             systems.Add(new PlayerLookSystem());
             systems.Add(new GroundedTrackerSystem());

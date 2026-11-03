@@ -5275,6 +5275,8 @@ MonoBehaviour:
         SandboxRecorded:
           Value: 0
         SandboxBlocks: []
+        LeaveSlotsEmpty:
+          Value: 0
     - rid: 4412084783509667840
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:

@@ -159,8 +159,58 @@ namespace Quantum {
       }
     }
   }
-  public unsafe partial class EventFallRespawned : EventBase {
+  public unsafe partial class EventBotAdded : EventBase {
     public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 4;
+    public PlayerRef Player;
+    protected EventBotAdded(Int32 id, EventFlags flags) : 
+        base(id, flags) {
+    }
+    public EventBotAdded() : 
+        base(ID, EventFlags.Server|EventFlags.Client) {
+    }
+    public new QuantumGame Game {
+      get {
+        return (QuantumGame)base.Game;
+      }
+      set {
+        base.Game = value;
+      }
+    }
+    public override Int32 GetHashCode() {
+      unchecked {
+        var hash = 648906436;
+        hash = hash * 31 + Player.GetHashCode();
+        return hash;
+      }
+    }
+  }
+  public unsafe partial class EventBotRemoved : EventBase {
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 5;
+    public PlayerRef Player;
+    protected EventBotRemoved(Int32 id, EventFlags flags) : 
+        base(id, flags) {
+    }
+    public EventBotRemoved() : 
+        base(ID, EventFlags.Server|EventFlags.Client) {
+    }
+    public new QuantumGame Game {
+      get {
+        return (QuantumGame)base.Game;
+      }
+      set {
+        base.Game = value;
+      }
+    }
+    public override Int32 GetHashCode() {
+      unchecked {
+        var hash = 322712986;
+        hash = hash * 31 + Player.GetHashCode();
+        return hash;
+      }
+    }
+  }
+  public unsafe partial class EventFallRespawned : EventBase {
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 6;
     public EntityRef Entity;
     protected EventFallRespawned(Int32 id, EventFlags flags) : 
         base(id, flags) {
@@ -185,7 +235,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventGrabbed : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 5;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 7;
     public EntityRef Entity;
     public EntityRef Held;
     protected EventGrabbed(Int32 id, EventFlags flags) : 
@@ -212,7 +262,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventDropped : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 6;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 8;
     public EntityRef Entity;
     public EntityRef Held;
     protected EventDropped(Int32 id, EventFlags flags) : 
@@ -239,7 +289,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventPlaced : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 7;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 9;
     public EntityRef Entity;
     public EntityRef Held;
     protected EventPlaced(Int32 id, EventFlags flags) : 
@@ -266,7 +316,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventThrown : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 8;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 10;
     public EntityRef Entity;
     public EntityRef Held;
     public FPVector3 Velocity;
@@ -297,7 +347,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventObjectImpact : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 9;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 11;
     public EntityRef Entity;
     public FPVector3 Position;
     public FP Speed;
@@ -326,7 +376,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventKnockedBack : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 10;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 12;
     public EntityRef Entity;
     public EntityRef Source;
     public FPVector3 Impulse;
@@ -356,7 +406,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventMatchStateChanged : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 11;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 13;
     public MatchState State;
     public PlayerRef Winner;
     protected EventMatchStateChanged(Int32 id, EventFlags flags) : 
@@ -383,7 +433,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventJumped : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 12;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 14;
     public EntityRef Entity;
     protected EventJumped(Int32 id, EventFlags flags) : 
         base(id, flags) {
@@ -408,7 +458,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventSlideStarted : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 13;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 15;
     public EntityRef Entity;
     protected EventSlideStarted(Int32 id, EventFlags flags) : 
         base(id, flags) {
@@ -433,7 +483,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventRagdollChanged : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 14;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 16;
     public EntityRef Entity;
     public EntityRef Body;
     public QBoolean Active;
@@ -462,7 +512,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventStruggled : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 15;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 17;
     public EntityRef Entity;
     protected EventStruggled(Int32 id, EventFlags flags) : 
         base(id, flags) {
@@ -487,7 +537,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventBrokeFree : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 16;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 18;
     public EntityRef Entity;
     protected EventBrokeFree(Int32 id, EventFlags flags) : 
         base(id, flags) {
@@ -512,7 +562,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventBlockDipStarted : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 17;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 19;
     public EntityRef Block;
     public EntityRef Vat;
     public SauceType Type;
@@ -541,7 +591,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventBlockDipEnded : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 18;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 20;
     public EntityRef Block;
     public SauceType Type;
     public Byte Dip;
@@ -599,6 +649,18 @@ namespace Quantum {
         var ev = _f.Context.AcquireEvent<EventBlockUncounted>(EventBlockUncounted.ID);
         ev.Block = Block;
         ev.Owner = Owner;
+        _f.AddEvent(ev);
+        return ev;
+      }
+      public EventBotAdded BotAdded(PlayerRef Player) {
+        var ev = _f.Context.AcquireEvent<EventBotAdded>(EventBotAdded.ID);
+        ev.Player = Player;
+        _f.AddEvent(ev);
+        return ev;
+      }
+      public EventBotRemoved BotRemoved(PlayerRef Player) {
+        var ev = _f.Context.AcquireEvent<EventBotRemoved>(EventBotRemoved.ID);
+        ev.Player = Player;
         _f.AddEvent(ev);
         return ev;
       }
@@ -722,6 +784,8 @@ namespace Quantum {
         registry.Register<EventBlockSettleReset>(EventBlockSettleReset.ID);
         registry.Register<EventBlockCounted>(EventBlockCounted.ID);
         registry.Register<EventBlockUncounted>(EventBlockUncounted.ID);
+        registry.Register<EventBotAdded>(EventBotAdded.ID);
+        registry.Register<EventBotRemoved>(EventBotRemoved.ID);
         registry.Register<EventFallRespawned>(EventFallRespawned.ID);
         registry.Register<EventGrabbed>(EventGrabbed.ID);
         registry.Register<EventDropped>(EventDropped.ID);

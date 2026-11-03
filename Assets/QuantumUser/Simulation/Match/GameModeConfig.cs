@@ -20,6 +20,10 @@ namespace Quantum
         /// </summary>
         public AssetRef<SauceConfig> Sauce;
         /// <summary>
+        /// How bots play this mode; none means rooms can't add bots.
+        /// </summary>
+        public AssetRef<BotConfig> Bots;
+        /// <summary>
         /// How many blocks each player gets.
         /// </summary>
         public int BlocksPerPlayer = 3;

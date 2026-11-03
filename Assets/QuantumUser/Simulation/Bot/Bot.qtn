@@ -1,0 +1,17 @@
+// A character the simulation drives. It holds a player slot nobody is connected to, so ownership, teams, colors and
+// scoring treat it as a player, and its brain writes that slot's Player.Input instead of a client sending it.
+component Bot
+{
+    // The yaw, in degrees, the bot is looking and walking toward.
+    [HideInInspector] FP Heading;
+}
+
+event BotAdded
+{
+    PlayerRef Player;
+}
+
+event BotRemoved
+{
+    PlayerRef Player;
+}

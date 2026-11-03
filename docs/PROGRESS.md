@@ -30,7 +30,6 @@ What plays today, online with up to 8 players, in the Lobby scene:
 - Matches only run in the Lobby scene; Arena_Graybox has no `Match` yet (Phase 6).
 
 ### Waiting on Jackson
-- Phase 6 questions (batched in the plan below).
 - A-002 button focus states and the remaining screen mock-ups; A-006 HUD mock-ups (drafts stand in until they arrive).
 - Stack glue strength, and whether it should glue to the ground (open question in the plan; play-test).
 - The older open questions (settle numbers; pickup swings through your own tower).
@@ -46,7 +45,7 @@ Goal: the whole game seen end to end before the plan review: open on the menu ov
 1. **Bot plumbing.** A `Bot` component on a character marks it as driven by the simulation. Bots take free player slots (`PlayerRef`s nobody holds), so ownership, teams, colors, scoring and the HUD treat them as players. `PlayerSystem` skips the network input copy for bot slots; the bot writes `Player.Input` itself, through the same fields a player's input fills. Commands to add and remove a bot (host only); a match start fills empty slots with bots when the room's setting is on. Check: a bot that stands still, then one that walks in a circle, joins a match and gets blocks.
 2. **Bot actions** (our C#, deterministic): steer to a point (avoiding vats, towers and players), turn to face, grab a target block, carry, raise and lower (swing pitch), place on top of a tower, aim and throw at a target, dunk in a vat, recover from a knockdown. Each one testable alone with a dev command.
 3. **Bot brain** (Bot SDK state machine, `HFSMAgent`): Fetch (nearest free own block, or a rival's), Build (carry home and place on the tower), Raid (throw at a rival's tallest tower), Dunk (Stack sauce before building when the tower is weak), Recover. Simple numbers on an `AIConfig` (how often to raid, how far to look). Bots should look like players, not play well.
-4. **One-button test match** (editor menu and a dev key): fill all 8 slots with bots and start Stack & Lock. Run it until 8 bots finish a match on their own; this is also the soak test for bots stuck on terrain or each other.
+4. **8-bot test match**, set up in a live room through the same add-bot and fill-at-start paths (plus a dev key that adds bots and starts, for scripted runs). Run it until 8 bots finish a match on their own; this is also the soak test for bots stuck on terrain or each other.
 5. **Spectator camera** (view only): a director that picks a subject by interest (a tower near completion, a throw in flight, a knockdown, a scramble near a vat), holds each shot a few seconds, and cuts or eases to the next. Cinematic framing from above and to the side; no input.
 6. **Menu scene.** A new `Menu` scene: loads the arena, starts an offline local game (`DeterministicGameMode.Local`) with 8 bots looping matches, and shows Jackson's menu over the spectator camera. Start Game: shuts the background game down and hosts an online room with a short room code. Join Game: a code field. Settings: volume, look sensitivity, invert Y, fullscreen and resolution, saved locally. uGUI with TextMeshPro and the Jaro font; controller and mouse navigation through the EventSystem. Escape or the gamepad's Back opens a pause menu in a room (leave room, settings). Replaces `BlockSauceStartUI` and the stock Quantum start UI.
 7. **Room screen and HUD** (rough draft in Jackson's style): room code, player list in colors with bots marked, add/remove bot, bots-fill-slots toggle, start match; match HUD (countdown, each player's three tower slots, winner) and results. Replaces the IMGUI `MatchHud`.
@@ -60,12 +59,12 @@ Goal: the whole game seen end to end before the plan review: open on the menu ov
 - Bot SDK on a preview Quantum build: it compiles; runtime use is untested until step 3.
 - The stock start UI's MPPM hooks (`QuantumStartUIMppm*`, our SDK patch) keep multi-client tests working; the new menu needs the same MPPM connect path.
 
-**Questions for Jackson** (defaults are what gets built if you don't mind either way):
-1. Join Game: room code only, or also a list of open rooms to pick from? (Default: code, plus a "join any open room" button.)
-2. Bots in a room: should the host add them by hand, should they fill empty slots at match start, or both? (Default: both, fill on by default.)
-3. Should players be able to start a match alone against bots from the menu, without hosting online? (Default: no, Start Game hosts online; you can play with only bots in your room.)
-4. Bot skill: one level for now, a bit clumsy? (Default: yes; difficulty later.)
-5. The menu's background match: in the Lobby until the arena exists? (Default: yes.)
+**Answered (Jackson, 2026-11-03):**
+1. Join Game: a room code, plus a "join any open room" button.
+2. Bots: the host adds them by hand, and they fill empty slots at match start; the fill is a setting on the room screen, on by default. Jackson's next art drop includes room UI for it.
+3. No solo offline mode: Start Game hosts online, and a room can be all bots. The 8-bot test is for testing only: set up in a live room (add 7 bots, or fill at match start), not a separate button.
+4. One bot skill level, a bit clumsy; difficulty later.
+5. The menu's background match runs in the Lobby until the arena exists.
 
 ## Log
 
@@ -107,13 +106,22 @@ Phase report format:
 - Placeholders still in use: `PH_SauceVat_Stack`/`_Slip` and `PH_SauceCoat`/`PH_SauceLooks` (A-009), `PH_PlayerCapsule`, `PH_Block`, `PH_LockDither` (A-007/A-013), `PH_` terrain (A-008), IMGUI `MatchHud` (A-006), stock start UI (A-002); Win and Lose clips are Jackson's placeholders (A-023).
 - Ready for review: yes
 
+## 2026-11-03: Phase 6, step 1: bot plumbing
+- Did: `Bot` component, `BotConfig` (avatar; referenced by the mode as `Bots`), `BotSystem` (runs before `PlayerSystem`): bots take the highest free player slots and write `Player.Input` themselves; `PlayerSystem` skips the network copy for them, and a client given a bot's slot takes over its character. Commands `CommandAddBot`, `CommandRemoveBot` (highest slot), `CommandSetBotFill` (lobby only); a match start fills the empty slots unless `Match.LeaveSlotsEmpty`. `PlayerSystem.SpawnCharacter`/`TryGetCharacter` shared with bots. Placeholder brain: walk forward, turning slowly. Dev key F7 adds a bot in the lobby, Shift+F7 removes one.
+- Verified (one client): 3 bots added took slots 7, 6, 5 and wandered at walking speed; Remove took slot 7; starting the match filled slots 1–4 and 7, all 8 on their match spawns with 3 blocks each, still through the countdown, then wandering; console clean.
+- Not yet checked: a second client joining a room full of bots takes over a bot's slot (done-when, two clients).
+- Decided: room commands are accepted from any player for now; the room screen shows them to the host only.
+- Assets: none.
+- Questions for Jackson: none.
+- Next: step 2, bot actions.
+
 ## 2026-11-03: Phase 6 planned
 - Did: replanned the phases with Jackson: Phase 6 is the front end and bots (menu and UI draft, spectator director camera, bots, one-button 8-bot test), then a plan review; the arena, juice, audio and tuning wait for the review. Wrote the Phase 6 build order, risks and questions; reordered `ASSETS.md` around it.
 - Verified: nothing to run.
 - Decided: bots take free player slots and write `Player.Input` (every system already reads input there, and ownership and scoring key on player slots); UI in uGUI with TextMeshPro (in Unity 6's uGUI); the menu's background match runs offline on the local machine.
 - Assets: none new.
-- Questions for Jackson: the five Phase 6 questions in Next.
-- Next: answers, then step 1 (bot plumbing).
+- Questions for Jackson: the five Phase 6 questions in Next (answered the same day).
+- Next: step 1 (bot plumbing).
 
 ## 2026-11-03: Bot SDK check
 - Did: checked Jackson's import of the Quantum Bot SDK 3.10.6 (Oct 16, 2026) against our pinned Quantum 3.1.0 Preview 2189. Its simulation and view code compile into our own assemblies through asmrefs, with its `.qtn` types in our codegen; the visual editor is a prebuilt DLL.
