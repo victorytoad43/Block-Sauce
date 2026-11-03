@@ -101,27 +101,36 @@ In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/lan
 - [x] Done-when verified: a full match with 2 clients (MPPM `TwoClients` scenario), every state cycled; win and lose play `Idle` until A-023
 - **Done when:** Guy plays a full match on uneven terrain with no state left unanimated.
 
-### Phase 5: Sauces (done 2026-11-02, awaiting review)
+### Phase 5: Sauces (done 2026-11-03, reviewed)
 - [x] Dip vats (Jackson's cup); dip planes and depth-based strength in the simulation (2026-11-02)
 - [x] Stack sauce and Slip sauce gameplay; Stack reworked from a shove to sticky friction and glue (2026-11-03)
 - [x] Sauce coat shader: noise edge, lumpy volume on its own shell, wet shading (drips off for now, 2026-11-03)
-- [x] Subdivided block mesh (A-005) in; owner readability (A-013) moved to Phase 6
+- [x] Subdivided block mesh (A-005) in; owner readability (A-013) moved to the visual polish after the plan review
 - [x] Aimed block collides with nothing; its model arcs over the head
 - [x] Done-when verified with two clients (2026-11-02): Slip tower comes apart when pushed (the Stack shove it also checked is gone)
 - **Done when:** dipping changes how a round plays and reads at a glance.
 
-### Phase 6: Arena and polish
-- [ ] Final arena with uneven terrain and room for towers; the match runs there (today it runs in the Lobby scene)
-- [ ] Camera collision with walls; menu UI, HUD, audio
-- [ ] Juice: shake, particles, squash and stretch, count pop
-- [ ] Feel tuning pass (aim, sensitivity, throw speed, settle and knockdown numbers)
-- [ ] Spectator: join any room (live or test) without a player; fly freely or follow and cycle through players; reached from the new menu. Quantum replays of a recorded match play back through the same camera, for promo capture.
-- **Done when:** a new player finishes a round without explanation.
+### Phase 6: Front end and bots
+A rough draft of the menu and UI, the spectator camera and bots, so the game can be seen whole before a plan review (Jackson, 2026-11-03). Art for the UI is Jackson's mock-up and pieces (A-002); everything without art is a rough draft in his style, not final.
+- [ ] Bots: a bot takes a free player slot and its brain writes that slot's input, so every system treats it as a player (owner, team, color, score). Actions in our code (go to, grab, carry, place on a tower, throw at a target, dunk, get up); decisions in a Bot SDK state machine (fetch, build, raid, dunk, recover). The host adds and removes bots in the room; bots fill empty slots when a match starts if the host leaves them on.
+- [ ] Spectator camera: a non-interactive director that follows the action (who is building, who is fighting), cutting and easing between players. Used behind the menu; free flight and manual player cycling come later.
+- [ ] Menu: Jackson's main menu (logo and Start Game, Join Game, Settings on the right) over a live bot match seen from the spectator camera, running offline on this machine. Start Game hosts an online room and Join Game joins one by room code; both land in the sandbox room. Settings: volume, look sensitivity, invert Y, fullscreen and resolution. Controller and mouse both drive it. Replaces the stock Quantum start UI.
+- [ ] In-room UI and HUD, rough draft in the Jaro font and Jackson's style: room code, player list in colors with bots marked, add/remove bots, start match; match HUD (countdown, each player's tower slots) and results. Replaces the IMGUI `MatchHud`.
+- [ ] One-button test match: 8 bots play Stack & Lock to a win, watched with the spectator camera.
+- **Done when:** the game opens on the menu over a bot match; a player can start a room, add bots, play a full match against them and return to the menu; a second player joins that room by code; 8 bots finish a match on their own.
 
-### Phase 7: Expansion (ongoing)
-- [ ] Team modes and roles, new win rules, more sauces
-- [ ] Bots (Quantum Bot SDK), matchmaking polish
-- [ ] One-button test match: bots fill all 8 slots and play Stack & Lock to a win, watched with the spectator camera
+### Plan review
+After Phase 6, Jackson and the agent replan what follows from playing the whole game. The candidates, from the old Phase 6:
+- Final arena with uneven terrain and room for towers; the match runs there (today it runs in the Lobby scene)
+- Camera collision with walls; audio
+- Juice: shake, particles, squash and stretch, count pop; block owner readability (A-013); settle look (A-007); sauce looks (A-009)
+- Feel tuning pass (aim, sensitivity, throw speed, settle, knockdown and glue numbers), now with bots to test against
+- Spectator: join any live room without a player, fly freely or cycle players; Quantum replays through the same camera for promo capture
+- **Done when** (old Phase 6): a new player finishes a round without explanation.
+
+### Later: Expansion (ongoing)
+- [ ] Team modes and roles, new win rules, more sauces; bot tactics for them (Bot SDK utility AI)
+- [ ] Matchmaking polish
 - Each new mode is a config plus rule hooks.
 
 ## Decisions
@@ -138,13 +147,13 @@ Current decisions only; how they were reached is in git history.
 - **Holding and camera:** see Architecture › Holding a block. The camera never locks while holding: it follows the swing on a gradient (Jackson, 2026-11-02).
 - **Throwing** is hold-to-aim with a trajectory line and landing circle; a jumpshot aims the same way at 1.3× speed. One clip, `Throw`, covers both: frame 4 is the aim pose, the rest is the follow-through (Jackson, 2026-11-02). No place clip. While aiming, the real block collides with nothing and its model arcs over the head (Jackson, 2026-11-02).
 - **Win and lose:** after a round the winner plays `Win.Jump` and everyone else `Sitdown`, through round end and results (Jackson's placeholders, 2026-11-02).
-- **Block ownership readability** is rethought at the top level in the Phase 6 visual polish, likely a personal UI that highlights your own blocks (Jackson, 2026-11-02).
-- **Spectator and repeatable match test** come later: the spectator in Phase 6, with the menu it starts from and the camera work; the one-button 8-player test in Phase 7, since it needs bots that can play a round. Until then, full-match checks run in MPPM and are watched from the Scene view.
+- **Block ownership readability** is rethought at the top level in the visual polish after the plan review, likely a personal UI that highlights your own blocks (Jackson, 2026-11-02).
+- **Phase order** (Jackson, 2026-11-03): Phase 6 is the front end and bots (menu and UI draft, spectator director camera, bots, one-button 8-bot test); then a plan review; the arena, juice, audio and tuning are replanned there. Until bots play, full-match checks run in MPPM.
 - **Movement input:** a gamepad stick's tilt sets speed from slow walk to full run; the keyboard walks, with Shift to run. The gamepad Start button starts a match; only Escape opens the menu.
 - **Sit replaces crouch** (Jackson, 2026-11-02): no movement while sitting except sliding; a sitting body moving fast plays the slide.
 - **Knockdown:** see Architecture › Knockdown. Numbers live on `PlayerKnockbackConfig` and `PlayerRagdollConfig` and stay open for tuning.
-- **Feel numbers** (aim angle, sensitivity, throw speed) stay as built until the Phase 6 tuning pass.
-- **Sauce strength:** 0–50% dipped maps to 0–100% of the effect. Sauce visuals beyond readability wait for the Phase 6 polish (Jackson, 2026-11-02).
+- **Feel numbers** (aim angle, sensitivity, throw speed) stay as built until the tuning pass after the plan review.
+- **Sauce strength:** 0–50% dipped maps to 0–100% of the effect. Sauce visuals beyond readability wait for the visual polish after the plan review (Jackson, 2026-11-02).
 - **Vats** sit in the middle of the arena, contested by everyone.
 - **Workflow:** the agent commits; Jackson pushes `main` to GitHub. `Assets/Art/_Incoming/` is Jackson's only drop-off, under any file name. Work pauses between phases while art catches up.
 
