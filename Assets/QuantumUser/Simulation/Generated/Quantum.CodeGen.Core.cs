@@ -928,9 +928,9 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Bot : Quantum.IComponent {
-    public const Int32 SIZE = 136;
+    public const Int32 SIZE = 160;
     public const Int32 ALIGNMENT = 8;
-    [FieldOffset(48)]
+    [FieldOffset(56)]
     [HideInInspector()]
     public FP Heading;
     [FieldOffset(24)]
@@ -945,7 +945,7 @@ namespace Quantum {
     [FieldOffset(32)]
     [HideInInspector()]
     public EntityRef Target;
-    [FieldOffset(88)]
+    [FieldOffset(112)]
     [HideInInspector()]
     public FPVector3 Point;
     [FieldOffset(16)]
@@ -957,22 +957,31 @@ namespace Quantum {
     [FieldOffset(0)]
     [HideInInspector()]
     public Byte Attempts;
-    [FieldOffset(72)]
-    [HideInInspector()]
-    public FrameTimer StepTimer;
     [FieldOffset(80)]
     [HideInInspector()]
+    public FrameTimer StepTimer;
+    [FieldOffset(88)]
+    [HideInInspector()]
     public FrameTimer TaskTimer;
-    [FieldOffset(112)]
+    [FieldOffset(96)]
     [HideInInspector()]
-    public FPVector3 ProgressPosition;
-    [FieldOffset(64)]
-    [HideInInspector()]
-    public FrameTimer ProgressTimer;
+    public FrameTimer ThinkTimer;
     [FieldOffset(40)]
     [HideInInspector()]
+    public EntityRef Unreachable;
+    [FieldOffset(104)]
+    [HideInInspector()]
+    public FrameTimer UnreachableTimer;
+    [FieldOffset(136)]
+    [HideInInspector()]
+    public FPVector3 ProgressPosition;
+    [FieldOffset(72)]
+    [HideInInspector()]
+    public FrameTimer ProgressTimer;
+    [FieldOffset(48)]
+    [HideInInspector()]
     public FP DetourYaw;
-    [FieldOffset(56)]
+    [FieldOffset(64)]
     [HideInInspector()]
     public FrameTimer DetourTimer;
     public override readonly Int32 GetHashCode() {
@@ -989,6 +998,9 @@ namespace Quantum {
         hash = hash * 31 + Attempts.GetHashCode();
         hash = hash * 31 + StepTimer.GetHashCode();
         hash = hash * 31 + TaskTimer.GetHashCode();
+        hash = hash * 31 + ThinkTimer.GetHashCode();
+        hash = hash * 31 + Unreachable.GetHashCode();
+        hash = hash * 31 + UnreachableTimer.GetHashCode();
         hash = hash * 31 + ProgressPosition.GetHashCode();
         hash = hash * 31 + ProgressTimer.GetHashCode();
         hash = hash * 31 + DetourYaw.GetHashCode();
@@ -1005,12 +1017,15 @@ namespace Quantum {
       EntityRef.Serialize(&p->Carried, serializer);
       EntityRef.Serialize(&p->Home, serializer);
       EntityRef.Serialize(&p->Target, serializer);
+      EntityRef.Serialize(&p->Unreachable, serializer);
       FP.Serialize(&p->DetourYaw, serializer);
       FP.Serialize(&p->Heading, serializer);
       FrameTimer.Serialize(&p->DetourTimer, serializer);
       FrameTimer.Serialize(&p->ProgressTimer, serializer);
       FrameTimer.Serialize(&p->StepTimer, serializer);
       FrameTimer.Serialize(&p->TaskTimer, serializer);
+      FrameTimer.Serialize(&p->ThinkTimer, serializer);
+      FrameTimer.Serialize(&p->UnreachableTimer, serializer);
       FPVector3.Serialize(&p->Point, serializer);
       FPVector3.Serialize(&p->ProgressPosition, serializer);
     }

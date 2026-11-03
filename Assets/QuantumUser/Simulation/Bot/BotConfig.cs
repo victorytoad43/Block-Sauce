@@ -30,6 +30,17 @@ namespace Quantum
         public FP TaskSeconds = 15;
 
         /// <summary>
+        /// Seconds a bot hesitates before starting each task, picked at random between the two.
+        /// </summary>
+        public FP ThinkSecondsMin = (FP)3 / 10;
+        public FP ThinkSecondsMax = 1;
+
+        /// <summary>
+        /// Seconds a bot leaves alone a block it failed to fetch before trying it again.
+        /// </summary>
+        public FP UnreachableSeconds = 20;
+
+        /// <summary>
         /// Distance, in meters, beyond which a bot with empty hands runs.
         /// </summary>
         [Header("Walking")]
@@ -92,6 +103,10 @@ namespace Quantum
         /// </summary>
         [Header("Throwing")]
         public FP ThrowMinRange = 3;
+        /// <summary>
+        /// The counted blocks a rival's tower needs before bots raid it.
+        /// </summary>
+        public int RaidAtCount = 2;
         public FP ThrowMaxRange = 8;
         public FP AimTolerance = 2;
         public FP MinAimSeconds = (FP)1 / 2;

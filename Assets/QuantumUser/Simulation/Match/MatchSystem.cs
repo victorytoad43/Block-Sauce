@@ -181,6 +181,24 @@ namespace Quantum
         /// <summary>
         /// Gives a player the mode's blocks, in a row in front of them, owned by them and in their team.
         /// </summary>
+        /// <summary>
+        /// Returns where the middle of a player's row of blocks starts a match, on the ground; false when the map has no
+        /// spawn point for the player.
+        /// </summary>
+        public static bool TryGetBlockRowCenter(Frame frame, GameModeConfig mode, PlayerRef player, out FPVector3 center)
+        {
+            center = default;
+            if (PlayerSystem.TryGetSpawn(frame, player, out Transform3D spawn) == false)
+                return false;
+
+            center = spawn.Position;
+            center.X *= mode.SpawnRadiusScale;
+            center.Z *= mode.SpawnRadiusScale;
+            center += spawn.Rotation * FPVector3.Forward * mode.BlockSpawnDistance;
+            center.Y = mode.BlockSize * FP._0_50;
+            return true;
+        }
+
         private static void SpawnPlayerBlocks(Frame frame, GameModeConfig mode, EntityRef entity, PlayerRef player, Transform3D* transform)
         {
             byte team = frame.TryGet(entity, out Team playerTeam) ? playerTeam.Id : TeamIds.None;

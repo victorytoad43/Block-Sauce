@@ -65,13 +65,7 @@ namespace Quantum
         {
             if (TryGetCharacter(frame, player, out EntityRef existing))
             {
-                if (frame.Has<Bot>(existing))
-                {
-                    frame.Remove<Bot>(existing);
-                    frame.Remove<HFSMAgent>(existing);
-                    frame.Events.BotRemoved(player);
-                }
-
+                BotSystem.ReleaseBot(frame, existing, player);
                 return;
             }
 

@@ -207,6 +207,12 @@ namespace Quantum.Prototypes {
     [HideInInspector()]
     public Quantum.Prototypes.FrameTimerPrototype TaskTimer;
     [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype ThinkTimer;
+    [HideInInspector()]
+    public MapEntityId Unreachable;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype UnreachableTimer;
+    [HideInInspector()]
     public FPVector3 ProgressPosition;
     [HideInInspector()]
     public Quantum.Prototypes.FrameTimerPrototype ProgressTimer;
@@ -231,6 +237,9 @@ namespace Quantum.Prototypes {
       result.Attempts = this.Attempts;
       this.StepTimer.Materialize(frame, ref result.StepTimer, in context);
       this.TaskTimer.Materialize(frame, ref result.TaskTimer, in context);
+      this.ThinkTimer.Materialize(frame, ref result.ThinkTimer, in context);
+      PrototypeValidator.FindMapEntity(this.Unreachable, in context, out result.Unreachable);
+      this.UnreachableTimer.Materialize(frame, ref result.UnreachableTimer, in context);
       result.ProgressPosition = this.ProgressPosition;
       this.ProgressTimer.Materialize(frame, ref result.ProgressTimer, in context);
       result.DetourYaw = this.DetourYaw;

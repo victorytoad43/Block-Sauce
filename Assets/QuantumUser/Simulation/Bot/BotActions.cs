@@ -39,7 +39,7 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Works out this tick's intent for a bot in control of its body.
+        /// Works out this tick's intent for a bot in control of its body: none while it hesitates before a task.
         /// </summary>
         public static BotIntent Tick(Frame frame, EntityRef entity, Bot* bot, BotConfig config)
         {
@@ -56,7 +56,7 @@ namespace Quantum
             };
 
             BotIntent intent = new BotIntent { MoveYaw = bot->Heading };
-            if (bot->Status != BotTaskStatus.Running || bot->Task == BotTaskType.None)
+            if (bot->Status != BotTaskStatus.Running || bot->Task == BotTaskType.None || bot->ThinkTimer.IsRunning(frame))
             {
                 if (grabber.Held != EntityRef.None)
                 {
@@ -69,6 +69,7 @@ namespace Quantum
             if (bot->TaskTimer.IsRunning(frame) == false)
             {
                 bot->Status = BotTaskStatus.Failed;
+                RememberUnreachable(frame, bot, config);
                 return intent;
             }
 
@@ -82,6 +83,7 @@ namespace Quantum
                     break;
                 case BotTaskType.Fetch:
                     Fetch(ref context, ref intent);
+                    RememberUnreachable(frame, bot, config);
                     break;
                 case BotTaskType.PlaceOn:
                     PlaceOn(ref context, ref intent);
@@ -96,6 +98,10 @@ namespace Quantum
                     if (context.Grabber.Held == EntityRef.None)
                     {
                         bot->Status = BotTaskStatus.Done;
+                    }
+                    else if (bot->Point != default && Steer(ref context, ref intent, bot->Point, FP._0_50) == false)
+                    {
+                        AimHold(ref context, ref intent, intent.MoveYaw, config.CarryPitch);
                     }
                     else if (bot->StepTimer.IsRunning(frame) == false)
                     {
@@ -562,6 +568,19 @@ namespace Quantum
             FP sine = FPMath.Clamp(rise / context.Grab.HoldRadius, -FP._1, FP._1);
             FP pitch = FPMath.Asin(sine) * FP.Rad2Deg;
             return FPMath.Clamp(pitch, context.Grab.SwingPitchMin, context.Grab.SwingPitchMax);
+        }
+
+        /// <summary>
+        /// After a failed fetch, has the bot leave that block alone for a while, so it doesn't walk back to a block it
+        /// can't reach.
+        /// </summary>
+        private static void RememberUnreachable(Frame frame, Bot* bot, BotConfig config)
+        {
+            if (bot->Task == BotTaskType.Fetch && bot->Status == BotTaskStatus.Failed && bot->Target != EntityRef.None)
+            {
+                bot->Unreachable = bot->Target;
+                bot->UnreachableTimer = FrameTimer.FromSeconds(frame, config.UnreachableSeconds);
+            }
         }
 
         private static void NextStep(Frame frame, Bot* bot, FP seconds)

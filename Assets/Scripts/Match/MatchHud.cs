@@ -53,12 +53,35 @@ namespace BlockSauce
                 game.AddCommand(Keyboard.current.shiftKey.isPressed ? new CommandRemoveBot() : new CommandAddBot());
             }
 
+            // Dev shortcut: an all-bot match. In the lobby, F6 hands your character to a bot and starts the match (bots
+            // fill the other slots); you watch your bot. F6 again, at any time, takes your character back.
+            if (Keyboard.current != null && Keyboard.current.f6Key.wasPressedThisFrame)
+            {
+                bool startMatch = match.State == MatchState.Lobby && IsLocalCharacterBot(frame, game) == false;
+                game.AddCommand(new CommandDevBotSelf());
+                if (startMatch)
+                {
+                    game.AddCommand(new CommandStartMatch());
+                }
+            }
+
             // Dev shortcut: knock yourself down.
             if (Keyboard.current != null && Keyboard.current.f10Key.wasPressedThisFrame)
             {
                 game.AddCommand(new CommandDevKnockdown());
             }
 #endif
+        }
+
+        private static bool IsLocalCharacterBot(Frame frame, QuantumGame game)
+        {
+            foreach (PlayerRef player in game.GetLocalPlayers())
+            {
+                if (PlayerSystem.TryGetCharacter(frame, player, out EntityRef character) && frame.Has<Bot>(character))
+                    return true;
+            }
+
+            return false;
         }
 
         private void OnGUI()

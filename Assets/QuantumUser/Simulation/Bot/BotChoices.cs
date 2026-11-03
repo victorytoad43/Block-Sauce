@@ -11,25 +11,33 @@ namespace Quantum
     public static unsafe class BotChoices
     {
         /// <summary>
+        /// The highest a block's center may be for a bot to fetch it from the ground: a block lying on one other block.
+        /// </summary>
+        private static readonly FP MaxFetchHeight = (FP)7 / 5;
+
+        /// <summary>
         /// Picks the block to fetch: the nearest of the bot's own blocks that is loose, on the ground and not its home
         /// block; when all its blocks are stacked, the nearest rival's loose block to raid with, as long as a rival has a
-        /// tower to throw it at. None when there's nothing to fetch.
+        /// tower worth raiding (RaidAtCount). Never a block another bot is already fetching. None when there's nothing to
+        /// fetch.
         /// </summary>
-        public static EntityRef ChooseBlockToFetch(Frame frame, EntityRef entity, Bot* bot)
+        public static EntityRef ChooseBlockToFetch(Frame frame, EntityRef entity, Bot* bot, BotConfig config)
         {
             PlayerRef self = frame.Get<Player>(entity).Ref;
             FPVector3 position = frame.Get<Transform3D>(entity).Position;
-            EntityRef own = FindNearestFreeBlock(frame, position, self, true, bot->Home);
-            if (own != EntityRef.None || FindLeadingRivalTop(frame, self) == EntityRef.None)
+            EntityRef skip = bot->UnreachableTimer.IsRunning(frame) ? bot->Unreachable : EntityRef.None;
+            EntityRef own = FindNearestFreeBlock(frame, position, self, true, bot->Home, skip);
+            if (own != EntityRef.None || FindLeadingRivalTop(frame, self, config) == EntityRef.None)
                 return own;
 
-            return FindNearestFreeBlock(frame, position, self, false, EntityRef.None);
+            return FindNearestFreeBlock(frame, position, self, false, EntityRef.None, skip);
         }
 
         /// <summary>
         /// Decides what to do with the block in hand and sets the task: a rival's block is thrown at the leading rival's
-        /// tower; the bot's own block goes on its tower (after a Stack dunk, some of the time), or, with no home block
-        /// on the ground, is set down to become its home.
+        /// tower; anything else (a knocked-down player, say) is set down; the bot's own block goes on its tower (after a
+        /// Stack dunk, some of the time), or, with no home block on the ground, is carried to where its blocks started
+        /// and set down to become its home.
         /// </summary>
         public static void UseHeldBlock(Frame frame, EntityRef entity, Bot* bot, BotConfig config)
         {
@@ -42,9 +50,15 @@ namespace Quantum
                 return;
             }
 
-            if (frame.Get<Block>(held).Owner != self)
+            if (frame.TryGet(held, out Block heldBlock) == false)
             {
-                EntityRef rival = FindLeadingRivalTop(frame, self);
+                BotSystem.SetTask(frame, bot, config, BotTaskType.Drop, EntityRef.None, default);
+                return;
+            }
+
+            if (heldBlock.Owner != self)
+            {
+                EntityRef rival = FindLeadingRivalTop(frame, self, config);
                 BotSystem.SetTask(frame, bot, config, rival != EntityRef.None ? BotTaskType.ThrowAt : BotTaskType.Drop,
                     rival, default);
                 return;
@@ -53,7 +67,14 @@ namespace Quantum
             EntityRef top = FindHomeTop(frame, entity, bot, held);
             if (top == EntityRef.None)
             {
-                BotSystem.SetTask(frame, bot, config, BotTaskType.Drop, EntityRef.None, default);
+                // Out in the open where its blocks started, rather than wherever the scramble left it.
+                FPVector3 homePoint = default;
+                if (frame.TryGetSingleton(out Match match))
+                {
+                    MatchSystem.TryGetBlockRowCenter(frame, frame.FindAsset(match.Mode), self, out homePoint);
+                }
+
+                BotSystem.SetTask(frame, bot, config, BotTaskType.Drop, EntityRef.None, homePoint);
                 bot->Home = held;
                 return;
             }
@@ -88,7 +109,12 @@ namespace Quantum
 
             if (IsUsableHome(frame, bot->Home, self, held) == false)
             {
-                bot->Home = FindNearestFreeBlock(frame, frame.Get<Transform3D>(entity).Position, self, true, held);
+                bot->Home = FindNearestFreeBlock(frame, frame.Get<Transform3D>(entity).Position, self, true, held,
+                    EntityRef.None);
+                if (IsUsableHome(frame, bot->Home, self, held) == false)
+                {
+                    bot->Home = EntityRef.None;
+                }
             }
 
             return bot->Home;
@@ -102,12 +128,13 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Returns the top of the tallest tower of the rival with the most counted blocks, or none.
+        /// Returns the top of the tallest tower of the rival with the most counted blocks, as long as that is at least
+        /// RaidAtCount; otherwise none.
         /// </summary>
-        private static EntityRef FindLeadingRivalTop(Frame frame, PlayerRef self)
+        private static EntityRef FindLeadingRivalTop(Frame frame, PlayerRef self, BotConfig config)
         {
             EntityRef best = EntityRef.None;
-            int bestCount = -1;
+            int bestCount = config.RaidAtCount - 1;
             for (int player = 0; player < frame.MaxPlayerCount; player++)
             {
                 EntityRef towerBase = player == (int)self ? EntityRef.None : BlockTower.GetBestBase(frame, player);
@@ -126,20 +153,24 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Returns the nearest loose block on the ground with nothing on it, nobody holding it, owned by
+        /// Returns the nearest loose block within reach (on the ground, or lying on one other block) with nothing on it,
+        /// not stacked on another block of its stack, nobody holding it, owned by
         /// <paramref name="self"/> (or, when <paramref name="own"/> is false, by someone else), other than
-        /// <paramref name="exclude"/>.
+        /// <paramref name="exclude"/> and <paramref name="skip"/>, and that no bot is on its way to fetch.
         /// </summary>
         private static EntityRef FindNearestFreeBlock(Frame frame, FPVector3 position, PlayerRef self, bool own,
-            EntityRef exclude)
+            EntityRef exclude, EntityRef skip)
         {
             EntityRef best = EntityRef.None;
             FP bestDistance = FP.UseableMax;
             var blocks = frame.Filter<Block, Transform3D, Grabbable>();
             while (blocks.NextUnsafe(out EntityRef entity, out Block* block, out Transform3D* transform, out Grabbable* grabbable))
             {
-                if (entity == exclude || grabbable->Holder != EntityRef.None || block->Stack != StackState.Loose
-                    || block->HasAbove || (block->Owner == self) != own || transform->Position.Y > FP._0_50 + FP._0_10)
+                if (entity == exclude || entity == skip || grabbable->Holder != EntityRef.None || block->Stack != StackState.Loose
+                    || (block->StackLevel != BlockStackSystem.NotStacked && block->StackLevel > 0) || block->HasAbove
+                    || (block->Owner == self) != own
+                    || transform->Position.Y > MaxFetchHeight
+                    || IsBeingFetched(frame, entity))
                     continue;
 
                 FP distance = (transform->Position - position).SqrMagnitude;
@@ -151,6 +182,18 @@ namespace Quantum
             }
 
             return best;
+        }
+
+        private static bool IsBeingFetched(Frame frame, EntityRef block)
+        {
+            var bots = frame.Filter<Bot>();
+            while (bots.NextUnsafe(out EntityRef _, out Bot* bot))
+            {
+                if (bot->Task == BotTaskType.Fetch && bot->Status == BotTaskStatus.Running && bot->Target == block)
+                    return true;
+            }
+
+            return false;
         }
 
         private static EntityRef FindNearestVat(Frame frame, FPVector3 position, SauceType type)

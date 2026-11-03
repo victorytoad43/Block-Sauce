@@ -160,6 +160,12 @@ namespace Quantum.Prototypes.Unity {
     [HideInInspector()]
     public Quantum.Prototypes.FrameTimerPrototype TaskTimer;
     [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype ThinkTimer;
+    [HideInInspector()]
+    public Quantum.QuantumEntityPrototype Unreachable;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype UnreachableTimer;
+    [HideInInspector()]
     public FPVector3 ProgressPosition;
     [HideInInspector()]
     public Quantum.Prototypes.FrameTimerPrototype ProgressTimer;
@@ -181,6 +187,9 @@ namespace Quantum.Prototypes.Unity {
       converter.Convert(this.Attempts, out result.Attempts);
       converter.Convert(this.StepTimer, out result.StepTimer);
       converter.Convert(this.TaskTimer, out result.TaskTimer);
+      converter.Convert(this.ThinkTimer, out result.ThinkTimer);
+      converter.Convert(this.Unreachable, out result.Unreachable);
+      converter.Convert(this.UnreachableTimer, out result.UnreachableTimer);
       converter.Convert(this.ProgressPosition, out result.ProgressPosition);
       converter.Convert(this.ProgressTimer, out result.ProgressTimer);
       converter.Convert(this.DetourYaw, out result.DetourYaw);

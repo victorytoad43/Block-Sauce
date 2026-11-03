@@ -37,6 +37,19 @@ namespace Quantum
                 return false;
 
             EntityRef character = PlayerSystem.SpawnCharacter(frame, slot, config.Avatar);
+            MakeBot(frame, character, slot, config);
+            return true;
+        }
+
+        /// <summary>
+        /// Hands a character to a bot: from now on the bot writes its input and its brain decides what it does. Used for
+        /// new bots, and by the dev bot match for a connected player's own character.
+        /// </summary>
+        public static void MakeBot(Frame frame, EntityRef character, PlayerRef slot, BotConfig config)
+        {
+            if (frame.Has<Bot>(character))
+                return;
+
             FP heading = frame.TryGet(character, out PlayerLook look) ? look.Yaw : FP._0;
             frame.Add(character, new Bot { Heading = heading });
             if (config.Brain.IsValid)
@@ -46,7 +59,19 @@ namespace Quantum
             }
 
             frame.Events.BotAdded(slot);
-            return true;
+        }
+
+        /// <summary>
+        /// Takes a character back from its bot, for the player in its slot; the player's input drives it again.
+        /// </summary>
+        public static void ReleaseBot(Frame frame, EntityRef character, PlayerRef slot)
+        {
+            if (frame.Has<Bot>(character) == false)
+                return;
+
+            frame.Remove<Bot>(character);
+            frame.Remove<HFSMAgent>(character);
+            frame.Events.BotRemoved(slot);
         }
 
         /// <summary>
@@ -133,6 +158,8 @@ namespace Quantum
             bot->Attempts = 0;
             bot->StepTimer = default;
             bot->TaskTimer = FrameTimer.FromSeconds(frame, config.TaskSeconds);
+            bot->ThinkTimer = task == BotTaskType.None ? default
+                : FrameTimer.FromSeconds(frame, frame.RNG->Next(config.ThinkSecondsMin, config.ThinkSecondsMax));
         }
 
         /// <summary>

@@ -14,7 +14,7 @@ namespace Quantum
             if (TryGetBot(frame, entity, out Bot* bot, out BotConfig config) == false)
                 return;
 
-            EntityRef block = BotChoices.ChooseBlockToFetch(frame, entity, bot);
+            EntityRef block = BotChoices.ChooseBlockToFetch(frame, entity, bot, config);
             BotSystem.SetTask(frame, bot, config, BotTaskType.Fetch, block, default);
             if (block == EntityRef.None)
             {

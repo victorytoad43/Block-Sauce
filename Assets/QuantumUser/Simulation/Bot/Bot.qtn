@@ -12,7 +12,7 @@ enum BotTaskType
     ThrowAt,
     // Carry the held block to the Target vat, dunk it and lift it out.
     Dunk,
-    // Set the held block down where the bot stands.
+    // Carry the held block to Point (or, with no Point, stay put) and set it down.
     Drop
 }
 
@@ -43,6 +43,11 @@ component Bot
     [HideInInspector] byte Attempts;
     [HideInInspector] FrameTimer StepTimer;
     [HideInInspector] FrameTimer TaskTimer;
+    // A moment's hesitation before the task starts, so bots don't react with machine speed.
+    [HideInInspector] FrameTimer ThinkTimer;
+    // A block the bot failed to fetch (out of reach, say), which it leaves alone until the timer runs out.
+    [HideInInspector] EntityRef Unreachable;
+    [HideInInspector] FrameTimer UnreachableTimer;
 
     // Stuck detection: where the bot was at the last check, and a detour heading it follows for a moment when stuck.
     [HideInInspector] FPVector3 ProgressPosition;

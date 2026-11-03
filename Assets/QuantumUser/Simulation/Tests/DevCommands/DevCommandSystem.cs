@@ -127,6 +127,19 @@ namespace Quantum
     }
 
     /// <summary>
+    /// Test-only: hands the sender's own character to a bot, or, when a bot already drives it, takes it back. Sent with
+    /// <see cref="CommandStartMatch"/> in the lobby, it starts an all-bot match (bots fill the other slots) that the
+    /// sender watches through their own character; the room's add-bot and fill paths are the same as for players. Only
+    /// debug builds act on it.
+    /// </summary>
+    public class CommandDevBotSelf : DeterministicCommand
+    {
+        public override void Serialize(BitStream stream)
+        {
+        }
+    }
+
+    /// <summary>
     /// Test-only: runs dev commands in debug builds. Does nothing in release builds.
     /// </summary>
     public unsafe class DevCommandSystem : SystemMainThread
@@ -163,6 +176,11 @@ namespace Quantum
                 {
                     GiveBotTask(frame, player, command);
                 }
+
+                foreach (CommandDevBotSelf _ in frame.GetPlayerCommands<CommandDevBotSelf>(player))
+                {
+                    ToggleBotSelf(frame, player);
+                }
             }
 
             if (frame.TryGetSingleton(out Match match) == false || match.State != MatchState.Playing)
@@ -178,6 +196,22 @@ namespace Quantum
                 }
             }
 #endif
+        }
+
+        private static void ToggleBotSelf(Frame frame, PlayerRef player)
+        {
+            if (frame.TryGetSingleton(out Match match) == false
+                || PlayerSystem.TryGetCharacter(frame, player, out EntityRef character) == false)
+                return;
+
+            if (frame.Has<Bot>(character))
+            {
+                BotSystem.ReleaseBot(frame, character, player);
+            }
+            else
+            {
+                BotSystem.MakeBot(frame, character, player, BotSystem.GetConfig(frame, match));
+            }
         }
 
         private static void GiveBotTask(Frame frame, PlayerRef sender, CommandDevBotTask command)
