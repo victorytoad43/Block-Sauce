@@ -61,7 +61,7 @@ event BlockDipEnded
 event StackSaucePulse
 {
     EntityRef Block;
-    FPVector3 Position;
+    nothashed FPVector3 Position;
     FP Radius;
     FP Strength;
 }

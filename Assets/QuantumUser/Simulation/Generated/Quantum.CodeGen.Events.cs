@@ -350,7 +350,6 @@ namespace Quantum {
         var hash = 69279837;
         hash = hash * 31 + Entity.GetHashCode();
         hash = hash * 31 + Source.GetHashCode();
-        hash = hash * 31 + Impulse.GetHashCode();
         hash = hash * 31 + Staggered.GetHashCode();
         return hash;
       }
@@ -596,7 +595,6 @@ namespace Quantum {
       unchecked {
         var hash = 519696935;
         hash = hash * 31 + Block.GetHashCode();
-        hash = hash * 31 + Position.GetHashCode();
         hash = hash * 31 + Radius.GetHashCode();
         hash = hash * 31 + Strength.GetHashCode();
         return hash;

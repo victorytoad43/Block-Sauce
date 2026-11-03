@@ -7,7 +7,7 @@ event KnockedBack
 {
     EntityRef Entity;
     EntityRef Source;
-    FPVector3 Impulse;
+    nothashed FPVector3 Impulse;
     bool Staggered;
 }
 
