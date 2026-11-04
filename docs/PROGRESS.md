@@ -4,7 +4,7 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-03)
 
-**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is in progress: steps 1–4 are in; eight bots play matches to a win on their own, back to back.**
+**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is in progress: steps 1–5 are in; eight bots play matches to a win on their own, back to back, and a spectator director camera can watch them.**
 
 What plays today, online with up to 8 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
@@ -48,7 +48,7 @@ Goal: the whole game seen end to end before the plan review: open on the menu ov
 2. **Bot actions** (our C#, deterministic): steer to a point (avoiding vats, towers and players), turn to face, grab a target block, carry, raise and lower (swing pitch), place on top of a tower, aim and throw at a target, dunk in a vat, recover from a knockdown. Each one testable alone with a dev command.
 3. **Bot brain** (Bot SDK state machine, `HFSMAgent`; done): Waiting (outside a match) → Fetching (nearest loose own block; when all are stacked, a rival's, if a rival has a tower) → Using (own block: place on the tower, after a Stack dunk a quarter of the time; rival's block: throw at the leading rival's tower) → Fetching; a failed task pauses a second. Numbers on `BotConfig`. Bots should look like players, not play well.
 4. **8-bot test match** (done): F6 in a room's lobby hands your own character to a bot and starts the match, bots filling the other slots through the same fill-at-start path; you watch your bot. F6 again takes your character back. Soak-tested back to back.
-5. **Spectator camera** (view only): a director that picks a subject by interest (a tower near completion, a throw in flight, a knockdown, a scramble near a vat), holds each shot a few seconds, and cuts or eases to the next. Cinematic framing from above and to the side; no input.
+5. **Spectator camera** (view only; done, `SpectatorDirector`): a director that picks a subject by interest (a tower near completion, a throw in flight, a knockdown, a scramble near a vat), holds each shot a few seconds, and cuts or eases to the next. Cinematic framing from above and to the side; no input.
 6. **Menu scene.** A new `Menu` scene: loads the arena, starts an offline local game (`DeterministicGameMode.Local`) with 8 bots looping matches, and shows Jackson's menu over the spectator camera. Start Game: shuts the background game down and hosts an online room with a short room code. Join Game: a code field. Settings: volume, look sensitivity, invert Y, fullscreen and resolution, saved locally. uGUI with TextMeshPro and the Jaro font; controller and mouse navigation through the EventSystem. Escape or the gamepad's Back opens a pause menu in a room (leave room, settings). Replaces `BlockSauceStartUI` and the stock Quantum start UI.
 7. **Room screen and HUD** (rough draft in Jackson's style): room code, player list in colors with bots marked, add/remove bot, bots-fill-slots toggle, start match; match HUD (countdown, each player's three tower slots, winner) and results. Replaces the IMGUI `MatchHud`.
 8. **Done-when check:** menu over a bot match; host a room, add bots, play a full match, back to the menu; a second client (MPPM) joins by code; 8 bots finish a match alone. Two clients for the online parts; console clean.
@@ -107,6 +107,14 @@ Phase report format:
 - Known issues: see Current state (sauce particles cover the whole block; the cup art is wider than its collision; a hard dunk can stick for a moment; MPPM scenario start sometimes hangs).
 - Placeholders still in use: `PH_SauceVat_Stack`/`_Slip` and `PH_SauceCoat`/`PH_SauceLooks` (A-009), `PH_PlayerCapsule`, `PH_Block`, `PH_LockDither` (A-007/A-013), `PH_` terrain (A-008), IMGUI `MatchHud` (A-006), stock start UI (A-002); Win and Lose clips are Jackson's placeholders (A-023).
 - Ready for review: yes
+
+## 2026-11-03: Phase 6, step 5: spectator director camera
+- Did: `SpectatorDirector` (view only, on the main camera, after the orbit camera): each frame it scores a wide shot of everyone (1), each player's best tower (1 + 1.5 per counted block, + 1.5 per level while its top settles), a block in flight for 2 s after a throw (6), a knockdown for 3 s (5), and two or more players within 3 m of a vat (1 + players). It holds a shot at least 3 s, switches early only for something 2 points more interesting (or when the subject is gone), and moves on to the next best after 7 s. A subject within 8 m of the current focus is eased to over 1.2 s; further away, cut to. Framing: 35° down, 6–14 m away by shot (the wide shot pulls back to fit everyone, up to 26 m), drifting 5°/s round the subject, from the arena's middle side so walls stay behind, kept inside ±18 m and at least 3 m up. Positions come from the entity views, so it moves smoothly between ticks. Dev key F5 switches the camera to it and back; the menu scene (step 6) will use it with no orbit camera.
+- Verified (one client, F6 all-bot match with the director on): over a 40 s match it changed shot 13 times on its own: tower shots as stacks grew, throws, and the wide shot in the lobby; screenshots at 5 s intervals all framed players and towers from above. Console clean.
+- Decided: interest scores and timings live on the component, for tuning by eye in the menu scene.
+- Assets: none.
+- Questions for Jackson: none yet; judge the camera's feel once it runs behind the menu.
+- Next: step 6, the menu scene (with Jackson's new menu art).
 
 ## 2026-11-03: Phase 6, step 4: 8-bot test match
 - Did: dev key F6 (`CommandDevBotSelf`): in the lobby, your character is handed to a bot and the match starts with bots filling the other slots; F6 again takes it back. `BotSystem.MakeBot`/`ReleaseBot` shared with new bots and with a player taking over a bot's slot. Brain fixes from the soak: a bot hesitates 0.3–1 s before each task; bots raid only a rival with at least 2 counted blocks (`RaidAtCount`); a bot with no home carries its block back to where its blocks started and sets it down there; bots don't chase a block another bot is fetching, leave a block they failed to fetch alone for 20 s, may take a block lying on another one, and set down anything that isn't a block (a knocked-down player); `MatchSystem.TryGetBlockRowCenter`.

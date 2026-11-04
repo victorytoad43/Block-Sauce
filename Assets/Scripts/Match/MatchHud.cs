@@ -65,6 +65,20 @@ namespace BlockSauce
                 }
             }
 
+            // Dev shortcut until the menu scene: F5 switches the main camera to the spectator director and back.
+            if (Keyboard.current != null && Keyboard.current.f5Key.wasPressedThisFrame && Camera.main != null)
+            {
+                SpectatorDirector director = Camera.main.GetComponent<SpectatorDirector>();
+                if (director == null)
+                {
+                    Camera.main.gameObject.AddComponent<SpectatorDirector>();
+                }
+                else
+                {
+                    director.IsDirecting = director.IsDirecting == false;
+                }
+            }
+
             // Dev shortcut: knock yourself down.
             if (Keyboard.current != null && Keyboard.current.f10Key.wasPressedThisFrame)
             {
