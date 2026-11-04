@@ -123,7 +123,7 @@ A rough draft of the menu and UI, the spectator camera and bots, so the game can
 ### Plan review (in progress)
 After Phase 6, Jackson and the agent replan what follows from playing the whole game. It includes an optimization pass (Jackson): profile the full game with 6 players and bots, CPU and GPU, then fix the top costs.
 - [x] Optimization pass (2026-11-04): the one big cost was a bug, an exception thrown every tick after a knockdown from a collision (about 53 ms a frame; it also left the demo stuck on its results). Fixed. With 6 bots playing, a frame costs about 5 ms on the main thread offline and about 8 ms online (7 simulation steps a frame with rollbacks), and 1.5 ms on the GPU, measured in the agent's unfocused editor.
-- [ ] Jackson still sees about 30 fps in his editor, dropping to about 9 fps on knockdowns, with no errors logged; not reproduced by the agent. Next check: a standalone development build, and the frame numbers from Jackson's session.
+- [x] Jackson's 30 fps in the editor and drops to about 9 fps (2026-11-04): not the game. On this PC, frames wait on the display: in the editor about 28 ms of each 33 ms frame is the wait for the last presentation, and a development build (about 1 ms of work a frame, 165 fps with vsync) stalls now and then for 100 or 200 ms, every one of them spent waiting on presentation. Suspect the Meta Virtual Monitor driver; Jackson to retest with it off. Vsync is now on by default (it was off, so the game ran at about 900 fps).
 - [x] Replan agreed (Jackson, 2026-11-04): the phases below.
 
 The candidates, from the old Phase 6:

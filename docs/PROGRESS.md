@@ -4,7 +4,7 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-04)
 
-**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is done. The plan review is nearly done: the replan is agreed (Phase 7 arena, waiting on Jackson's graybox; Phase 8 feel and juice; Phase 9 playtest build). The per-tick exception after collision knockdowns is fixed, but Jackson still sees about 30 fps in his editor (9 on knockdowns), which the agent can't reproduce; a standalone build is the next check. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
+**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is done. The plan review is nearly done: the replan is agreed (Phase 7 arena, waiting on Jackson's graybox; Phase 8 feel and juice; Phase 9 playtest build). The per-tick exception after collision knockdowns is fixed. Jackson's low frame rate is the display chain on this PC, not the game: a development build does about 1 ms of work a frame and runs at 165 fps with vsync, but stalls on presentation now and then. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
 
 What plays today, online with up to 6 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
@@ -15,6 +15,7 @@ What plays today, online with up to 6 players, in the Lobby scene:
 - Sauces: two vats (Jackson's cup) in the middle of the Lobby. Dunk a held block (or throw one in) to coat it; how deep sets the strength. Stack sauce makes a block sticky: high friction, and it glues to the blocks and ground it rests against until a throw-hard hit or a grab tears it free; Slip sauce makes a block slide (7.9 m after a throw against 1.1 m plain), so a Slip tower comes apart when pushed. The coat is a thick, lumpy, glossy shell that changes the block's silhouette, with bubbles (Stack) or glints (Slip); drips are off for now. Dev keys: F8 coats your held block or all your blocks with Stack sauce, Shift+F8 with Slip.
 
 ### Known issues
+- On this PC, presentation stalls: the editor waits about 28 ms a frame for the last presentation (about 30 fps), and a build stalls for 100 or 200 ms now and then (seen as drops to about 9 fps). The game's own work is 1–8 ms a frame. Suspect the Meta Virtual Monitor; see Next.
 - Sitting while holding a block keeps the block at the standing hold height; the arms reach up to it. If it reads badly, lower the hold pivot while sitting (simulation).
 - A block dunked hard against the cup's side can stick at the bottom for a moment before the hold lifts it out.
 - Sauce particles emit over the whole block, not only the coated part.
@@ -45,7 +46,7 @@ What plays today, online with up to 6 players, in the Lobby scene:
 
 ## Next: frame rate, then Phase 7
 
-1. Frame rate: Jackson sees about 30 fps in the editor, about 9 on knockdowns. The agent measures about 5 to 8 ms of work a frame (online, 6 bots, forced knockdowns included) and no errors in Jackson's session; its own frame time (30 ms) is display pacing from the unfocused editor. Next: a standalone development build to compare, and Jackson's own numbers (Unity's Game view Stats, Quantum's stats overlay) during a knockdown.
+1. Frame rate: Jackson retests the development build (`Builds/BlockSauce_Dev/BlockSauce.exe -logframes`) with the Meta Virtual Monitor off (quit the Meta Quest Link / Horizon app). If the 100 ms stalls stop, it was the virtual display; if not, next suspects are the AMD driver and the compositor (try exclusive fullscreen).
 2. Phase 7 starts when Jackson's graybox arrives (format in `docs/ASSETS.md`, A-008).
 
 ## Log
@@ -72,6 +73,13 @@ Phase report format:
 - Placeholders still in use: <list with asset IDs>
 - Ready for review: yes
 ```
+
+## 2026-11-04: Plan review, frame rate in a build
+- Did: a Windows development build (`Builds/BlockSauce_Dev`, 188 MB). New dev-only `FrameLog` (`-logframes`, `-fps N`; see CLAUDE.md › Testing). Frame timing stats on in the player settings (so `FrameTimingManager` reports in builds). Vsync on in both quality levels: it was off, so the build ran at about 900 fps.
+- Verified: the build on the menu's 6-bot demo: about 1 ms of main-thread work and 0.3 ms of simulation a frame; 165 fps with vsync on this 165 Hz screen; capped at 60, a steady 60 (worst frame 17–20 ms). Uncapped or at 165, single frames stall for about 103 or 205 ms in bursts; the recorder shows the stall is all present wait (103 ms frame: 102 ms waiting for the last presentation). Not GC (heap steady at about 22 MB; only the two startup hitches had a collection). No exceptions in the build.
+- Decided: vsync on by default; a frame-rate setting can come with the settings polish if needed.
+- Questions for Jackson: retest with the Meta Virtual Monitor off (see Next).
+- Next: Jackson's retest; Phase 7 when the graybox arrives.
 
 ## 2026-11-04: Plan review, answers and fonts
 - Did: Jackson's answers into the plan (Phases 7 to 9, Bot Enhancement and Steam later, fonts, 6 players). DynaPuff (the logo's second line, OFL) in as `UI_DynaPuff_Bold` and `UI_DynaPuff_Regular`; the menu builder uses it for buttons, names, codes, prompts and hints, and Jaro for the countdown, RESULTS and the winner. Rebuilt `PH_MainMenu`, `PH_MatchHud` and the Lobby's front end. New `JointValidator` (simulation test helper): lists joints whose owner or connected entity is gone or has no body.
