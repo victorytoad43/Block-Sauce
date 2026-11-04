@@ -14,7 +14,7 @@ The agent builds rough drafts of every screen in the style of the main menu mock
     - Then mock-ups for: Join Game (type a room code; maybe a list of open rooms), Settings (volume, look sensitivity, invert Y, fullscreen, resolution), and the room screen (room code to share, player list in their colors with bots marked, add and remove bot buttons, start match).
     - The logo and button at 2× for sharp 4K (1338×774, 992×202).
 2. **A-006 Match HUD and results screen mock-ups**.
-    - States: Lobby (press Start or Enter), Countdown 3 s, Playing, Round end 3 s with the winner, Results 6 s. Per player: their color and 3 slots for their best stack, each empty, settling (0 to 100%) or counted. Mock-ups at 1920×1080 for 2 and 8 players. Bots show in the same list, marked as bots.
+    - States: Lobby (press Start or Enter), Countdown 3 s, Playing, Round end 3 s with the winner, Results 6 s. Per player: their color and 3 slots for their best stack, each empty, settling (0 to 100%) or counted. Mock-ups at 1920×1080 for 2 and 6 players. Bots show in the same list, marked as bots.
     - Spectator bar (shown while spectating in a room): a label for what the camera shows ("Auto · Player 3's tower", "Following Player 8", "Overview"), previous / next player, Overview and Auto, the active mode marked, and a hint line for the keys (arrows / d-pad). Today's placeholder sits bottom center, about 640×78.
 3. **A-010 Logo variants** (the logo itself is in as `UI_Logo`).
     - A small version for the in-game HUD corner and the window icon (256×256), if the full logo doesn't shrink well.

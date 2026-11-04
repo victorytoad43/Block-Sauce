@@ -4,7 +4,7 @@ Source of truth for design, architecture, decisions and phases. Older plan versi
 
 ## Overview
 
-Block Sauce is a third-person online physics party game for 2–8 players: build your tower, wreck everyone else's. There is no health and no death. Players only get knocked around, and stacks only fall when something hits them. Every feature should either help a player build or help them wreck; sauces tilt a block toward one or the other.
+Block Sauce is a third-person online physics party game for 2–6 players: build your tower, wreck everyone else's. There is no health and no death. Players only get knocked around, and stacks only fall when something hits them. Every feature should either help a player build or help them wreck; sauces tilt a block toward one or the other.
 
 **Player verbs:** walk/run, jump, sit, slide (sit while moving fast), grab, carry, hold and swing, place, throw, jumpshot (throw while airborne). A held block is available in every movement state.
 
@@ -116,11 +116,11 @@ A rough draft of the menu and UI, the spectator camera and bots, so the game can
 - [ ] Spectator camera: a director that follows the action (who is building, who is fighting), cutting and easing between players; non-interactive behind the menu. In a room, a viewer can take over: follow the previous or next player, hold the overview (wide shot of everyone), or hand back to the director (Jackson, 2026-11-03). Free flight comes later.
 - [ ] Menu: Jackson's main menu (logo and Start Game, Join Game, Settings on the right) over a live bot match seen from the spectator camera, running offline on this machine. Start Game hosts an online room and Join Game joins one by room code or any open room; both land in the sandbox room. No offline solo mode: a room can be all bots. Settings: volume, look sensitivity, invert Y, fullscreen and resolution. Controller and mouse both drive it. Replaces the stock Quantum start UI.
 - [ ] In-room UI and HUD, rough draft in the Jaro font and Jackson's style: room code, player list in colors with bots marked, add/remove bots, start match; match HUD (countdown, each player's tower slots) and results. Replaces the IMGUI `MatchHud`.
-- [ ] 8-bot test match: set up in a live room (add bots or fill at start), 8 bots play Stack & Lock to a win, watched with the spectator camera. Testing only, not a player feature.
-- **Done when:** the game opens on the menu over a bot match; a player can start a room, add bots, play a full match against them and return to the menu; a second player joins that room by code; 8 bots finish a match on their own.
+- [ ] All-bot test match: set up in a live room (add bots or fill at start), 6 bots play Stack & Lock to a win, watched with the spectator camera. Testing only, not a player feature.
+- **Done when:** the game opens on the menu over a bot match; a player can start a room, add bots, play a full match against them and return to the menu; a second player joins that room by code; 6 bots finish a match on their own.
 
 ### Plan review
-After Phase 6, Jackson and the agent replan what follows from playing the whole game. The candidates, from the old Phase 6:
+After Phase 6, Jackson and the agent replan what follows from playing the whole game. It includes an optimization pass (Jackson): profile the full game with 6 players and bots (the frame rate dropped to about 40 fps with 8), CPU and GPU, then fix the top costs. Suspects to measure first: the bots' steering raycasts, which also run again on every rollback; ragdoll physics; the sauce coat shader; IMGUI HUDs. The candidates, from the old Phase 6:
 - Final arena with uneven terrain and room for towers; the match runs there (today it runs in the Lobby scene)
 - Camera collision with walls; audio
 - Juice: shake, particles, squash and stretch, count pop; block owner readability (A-013); settle look (A-007); sauce looks (A-009)
@@ -148,7 +148,9 @@ Current decisions only; how they were reached is in git history.
 - **Throwing** is hold-to-aim with a trajectory line and landing circle; a jumpshot aims the same way at 1.3× speed. One clip, `Throw`, covers both: frame 4 is the aim pose, the rest is the follow-through (Jackson, 2026-11-02). No place clip. While aiming, the real block collides with nothing and its model arcs over the head (Jackson, 2026-11-02).
 - **Win and lose:** after a round the winner plays `Win.Jump` and everyone else `Sitdown`, through round end and results (Jackson's placeholders, 2026-11-02).
 - **Block ownership readability** is rethought at the top level in the visual polish after the plan review, likely a personal UI that highlights your own blocks (Jackson, 2026-11-02).
-- **Phase order** (Jackson, 2026-11-03): Phase 6 is the front end and bots (menu and UI draft, spectator director camera, bots, one-button 8-bot test); then a plan review; the arena, juice, audio and tuning are replanned there. Until bots play, full-match checks run in MPPM.
+- **Players: 2–6** (Jackson, 2026-11-03): cut from 8 for performance (about 40 fps with 8 in the full game); the two blues left the palette. `max_players` in `Input.qtn` sets the session and room size. The Lobby's ring of 8 spawn points is shared out evenly among the 6 slots.
+- **Optimization** (Jackson, 2026-11-03): a profiling and optimization pass is part of the plan review that follows the menu build.
+- **Phase order** (Jackson, 2026-11-03): Phase 6 is the front end and bots (menu and UI draft, spectator director camera, bots, one-button all-bot test); then a plan review; the arena, juice, audio, tuning and optimization are replanned there. Until bots play, full-match checks run in MPPM.
 - **Movement input:** a gamepad stick's tilt sets speed from slow walk to full run; the keyboard walks, with Shift to run. The gamepad Start button starts a match; only Escape opens the menu.
 - **Sit replaces crouch** (Jackson, 2026-11-02): no movement while sitting except sliding; a sitting body moving fast plays the slide.
 - **Knockdown:** see Architecture › Knockdown. Numbers live on `PlayerKnockbackConfig` and `PlayerRagdollConfig` and stay open for tuning.

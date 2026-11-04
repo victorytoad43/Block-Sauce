@@ -44,6 +44,7 @@ namespace BlockSauce
         {
             public ShotKind Kind;
             public EntityRef Subject;
+            public EntityRef Top;
             public PlayerRef Player;
             public Vector3 Focus;
             public float Score;
@@ -51,6 +52,9 @@ namespace BlockSauce
         }
 
         [Header("Holding shots")]
+        [Tooltip("Seconds between rescoring what is worth watching; the current shot still follows its subject every "
+            + "frame.")]
+        [SerializeField] private float _rescoreSeconds = 0.1f;
         [Tooltip("Seconds a shot is held before the director may switch away from it.")]
         [SerializeField] private float _minShotSeconds = 3f;
         [Tooltip("Seconds after which a shot gives way to anything else worth watching.")]
@@ -99,6 +103,8 @@ namespace BlockSauce
         private PlayerRef _followed = PlayerRef.None;
         private Shot _shot;
         private bool _hasShot;
+        private float _nextRescore;
+        private string _description = "Auto";
         private float _shotStarted;
         private float _yaw;
         private Vector3 _focus;
@@ -136,7 +142,9 @@ namespace BlockSauce
         /// <summary>
         /// What the camera shows, in a few words for the spectator controls: the mode and, where there is one, whose.
         /// </summary>
-        public string Describe()
+        public string Describe() => _description;
+
+        private string BuildDescription()
         {
             switch (_mode)
             {
@@ -170,6 +178,7 @@ namespace BlockSauce
         public void SetAuto()
         {
             _mode = ViewMode.Auto;
+            _nextRescore = 0f;
         }
 
         /// <summary>
@@ -178,6 +187,7 @@ namespace BlockSauce
         public void ShowOverview()
         {
             _mode = ViewMode.Overview;
+            _nextRescore = 0f;
         }
 
         /// <summary>
@@ -200,6 +210,7 @@ namespace BlockSauce
                 : (index + direction + _players.Count) % _players.Count;
             _followed = _players[index];
             _mode = ViewMode.Follow;
+            _nextRescore = 0f;
         }
 
         /// <summary>
@@ -213,6 +224,7 @@ namespace BlockSauce
         private void OnEnable()
         {
             _hasShot = false;
+            _nextRescore = 0f;
             QuantumEvent.Subscribe(this, (EventThrown e) => _throws[e.Held] = Time.time + _throwSeconds);
             QuantumEvent.Subscribe(this, (EventRagdollChanged e) =>
             {
@@ -241,6 +253,18 @@ namespace BlockSauce
                 _views = FindAnyObjectByType<QuantumEntityViewUpdater>();
             }
 
+            if (Time.time < _nextRescore)
+            {
+                if (_hasShot)
+                {
+                    RefreshFocus(frame, ref _shot);
+                    PlaceCamera(_shot);
+                }
+
+                return;
+            }
+
+            _nextRescore = Time.time + _rescoreSeconds;
             GatherCandidates(frame);
             if (_candidates.Count == 0)
                 return;
@@ -260,25 +284,61 @@ namespace BlockSauce
                     }
                     break;
                 case ViewMode.Overview:
-                    KeepOrStart(_candidates.Find(candidate => candidate.Kind == ShotKind.Wide));
+                    foreach (Shot candidate in _candidates)
+                    {
+                        if (candidate.Kind == ShotKind.Wide)
+                        {
+                            KeepOrStart(candidate);
+                            break;
+                        }
+                    }
                     break;
                 default:
                     ChooseShot();
                     break;
             }
 
+            _description = BuildDescription();
             PlaceCamera(_shot);
         }
 
         /// <summary>
-        /// Scores everything worth watching this frame.
+        /// Moves a shot's focus with its subject, between rescores.
         /// </summary>
-        private void GatherCandidates(Frame frame)
+        private void RefreshFocus(Frame frame, ref Shot shot)
         {
-            _candidates.Clear();
-            float now = Time.time;
+            switch (shot.Kind)
+            {
+                case ShotKind.Wide:
+                    GetEveryone(frame, out shot.Focus, out shot.Distance);
+                    break;
+                case ShotKind.Tower:
+                    if (frame.Exists(shot.Subject) && frame.Exists(shot.Top))
+                    {
+                        shot.Focus = Vector3.Lerp(GetPosition(frame, shot.Subject), GetPosition(frame, shot.Top), 0.5f);
+                    }
+                    break;
+                case ShotKind.Follow:
+                    if (frame.Exists(shot.Subject))
+                    {
+                        shot.Focus = GetPosition(frame, shot.Subject) + Vector3.up;
+                    }
+                    break;
+                case ShotKind.Throw:
+                case ShotKind.Knockdown:
+                    if (frame.Exists(shot.Subject))
+                    {
+                        shot.Focus = GetPosition(frame, shot.Subject);
+                    }
+                    break;
+            }
+        }
 
-            // The wide shot: everyone in view.
+        /// <summary>
+        /// The middle of everyone, and how far back the wide shot must be to fit them; false when nobody is playing.
+        /// </summary>
+        private bool GetEveryone(Frame frame, out Vector3 center, out float distance)
+        {
             Bounds everyone = default;
             int players = 0;
             var characters = frame.Filter<Player, Transform3D>();
@@ -297,15 +357,28 @@ namespace BlockSauce
                 players++;
             }
 
-            if (players > 0)
+            center = everyone.center;
+            distance = Mathf.Clamp(everyone.extents.magnitude * 1.6f, _wideDistance, _maxWideDistance);
+            return players > 0;
+        }
+
+        /// <summary>
+        /// Scores everything worth watching (every <see cref="_rescoreSeconds"/>).
+        /// </summary>
+        private void GatherCandidates(Frame frame)
+        {
+            _candidates.Clear();
+            float now = Time.time;
+
+            // The wide shot: everyone in view.
+            if (GetEveryone(frame, out Vector3 everyoneCenter, out float everyoneDistance))
             {
-                float fit = everyone.extents.magnitude * 1.6f;
                 _candidates.Add(new Shot
                 {
                     Kind = ShotKind.Wide,
-                    Focus = everyone.center,
+                    Focus = everyoneCenter,
                     Score = 1f,
-                    Distance = Mathf.Clamp(fit, _wideDistance, _maxWideDistance),
+                    Distance = everyoneDistance,
                 });
             }
 
@@ -326,6 +399,7 @@ namespace BlockSauce
                 {
                     Kind = ShotKind.Tower,
                     Subject = towerBase,
+                    Top = top,
                     Player = player,
                     Focus = Vector3.Lerp(GetPosition(frame, towerBase), GetPosition(frame, top), 0.5f),
                     Score = score,
@@ -372,7 +446,7 @@ namespace BlockSauce
             {
                 Vector3 center = vatTransform.Position.ToUnityVector3();
                 int near = 0;
-                characters = frame.Filter<Player, Transform3D>();
+                var characters = frame.Filter<Player, Transform3D>();
                 while (characters.Next(out EntityRef entity, out Player _, out Transform3D _))
                 {
                     Vector3 offset = GetPosition(frame, entity) - center;

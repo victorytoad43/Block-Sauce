@@ -146,10 +146,18 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Returns the transform of the spawn point at <paramref name="index"/>, or null when the map has fewer spawn points.
+        /// Returns the transform of the spawn point for player <paramref name="index"/>, or null when the map has fewer
+        /// spawn points. A map with more spawn points than player slots (the Lobby's ring of 8, with 6 players) spreads
+        /// the players across them, so they stand evenly round the ring rather than bunched on one side.
         /// </summary>
         private static Transform3D* FindSpawnTransform(Frame frame, int index)
         {
+            int spawnPoints = frame.ComponentCount<PlayerSpawnPoint>();
+            if (spawnPoints > frame.MaxPlayerCount)
+            {
+                index = (index * spawnPoints + frame.MaxPlayerCount / 2) / frame.MaxPlayerCount;
+            }
+
             int count = 0;
 
             var filter = frame.Filter<PlayerSpawnPoint, Transform3D>();

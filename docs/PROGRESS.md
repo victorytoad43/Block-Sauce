@@ -4,7 +4,7 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-03)
 
-**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is in progress: steps 1–5 are in; eight bots play matches to a win on their own, back to back, and a spectator director camera can watch them.**
+**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is in progress: steps 1–5 are in; six bots play matches to a win on their own, back to back, and a spectator director camera can watch them.**
 
 What plays today, online with up to 8 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
@@ -107,6 +107,14 @@ Phase report format:
 - Known issues: see Current state (sauce particles cover the whole block; the cup art is wider than its collision; a hard dunk can stick for a moment; MPPM scenario start sometimes hangs).
 - Placeholders still in use: `PH_SauceVat_Stack`/`_Slip` and `PH_SauceCoat`/`PH_SauceLooks` (A-009), `PH_PlayerCapsule`, `PH_Block`, `PH_LockDither` (A-007/A-013), `PH_` terrain (A-008), IMGUI `MatchHud` (A-006), stock start UI (A-002); Win and Lose clips are Jackson's placeholders (A-023).
 - Ready for review: yes
+
+## 2026-11-03: Phase 6, 6 players; lighter spectator camera
+- Did (Jackson: about 40 fps with the full game): players cut from 8 to 6 (`max_players 6` in `Input.qtn`, which also sizes the Photon room); the two blues left the palette (`PH_PlayerColors` keeps red, orange, yellow, light green, green and teal). The Lobby's ring of 8 spawn points is shared evenly among the 6 slots in code (`PlayerSystem.FindSpawnTransform`), leaving the scene alone. The spectator director now rescores what to watch 10 times a second instead of every frame (the tower count it uses loops over all blocks for every block, per player), moves only the current shot with its subject in between, builds its label text only when the shot changes (IMGUI asked for it several times a frame), and no longer allocates a lambda each frame for the overview.
+- Verified (one client, all-bot match): 6 slots (the player in 0, bots in 1–5) standing at 0°, 45°, 135°, 180°, 225° and 315°; the spectator modes as before (follow next, wrap, previous, overview, auto), the camera 7.3–7.6 m from a followed player; console clean. Frame rate not measured here (an unfocused editor throttles); Jackson's machine is the check.
+- Decided: the frame-rate drop is more likely the bots and physics than the camera; the plan review now opens with a profiling and optimization pass (see the plan).
+- Assets: A-006 mock-ups for 2 and 6 players.
+- Questions for Jackson: none.
+- Next: step 6, the menu scene.
 
 ## 2026-11-03: Phase 6, spectator controls
 - Did (Jackson's request): the spectator director has three modes. Auto is the director as before; Follow keeps the camera on one player (7 m back, drifting round them), previous or next in slot order, wrapping; Overview holds the wide shot of everyone. If a followed player leaves, it goes back to Auto. `SpectatorControls` (placeholder IMGUI bar at the bottom, until A-006): what the camera shows ("Auto · Player 3's tower", "Following Player 8", "Overview"), ◀ ▶ to follow the previous or next player, Overview and Auto buttons (the active one highlighted). Keys: ← → follow, ↑ overview, ↓ auto; the gamepad's d-pad the same (both were unbound). F5 now brings up the controls with the director; the orbit camera leaves the cursor free while it directs. The menu's background match will use the director without the controls.
