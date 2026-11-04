@@ -11,7 +11,7 @@ using Navigation = UnityEngine.UI.Navigation;
 namespace BlockSauce.Editor
 {
     /// <summary>
-    /// Builds the menu (docs/PLAN.md, Phase 6) from Jackson's art (A-002): TextMeshPro font assets from the Jaro fonts,
+    /// Builds the menu (docs/PLAN.md, Phase 6) from Jackson's art (A-002): TextMeshPro font assets from the Jaro and DynaPuff fonts,
     /// the PH_MainMenu prefab laid out after his mock-up (logo top right, the button column under it, 1920×1080), and the
     /// Lobby's front end: a GameFlow object with the GameConnection (taking over the stock start UI's connection
     /// settings), an instance of the menu, the stock Quantum start UI removed and the local debug runner switched off
@@ -41,6 +41,7 @@ namespace BlockSauce.Editor
         private static readonly Color Steel = new Color(0.45f, 0.58f, 0.75f, 1f);
         private static readonly Color Sauce = new Color(0.86f, 0.25f, 0.20f, 1f);
 
+        private static TMP_FontAsset _display;
         private static TMP_FontAsset _heading;
         private static TMP_FontAsset _body;
         private static Sprite _button;
@@ -51,8 +52,11 @@ namespace BlockSauce.Editor
         [MenuItem("Block Sauce/Build Main Menu")]
         public static void Build()
         {
-            _heading = MakeFont("UI_Jaro_36pt");
-            _body = MakeFont("UI_Jaro_9pt");
+            // Jaro (the logo's first line) for the big display text; DynaPuff (its second line) for everything read
+            // closely, since Jaro's V reads as U (Jackson, 2026-11-04).
+            _display = MakeFont("UI_Jaro_36pt");
+            _heading = MakeFont("UI_DynaPuff_Bold");
+            _body = MakeFont("UI_DynaPuff_Regular");
             _button = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/UI/UI_MenuButton.png");
             _buttonHover = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/UI/UI_MenuButton_Hover.png");
             _buttonPressed = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/UI/UI_MenuButton_Pressed.png");
@@ -341,7 +345,7 @@ namespace BlockSauce.Editor
             TMP_Text headlineText = MakeCenterText(headline.rectTransform, "Text", "GET READY", _heading, 40f);
             Stretch(headlineText.rectTransform);
 
-            TMP_Text big = MakeCenterText(root, "BigText", "3", _heading, 200f);
+            TMP_Text big = MakeCenterText(root, "BigText", "3", _display, 200f);
             Place(big.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 80f),
                 new Vector2(1600f, 280f));
             big.enableAutoSizing = true;
@@ -393,11 +397,11 @@ namespace BlockSauce.Editor
             Image resultsImage = results.gameObject.AddComponent<Image>();
             resultsImage.color = Shade;
             resultsImage.raycastTarget = false;
-            TMP_Text resultsTitle = MakeCenterText(results, "Title", "RESULTS", _heading, 48f);
+            TMP_Text resultsTitle = MakeCenterText(results, "Title", "RESULTS", _display, 48f);
             Place(resultsTitle.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -55f),
                 new Vector2(760f, 70f));
             resultsTitle.color = new Color(1f, 1f, 1f, 0.7f);
-            TMP_Text winner = MakeCenterText(results, "Winner", "PLAYER 1 WINS!", _heading, 72f);
+            TMP_Text winner = MakeCenterText(results, "Winner", "PLAYER 1 WINS!", _display, 72f);
             Place(winner.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -125f),
                 new Vector2(760f, 90f));
             var resultRows = new MatchHud.ResultRow[MaxPlayers];

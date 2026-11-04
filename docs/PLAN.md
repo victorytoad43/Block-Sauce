@@ -122,8 +122,9 @@ A rough draft of the menu and UI, the spectator camera and bots, so the game can
 
 ### Plan review (in progress)
 After Phase 6, Jackson and the agent replan what follows from playing the whole game. It includes an optimization pass (Jackson): profile the full game with 6 players and bots, CPU and GPU, then fix the top costs.
-- [x] Optimization pass (2026-11-04): the one big cost was a bug, an exception thrown every tick after a knockdown from a collision (about 53 ms a frame; it also left the demo stuck on its results). Fixed. With 6 bots playing, a frame now costs about 5 ms on the main thread (the simulation under 1 ms of it; no game system over 0.1 ms) and 1.6 ms on the GPU, in the editor. The 40 fps with 8 players was most likely the same bug.
-- [ ] Replan: drafted below, waiting on Jackson.
+- [x] Optimization pass (2026-11-04): the one big cost was a bug, an exception thrown every tick after a knockdown from a collision (about 53 ms a frame; it also left the demo stuck on its results). Fixed. With 6 bots playing, a frame costs about 5 ms on the main thread offline and about 8 ms online (7 simulation steps a frame with rollbacks), and 1.5 ms on the GPU, measured in the agent's unfocused editor.
+- [ ] Jackson still sees about 30 fps in his editor, dropping to about 9 fps on knockdowns, with no errors logged; not reproduced by the agent. Next check: a standalone development build, and the frame numbers from Jackson's session.
+- [x] Replan agreed (Jackson, 2026-11-04): the phases below.
 
 The candidates, from the old Phase 6:
 - Final arena with uneven terrain and room for towers; the match runs there (today it runs in the Lobby scene)
@@ -133,11 +134,30 @@ The candidates, from the old Phase 6:
 - Spectator: join any live room without a player and fly freely; Quantum replays through the same camera for promo capture
 - **Done when** (old Phase 6): a new player finishes a round without explanation.
 
-Draft order (the agent, 2026-11-04; Jackson decides):
-- **Phase 7, Arena:** the final arena with uneven terrain and room for towers, graybox first and A-008 when it arrives; matches move there from the Lobby (menu, HUD, dev keys, vats, spawns); camera collision with walls. Done when: a full 6-player match plays in the arena and the camera never looks through a wall.
-- **Phase 8, Feel and juice:** the tuning pass with bots (aim, sensitivity, throw speed, settle, knockdown, glue, and the open questions below); juice; owner readability (A-013), settle look (A-007), sauce looks (A-009); audio. Done when: a new player finishes a round without explanation.
-- **Phase 9, Playtest build:** a standalone Windows build, profiled on its own; mouse and controller checked by hand; the stats overlay off; a playtest with people outside the project.
-- **Later:** spectator free flight and replays; then Expansion.
+### Phase 7: Arena (waits on Jackson's graybox, A-008)
+- [ ] Import Jackson's graybox: visual meshes, simple `COL_` collision meshes as Quantum static colliders, spawn and vat markers
+- [ ] Matches move from the Lobby to the arena: menu, HUD, dev keys, vats, spawns; the demo match behind the menu plays there
+- [ ] Camera collision with walls
+- **Done when:** a full 6-player match plays in the arena, and the camera never looks through a wall.
+
+### Phase 8: Feel and juice
+- [ ] Tuning pass with bots: aim, sensitivity, throw speed, settle, knockdown and glue numbers, and the open questions below
+- [ ] Juice: shake, particles, squash and stretch, count pop
+- [ ] Owner readability (A-013), settle look (A-007), sauce looks (A-009)
+- [ ] Audio from a temporary CC0 pack (Jackson picks it, A-014)
+- **Done when:** a new player finishes a round without explanation.
+
+### Phase 9: Playtest build
+- [ ] A Windows standalone build, profiled on its own; the distributable later goes to Steam for private playtests
+- [ ] Every match saves a replay (Quantum's replay file), viewable later through the spectator camera; spectator free flight if it fits
+- [ ] Mouse and controller checked by hand; Quantum's stats overlay off
+- **Done when:** people outside the project play a round from the build, and their matches can be replayed.
+
+### Later: Bot Enhancement
+- [ ] Skill levels (a difficulty setting) and personalities: aggressive, defensive, clumsy, and others (Jackson, 2026-11-04)
+
+### Later: Steam
+- [ ] Steam integration (store page, Steamworks), once the build has been playtested
 
 ### Later: Expansion (ongoing)
 - [ ] Team modes and roles, new win rules, more sauces; bot tactics for them (Bot SDK utility AI)
@@ -160,9 +180,11 @@ Current decisions only; how they were reached is in git history.
 - **Win and lose:** after a round the winner plays `Win.Jump` and everyone else `Sitdown`, through round end and results (Jackson's placeholders, 2026-11-02).
 - **Block ownership readability** is rethought at the top level in the visual polish after the plan review, likely a personal UI that highlights your own blocks (Jackson, 2026-11-02).
 - **Menu and rooms** (2026-11-03): the menu is an overlay in the scene the match runs in (the Lobby until the arena exists), over an offline demo match (`RuntimeConfig.DemoMatch`: bots in every slot, matches start by themselves) watched by the spectator director. Start Game hosts a public room under a 5-letter consonant code; Join Game by code only joins (never creates); Join Any Room joins a random open room. In a room, the room screen is the menu between matches: it opens on entering and after each match's results, and closes as a match starts; Escape or the gamepad's Select opens it in the lobby, or Pause during a match (Start stays the match start). The host is the connected player in the lowest slot; only the host sees the room's controls (start, bots, fill). Bots that filled empty slots stay in the room after the match.
-- **Players: 2–6** (Jackson, 2026-11-03): cut from 8 for performance (about 40 fps with 8 in the full game); the two blues left the palette. `max_players` in `Input.qtn` sets the session and room size. The Lobby's ring of 8 spawn points is shared out evenly among the 6 slots.
+- **Players: 2–6** (Jackson, 2026-11-03; kept 2026-11-04): cut from 8 when 8 ran at about 40 fps, most likely because of the per-tick exception fixed on 2026-11-04, so 8 is technically possible again; the two blues left the palette. `max_players` in `Input.qtn` sets the session and room size. The Lobby's ring of 8 spawn points is shared out evenly among the 6 slots.
 - **Optimization** (Jackson, 2026-11-03): a profiling and optimization pass is part of the plan review that follows the menu build.
-- **Phase order** (Jackson, 2026-11-03): Phase 6 is the front end and bots (menu and UI draft, spectator director camera, bots, one-button all-bot test); then a plan review; the arena, juice, audio, tuning and optimization are replanned there. Until bots play, full-match checks run in MPPM.
+- **UI fonts** (Jackson, 2026-11-04): Jaro, the logo's first line, for big display text (the countdown, RESULTS, the winner); DynaPuff, the logo's second line, for everything read closely (buttons, names, room codes, prompts, hints). Jaro's V reads as U.
+- **Bots** play one skill level for now; skill levels and personalities come in the later Bot Enhancement phase (Jackson, 2026-11-04).
+- **Phase order** (Jackson, 2026-11-04): Phase 7 arena, Phase 8 feel and juice, Phase 9 playtest build (with replays), then Bot Enhancement and Steam. Phase 7 waits on Jackson's graybox map.
 - **Movement input:** a gamepad stick's tilt sets speed from slow walk to full run; the keyboard walks, with Shift to run. The gamepad Start button starts a match; only Escape opens the menu.
 - **Sit replaces crouch** (Jackson, 2026-11-02): no movement while sitting except sliding; a sitting body moving fast plays the slide.
 - **Knockdown:** see Architecture › Knockdown. Numbers live on `PlayerKnockbackConfig` and `PlayerRagdollConfig` and stay open for tuning.

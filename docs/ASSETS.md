@@ -4,6 +4,14 @@ Every asset still needed, in the order to make them. The top of the list is what
 
 Guy clips go in the one animated `CH_Guy.fbx` (mesh, deform skeleton, all actions), animated in place, at least two keyframes per action. Game speeds below are real-world (Blender units ÷ 2.5).
 
+## Phase 7 (arena)
+
+1. **A-008 Arena graybox** (Jackson is making the first draft; Phase 7 starts when it arrives).
+    - One FBX with every piece placed where it goes, at the usual Blender scale (it imports at 0.4). Room for 6 towers anywhere, elevation changes, and the vats in the middle (the Lobby's are 4.2 m apart). Bot matches behind the menu run here, so the arena is also the menu's backdrop.
+    - Collision: name simple shapes `COL_<name>` (boxes, or low-poly convex pieces), separate from the visual meshes; the simulation needs simple static colliders, and render meshes are too detailed for physics. Anything without a `COL_` piece gets a box from its bounds.
+    - Markers as empties: `SPAWN_01` to `SPAWN_06` (facing the way players should face), `VAT_01`, `VAT_02`. Separate objects for anything that might move or be reused.
+    - Isolated pieces are fine too, as long as one FBX (or a screenshot with positions) shows the layout.
+
 ## Phase 6 (front end and bots)
 
 The agent builds rough drafts of every screen in the style of the main menu mock-up; these mock-ups replace the drafts as they arrive. UI screens are 1920×1080; final art PNG at 2× with 9-slice margins noted.
@@ -30,13 +38,11 @@ The agent builds rough drafts of every screen in the style of the main menu mock
    - Jackson is rethinking ownership at the top level; likely a personal UI that highlights your own blocks. Must leave room for the settle overlay (A-007) and a sauce coat.
 6. **A-007 Settle and count effect direction**.
     - The look of a stacked block filling up over 3 s (any hit restarts it), and the pop when it counts. A counted block can still be knocked off and goes back to its plain owner color. A few frames or a reference clip; the agent builds the shader. Placeholder: `PH_LockDither` (a 4×4 dither climbing in the owner's darker shade).
-7. **A-008 Arena layout sketch**.
-    - Top-down sketch with rough size, elevation changes, landmarks, room for 8 towers anywhere, and vat placement (the Lobby has two vats in the middle, 4.2 m apart). Bot matches behind the menu run wherever matches run, so the arena is also the menu's backdrop.
-8. **A-023 Guy win and lose, final**.
+7. **A-023 Guy win and lose, final**.
    - Placeholders are in: `Win.Jump` (0.33 s, plays once and holds) and `Sitdown` (1 s) for lose, played through round end (3 s) and results (6 s). The lose action is named `Guy,Lose.Sitdown` (a comma, not a dot); it imports fine as `Sitdown`. Final clips can loop or hold, any length.
-9. **A-024 Guy slide polish** (nice to have).
+8. **A-024 Guy slide polish** (nice to have).
    - Strafes are fixed: the planted foot now moves about 0.5 m/s, so they play at 1.1× walking and 2.25× running.
    - `Slide` holds the sit pose; any motion in it (lean, arms out, dust-kicking feet) plays while a sitting Guy moves faster than 2 m/s.
-10. **A-014 Sound effects**; temporary sounds welcome any time (menu clicks and a menu music loop would help the Phase 6 draft).
+9. **A-014 Sound effects**: Jackson is picking a CC0 pack to drop in `_Incoming` as the temporary sounds (Phase 8).
     - WAV 48 kHz mono, short; one sound each, or a CC0 pack to pull from. Impacts want 2 to 3 variations and a light and heavy version.
     - Events: menu move, select and back; jump, grab, drop, place, throw, block impact (by speed), knockback, knockdown thud, dazed loop, limb impacts, get-up, settle start, settle reset, count pop, uncount, countdown beeps, round start, win; sauce dip splash, Stack sauce sticky landing, Slip sauce slide.

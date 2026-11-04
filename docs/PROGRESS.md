@@ -4,7 +4,7 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-04)
 
-**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is done. The plan review is under way: the optimization pass is done (a per-tick exception after collision knockdowns was the cost; fixed), and the replan is drafted in the plan, waiting on Jackson. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
+**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is done. The plan review is nearly done: the replan is agreed (Phase 7 arena, waiting on Jackson's graybox; Phase 8 feel and juice; Phase 9 playtest build). The per-tick exception after collision knockdowns is fixed, but Jackson still sees about 30 fps in his editor (9 on knockdowns), which the agent can't reproduce; a standalone build is the next check. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
 
 What plays today, online with up to 6 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
@@ -43,18 +43,10 @@ What plays today, online with up to 6 players, in the Lobby scene:
 ### Placeholders in use
 `PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the subdivided `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_SauceVat_Stack`/`_Slip` (the cup at 1.3× with placeholder sauce), `PH_SauceCoat` and `PH_SauceLooks` (A-009), `PH_PlayerColors` (holds the real palette), `PH_` terrain (A-008), `PH_MainMenu` (Jackson's main menu art; the Join, Settings, Pause and room screens are drafts, A-002), `PH_MatchHud` (draft HUD and results, A-006), the IMGUI spectator bar (A-006), `PH_RagdollTest` (stress-test scene only).
 
-## Next: plan review
+## Next: frame rate, then Phase 7
 
-The optimization pass is done; the replan is drafted in `docs/PLAN.md` › Plan review (Phase 7 arena, Phase 8 feel and juice, Phase 9 playtest build, spectator free flight and replays later). Waiting on Jackson.
-
-Questions for the review:
-1. Bots: slower or clumsier than today? They play one level, "a bit clumsy"; bots won today's test matches in about 2 minutes.
-2. Room codes skip the letter V, because the Jaro font draws V like U ("REMOUE BOT", "LEAUE ROOM" read that way on the buttons too). Fine for the codes; worth a look for the font's other text?
-3. Phase order: arena first (as drafted) or feel and juice first? The arena changes how tuning plays, so the draft puts it first.
-4. Audio: is a temporary CC0 sound pack fine until real sounds exist?
-5. Target: a Windows standalone build first; a Steam playtest, or a zip passed around?
-6. Spectator free flight and replays wait until after the playtest build?
-7. Players: the drop to about 40 fps with 8 was most likely the bug fixed today. Stay at 6, or bring 8 back (the two blues need new colors)?
+1. Frame rate: Jackson sees about 30 fps in the editor, about 9 on knockdowns. The agent measures about 5 to 8 ms of work a frame (online, 6 bots, forced knockdowns included) and no errors in Jackson's session; its own frame time (30 ms) is display pacing from the unfocused editor. Next: a standalone development build to compare, and Jackson's own numbers (Unity's Game view Stats, Quantum's stats overlay) during a knockdown.
+2. Phase 7 starts when Jackson's graybox arrives (format in `docs/ASSETS.md`, A-008).
 
 ## Log
 
@@ -80,6 +72,13 @@ Phase report format:
 - Placeholders still in use: <list with asset IDs>
 - Ready for review: yes
 ```
+
+## 2026-11-04: Plan review, answers and fonts
+- Did: Jackson's answers into the plan (Phases 7 to 9, Bot Enhancement and Steam later, fonts, 6 players). DynaPuff (the logo's second line, OFL) in as `UI_DynaPuff_Bold` and `UI_DynaPuff_Regular`; the menu builder uses it for buttons, names, codes, prompts and hints, and Jaro for the countdown, RESULTS and the winner. Rebuilt `PH_MainMenu`, `PH_MatchHud` and the Lobby's front end. New `JointValidator` (simulation test helper): lists joints whose owner or connected entity is gone or has no body.
+- Verified: every character the UI uses exists in both DynaPuff weights. A 7-minute demo soak listening on every thread (Quantum logs physics exceptions from worker threads, which the first soak missed): 10 knockdowns, 0 errors, no bad joints. Online room with 6 bots: about 8 ms of work a frame including 7 simulation steps; forced knockdowns of everyone showed no hitch.
+- Found: the 30 ms frames in the agent's sessions are display pacing (the same with every camera and canvas off; the GPU is about 2% busy). Two earlier sessions in the editor log threw solver exceptions throughout; Jackson's session and every one since threw none.
+- Questions for Jackson: his frame numbers during a knockdown (see Next).
+- Next: a standalone development build to compare frame rates.
 
 ## 2026-11-04: Plan review, optimization pass
 - Did: profiled the demo match (6 bots) in play mode. The one large cost was an exception every tick ("pointer is not properly aligned" in the physics callbacks' list) after a character was knocked down by a collision: the knockdown created the ragdoll and added components inside `OnCollisionEnter3D`, which moved the character's data under the physics engine. About 53 ms a frame in stack traces, and it left the demo stuck on its results. Fixed: the collision callback records the tick's strongest hit on `Knockbackable` (`PendingImpulse`, `PendingSource`) and `KnockbackSystem.Update` applies it after the physics step. `SauceSystem.GlueTouchingBlocks` now copies the block's transform and velocity before gluing, which adds a joints component.
