@@ -65,17 +65,23 @@ namespace BlockSauce
                 }
             }
 
-            // Dev shortcut until the menu scene: F5 switches the main camera to the spectator director and back.
+            // Dev shortcut until the room screen: F5 switches the main camera to the spectator director, with its
+            // controls, and back.
             if (Keyboard.current != null && Keyboard.current.f5Key.wasPressedThisFrame && Camera.main != null)
             {
                 SpectatorDirector director = Camera.main.GetComponent<SpectatorDirector>();
                 if (director == null)
                 {
                     Camera.main.gameObject.AddComponent<SpectatorDirector>();
+                    Camera.main.gameObject.AddComponent<SpectatorControls>();
                 }
                 else
                 {
                     director.IsDirecting = director.IsDirecting == false;
+                    if (Camera.main.TryGetComponent(out SpectatorControls controls))
+                    {
+                        controls.enabled = director.IsDirecting;
+                    }
                 }
             }
 

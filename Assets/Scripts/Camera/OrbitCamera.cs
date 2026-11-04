@@ -208,8 +208,14 @@ namespace BlockSauce
             return Mathf.Sign(swingYaw) * (yaw + Mathf.Max(Mathf.Abs(swingYaw) - threshold, 0f));
         }
 
+        private bool IsSpectating()
+        {
+            return TryGetComponent(out SpectatorDirector director) && director.IsDirecting;
+        }
+
         /// <summary>
-        /// Locks the cursor on click and frees it on Escape, so the mouse can still reach the connection menu.
+        /// Locks the cursor on click and frees it on Escape, so the mouse can still reach the connection menu. While the
+        /// spectator director has the camera, the cursor stays free for its controls.
         /// </summary>
         private void UpdateCursorLock()
         {
@@ -222,7 +228,7 @@ namespace BlockSauce
                 Cursor.visible = true;
             }
             else if (_target != null && mouse != null && mouse.leftButton.wasPressedThisFrame &&
-                     Cursor.lockState != CursorLockMode.Locked)
+                     Cursor.lockState != CursorLockMode.Locked && IsSpectating() == false)
             {
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;

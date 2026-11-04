@@ -113,7 +113,7 @@ In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/lan
 ### Phase 6: Front end and bots
 A rough draft of the menu and UI, the spectator camera and bots, so the game can be seen whole before a plan review (Jackson, 2026-11-03). Art for the UI is Jackson's mock-up and pieces (A-002); everything without art is a rough draft in his style, not final.
 - [ ] Bots: a bot takes a free player slot and its brain writes that slot's input, so every system treats it as a player (owner, team, color, score). Actions in our code (go to, grab, carry, place on a tower, throw at a target, dunk, get up); decisions in a Bot SDK state machine (fetch, build, raid, dunk, recover). The host adds and removes bots in the room; bots fill empty slots when a match starts, a room-screen setting that is on by default. One skill level, a bit clumsy (Jackson, 2026-11-03).
-- [ ] Spectator camera: a non-interactive director that follows the action (who is building, who is fighting), cutting and easing between players. Used behind the menu; free flight and manual player cycling come later.
+- [ ] Spectator camera: a director that follows the action (who is building, who is fighting), cutting and easing between players; non-interactive behind the menu. In a room, a viewer can take over: follow the previous or next player, hold the overview (wide shot of everyone), or hand back to the director (Jackson, 2026-11-03). Free flight comes later.
 - [ ] Menu: Jackson's main menu (logo and Start Game, Join Game, Settings on the right) over a live bot match seen from the spectator camera, running offline on this machine. Start Game hosts an online room and Join Game joins one by room code or any open room; both land in the sandbox room. No offline solo mode: a room can be all bots. Settings: volume, look sensitivity, invert Y, fullscreen and resolution. Controller and mouse both drive it. Replaces the stock Quantum start UI.
 - [ ] In-room UI and HUD, rough draft in the Jaro font and Jackson's style: room code, player list in colors with bots marked, add/remove bots, start match; match HUD (countdown, each player's tower slots) and results. Replaces the IMGUI `MatchHud`.
 - [ ] 8-bot test match: set up in a live room (add bots or fill at start), 8 bots play Stack & Lock to a win, watched with the spectator camera. Testing only, not a player feature.
@@ -125,7 +125,7 @@ After Phase 6, Jackson and the agent replan what follows from playing the whole 
 - Camera collision with walls; audio
 - Juice: shake, particles, squash and stretch, count pop; block owner readability (A-013); settle look (A-007); sauce looks (A-009)
 - Feel tuning pass (aim, sensitivity, throw speed, settle, knockdown and glue numbers), now with bots to test against
-- Spectator: join any live room without a player, fly freely or cycle players; Quantum replays through the same camera for promo capture
+- Spectator: join any live room without a player and fly freely; Quantum replays through the same camera for promo capture
 - **Done when** (old Phase 6): a new player finishes a round without explanation.
 
 ### Later: Expansion (ongoing)

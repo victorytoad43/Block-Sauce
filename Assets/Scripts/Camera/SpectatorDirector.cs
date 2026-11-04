@@ -12,14 +12,27 @@ namespace BlockSauce
     /// switches when another subject is clearly more interesting or the shot has run its course: an ease when the new
     /// subject is near, a cut when it is across the map. Framing is from above and to the side, drifting slowly round
     /// the subject, kept inside the arena.
+    /// That is the Auto mode. A viewer can also take over (see <see cref="SpectatorControls"/>): Follow keeps the camera
+    /// on one player, Overview holds the wide shot; Auto hands back to the director.
     /// While enabled it overrides the camera's transform after the orbit camera has placed it. View only: it reads the
     /// predicted frame and simulation events and never writes back.
     /// </summary>
     [DefaultExecutionOrder(100)]
     public class SpectatorDirector : MonoBehaviour
     {
+        /// <summary>
+        /// Who chooses the shot: the director, or the viewer following a player or holding the overview.
+        /// </summary>
+        public enum ViewMode
+        {
+            Auto,
+            Follow,
+            Overview,
+        }
+
         private enum ShotKind
         {
+            Follow,
             Wide,
             Tower,
             Throw,
@@ -31,6 +44,7 @@ namespace BlockSauce
         {
             public ShotKind Kind;
             public EntityRef Subject;
+            public PlayerRef Player;
             public Vector3 Focus;
             public float Score;
             public float Distance;
@@ -57,6 +71,8 @@ namespace BlockSauce
         [SerializeField] private float _towerDistance = 8f;
         [SerializeField] private float _scrambleDistance = 9f;
         [SerializeField] private float _wideDistance = 14f;
+        [Tooltip("Camera distance, in meters, while following a player.")]
+        [SerializeField] private float _followDistance = 7f;
         [Tooltip("Furthest the wide shot pulls back, in meters.")]
         [SerializeField] private float _maxWideDistance = 26f;
         [Tooltip("Seconds the camera takes to settle on a moving focus, and to ease between shots.")]
@@ -78,6 +94,9 @@ namespace BlockSauce
         private readonly Dictionary<EntityRef, float> _throws = new Dictionary<EntityRef, float>();
         private readonly Dictionary<EntityRef, float> _knockdowns = new Dictionary<EntityRef, float>();
         private QuantumEntityViewUpdater _views;
+        private readonly List<PlayerRef> _players = new List<PlayerRef>();
+        private ViewMode _mode;
+        private PlayerRef _followed = PlayerRef.None;
         private Shot _shot;
         private bool _hasShot;
         private float _shotStarted;
@@ -103,6 +122,93 @@ namespace BlockSauce
         /// The kind and subject of the current shot, for tests and debugging.
         /// </summary>
         public string CurrentShot => _hasShot ? $"{_shot.Kind} {_shot.Subject} score {_shot.Score:F1}" : "none";
+
+        /// <summary>
+        /// Who chooses the shot now.
+        /// </summary>
+        public ViewMode Mode => _mode;
+
+        /// <summary>
+        /// The player the camera follows in Follow mode, or none.
+        /// </summary>
+        public PlayerRef FollowedPlayer => _mode == ViewMode.Follow ? _followed : PlayerRef.None;
+
+        /// <summary>
+        /// What the camera shows, in a few words for the spectator controls: the mode and, where there is one, whose.
+        /// </summary>
+        public string Describe()
+        {
+            switch (_mode)
+            {
+                case ViewMode.Follow:
+                    return $"Following {GetPlayerName(_followed)}";
+                case ViewMode.Overview:
+                    return "Overview";
+            }
+
+            if (_hasShot == false)
+                return "Auto";
+
+            switch (_shot.Kind)
+            {
+                case ShotKind.Tower:
+                    return $"Auto · {GetPlayerName(_shot.Player)}'s tower";
+                case ShotKind.Throw:
+                    return "Auto · a throw";
+                case ShotKind.Knockdown:
+                    return "Auto · a knockdown";
+                case ShotKind.Scramble:
+                    return "Auto · a scramble at the vat";
+                default:
+                    return "Auto · everyone";
+            }
+        }
+
+        /// <summary>
+        /// Hands the shot back to the director.
+        /// </summary>
+        public void SetAuto()
+        {
+            _mode = ViewMode.Auto;
+        }
+
+        /// <summary>
+        /// Holds the wide shot of everyone until another mode is chosen.
+        /// </summary>
+        public void ShowOverview()
+        {
+            _mode = ViewMode.Overview;
+        }
+
+        /// <summary>
+        /// Follows the next player in slot order (<paramref name="direction"/> 1) or the previous one (-1), wrapping
+        /// round; from Auto or Overview it starts from whoever the shot was about.
+        /// </summary>
+        public void FollowNext(int direction)
+        {
+            Frame frame = QuantumRunner.Default?.Game?.Frames.Predicted;
+            if (frame == null)
+                return;
+
+            GatherPlayers(frame);
+            if (_players.Count == 0)
+                return;
+
+            PlayerRef from = _mode == ViewMode.Follow ? _followed : _hasShot ? _shot.Player : PlayerRef.None;
+            int index = _players.IndexOf(from);
+            index = index < 0 ? (direction > 0 ? 0 : _players.Count - 1)
+                : (index + direction + _players.Count) % _players.Count;
+            _followed = _players[index];
+            _mode = ViewMode.Follow;
+        }
+
+        /// <summary>
+        /// A player's name as the HUD shows it.
+        /// </summary>
+        public static string GetPlayerName(PlayerRef player)
+        {
+            return player.IsValid ? $"Player {(int)player + 1}" : "nobody";
+        }
 
         private void OnEnable()
         {
@@ -139,7 +245,28 @@ namespace BlockSauce
             if (_candidates.Count == 0)
                 return;
 
-            ChooseShot();
+            switch (_mode)
+            {
+                case ViewMode.Follow:
+                    if (TryGetFollowShot(frame, out Shot follow))
+                    {
+                        KeepOrStart(follow);
+                    }
+                    else
+                    {
+                        // The player left: back to the director.
+                        _mode = ViewMode.Auto;
+                        ChooseShot();
+                    }
+                    break;
+                case ViewMode.Overview:
+                    KeepOrStart(_candidates.Find(candidate => candidate.Kind == ShotKind.Wide));
+                    break;
+                default:
+                    ChooseShot();
+                    break;
+            }
+
             PlaceCamera(_shot);
         }
 
@@ -199,6 +326,7 @@ namespace BlockSauce
                 {
                     Kind = ShotKind.Tower,
                     Subject = towerBase,
+                    Player = player,
                     Focus = Vector3.Lerp(GetPosition(frame, towerBase), GetPosition(frame, top), 0.5f),
                     Score = score,
                     Distance = _towerDistance,
@@ -231,6 +359,7 @@ namespace BlockSauce
                 {
                     Kind = ShotKind.Knockdown,
                     Subject = knocked.Key,
+                    Player = frame.TryGet(knocked.Key, out Player knockedPlayer) ? knockedPlayer.Ref : PlayerRef.None,
                     Focus = GetPosition(frame, knocked.Key),
                     Score = 5f,
                     Distance = _closeDistance,
@@ -306,6 +435,53 @@ namespace BlockSauce
             if (switchNow)
             {
                 StartShot(best);
+            }
+        }
+
+        /// <summary>
+        /// Keeps following <paramref name="shot"/> when it is the current shot; otherwise starts it.
+        /// </summary>
+        private void KeepOrStart(Shot shot)
+        {
+            if (_hasShot && shot.Kind == _shot.Kind && shot.Subject == _shot.Subject)
+            {
+                _shot = shot;
+            }
+            else
+            {
+                StartShot(shot);
+            }
+        }
+
+        private bool TryGetFollowShot(Frame frame, out Shot shot)
+        {
+            shot = default;
+            if (PlayerSystem.TryGetCharacter(frame, _followed, out EntityRef character) == false)
+                return false;
+
+            shot = new Shot
+            {
+                Kind = ShotKind.Follow,
+                Subject = character,
+                Player = _followed,
+                Focus = GetPosition(frame, character) + Vector3.up,
+                Distance = _followDistance,
+            };
+            return true;
+        }
+
+        /// <summary>
+        /// Lists the player slots with a character in them, in slot order.
+        /// </summary>
+        private void GatherPlayers(Frame frame)
+        {
+            _players.Clear();
+            for (int player = 0; player < frame.MaxPlayerCount; player++)
+            {
+                if (PlayerSystem.TryGetCharacter(frame, player, out EntityRef _))
+                {
+                    _players.Add(player);
+                }
             }
         }
 
