@@ -421,9 +421,10 @@ namespace Quantum.Prototypes {
   }
   [System.SerializableAttribute()]
   [Quantum.Prototypes.Prototype(typeof(Quantum.Knockbackable))]
-  public unsafe partial class KnockbackablePrototype : ComponentPrototype<Quantum.Knockbackable> {
+  public unsafe class KnockbackablePrototype : ComponentPrototype<Quantum.Knockbackable> {
     public AssetRef<KnockbackConfig> Config;
-    partial void MaterializeUser(Frame frame, ref Quantum.Knockbackable result, in PrototypeMaterializationContext context);
+    public FPVector3 PendingImpulse;
+    public MapEntityId PendingSource;
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
       Quantum.Knockbackable component = default;
       Materialize((Frame)f, ref component, in context);
@@ -431,7 +432,8 @@ namespace Quantum.Prototypes {
     }
     public void Materialize(Frame frame, ref Quantum.Knockbackable result, in PrototypeMaterializationContext context = default) {
       result.Config = this.Config;
-      MaterializeUser(frame, ref result, in context);
+      result.PendingImpulse = this.PendingImpulse;
+      PrototypeValidator.FindMapEntity(this.PendingSource, in context, out result.PendingSource);
     }
   }
   [System.SerializableAttribute()]

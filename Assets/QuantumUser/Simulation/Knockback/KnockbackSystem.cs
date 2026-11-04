@@ -6,10 +6,36 @@ namespace Quantum
     /// The one path every hit on a character goes through. Anything that knocks a character (a thrown or swung block,
     /// a body check, later explosions and sauces) raises ApplyKnockback; this system applies the impulse and decides
     /// whether the hit pushes, staggers or knocks the character down; staggered or downed, it drops what it holds. Collisions between a character and a
-    /// moving body are turned into knockback here too.
+    /// moving body are turned into knockback here too: the collision callback only records the tick's strongest hit,
+    /// and <see cref="Update"/> applies it after the physics step. A knockdown adds components (the ragdoll), and adding
+    /// components moves an entity's data, which the physics engine must not see happen in the middle of its callbacks.
     /// </summary>
-    public unsafe class KnockbackSystem : SystemSignalsOnly, ISignalApplyKnockback, ISignalOnCollisionEnter3D
+    public unsafe class KnockbackSystem : SystemMainThreadFilter<KnockbackSystem.Filter>, ISignalApplyKnockback, ISignalOnCollisionEnter3D
     {
+        /// <summary>
+        /// The components the system reads on each character that can be knocked.
+        /// </summary>
+        public struct Filter
+        {
+            public EntityRef Entity;
+            public Knockbackable* Knockbackable;
+        }
+
+        /// <summary>
+        /// Applies the strongest collision hit a character took this tick, outside the physics callbacks.
+        /// </summary>
+        public override void Update(Frame frame, ref Filter filter)
+        {
+            if (filter.Knockbackable->PendingImpulse == FPVector3.Zero)
+                return;
+
+            FPVector3 impulse = filter.Knockbackable->PendingImpulse;
+            EntityRef source = filter.Knockbackable->PendingSource;
+            filter.Knockbackable->PendingImpulse = FPVector3.Zero;
+            filter.Knockbackable->PendingSource = EntityRef.None;
+            frame.Signals.ApplyKnockback(filter.Entity, impulse, source);
+        }
+
         /// <summary>
         /// Applies the impulse to the target and staggers it when the resulting speed change is large enough.
         /// </summary>
@@ -107,7 +133,11 @@ namespace Quantum
             direction = direction.SqrMagnitude > FP._0 ? direction.Normalized : toTarget;
 
             FPVector3 impulse = (direction + FPVector3.Up * config.UpBias) * (speedChange * targetBody->Mass);
-            frame.Signals.ApplyKnockback(target, impulse, striker);
+            if (impulse.SqrMagnitude > knockbackable->PendingImpulse.SqrMagnitude)
+            {
+                knockbackable->PendingImpulse = impulse;
+                knockbackable->PendingSource = striker;
+            }
         }
     }
 }

@@ -121,9 +121,12 @@ namespace Quantum
                 if (coat->StackStrength <= coat->SlipStrength || IsHeld(frame, block))
                     continue;
 
+                // Copies, not the filter's pointers: gluing adds a joints component to the block, which moves its data.
+                Transform3D blockTransform = *transform;
+                FPVector3 velocity = body->Velocity;
                 FP maxSpeedSqr = config.GlueMaxSpeed * config.GlueMaxSpeed;
                 Shape3D reach = Shape3D.CreateBox(collider->Shape.Box.Extents + FPVector3.One * config.GlueReach);
-                HitCollection3D hits = frame.Physics3D.OverlapShape(transform->Position, transform->Rotation, reach, -1,
+                HitCollection3D hits = frame.Physics3D.OverlapShape(blockTransform.Position, blockTransform.Rotation, reach, -1,
                     QueryOptions.HitStatics | QueryOptions.HitDynamics | QueryOptions.HitKinematics);
                 for (int i = 0; i < hits.Count; i++)
                 {
@@ -132,9 +135,9 @@ namespace Quantum
 
                     if (hits[i].IsStatic)
                     {
-                        if (body->Velocity.SqrMagnitude <= maxSpeedSqr && IsGlued(frame, block, EntityRef.None) == false)
+                        if (velocity.SqrMagnitude <= maxSpeedSqr && IsGlued(frame, block, EntityRef.None) == false)
                         {
-                            Glue(frame, config, block, *transform, EntityRef.None, transform->Position);
+                            Glue(frame, config, block, blockTransform, EntityRef.None, blockTransform.Position);
                         }
 
                         continue;
@@ -145,11 +148,11 @@ namespace Quantum
                         || IsGlued(frame, block, other) || IsGlued(frame, other, block))
                         continue;
 
-                    if ((frame.Get<PhysicsBody3D>(other).Velocity - body->Velocity).SqrMagnitude > maxSpeedSqr)
+                    if ((frame.Get<PhysicsBody3D>(other).Velocity - velocity).SqrMagnitude > maxSpeedSqr)
                         continue;
 
                     FPVector3 otherPosition = frame.Get<Transform3D>(other).Position;
-                    Glue(frame, config, block, *transform, other, (transform->Position + otherPosition) / 2);
+                    Glue(frame, config, block, blockTransform, other, (blockTransform.Position + otherPosition) / 2);
                 }
             }
         }

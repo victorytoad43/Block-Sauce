@@ -4,7 +4,7 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-04)
 
-**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is done and waiting for review. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
+**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is done. The plan review is under way: the optimization pass is done (a per-tick exception after collision knockdowns was the cost; fixed), and the replan is drafted in the plan, waiting on Jackson. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
 
 What plays today, online with up to 6 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
@@ -21,7 +21,7 @@ What plays today, online with up to 6 players, in the Lobby scene:
 - A block let go off-center in a cup rests against the sloped wall, a little tilted (the cup is 1.43 m across at the floor).
 - With the hips dropped for a low foot, Guy's long arms can touch the ground beside him.
 - MPPM: starting the `TwoClients` scenario can take several minutes, or hang the main editor while the clone launches; stopping and starting the scenario again recovers it.
-- The camera has no wall collision. Phase 6.
+- The camera has no wall collision (draft Phase 7).
 - Quantum's view updater sometimes asserts (`group.Buffer != default`) for about 3 s while creating a ragdoll body's view; seen twice in about an hour of all-bot matches. View only; the simulation is unaffected. Watch for a ragdoll that shows up late or not at all.
 - Bots now and then wedge against each other or a wall for a few seconds; the detour or the task's timeout frees them.
 - A ragdoll that spawns half inside a block can launch it; the fall reset recovers it. If it shows up in play, spawn the ragdoll in a tucked pose.
@@ -45,11 +45,16 @@ What plays today, online with up to 6 players, in the Lobby scene:
 
 ## Next: plan review
 
-Phase 6 is done and waiting for Jackson's review. Then the plan review (see `docs/PLAN.md` › Plan review): play the whole game, replan what follows, and the optimization pass (profile the full game with 6 players and bots, CPU and GPU, then fix the top costs).
+The optimization pass is done; the replan is drafted in `docs/PLAN.md` › Plan review (Phase 7 arena, Phase 8 feel and juice, Phase 9 playtest build, spectator free flight and replays later). Waiting on Jackson.
 
 Questions for the review:
 1. Bots: slower or clumsier than today? They play one level, "a bit clumsy"; bots won today's test matches in about 2 minutes.
-2. Room codes skip the letter V, because the Jaro font draws V like U ("REMOUE BOT", "LEAUE ROOM" read that way on the buttons too). Fine for the codes; worth a look for the font's other text.
+2. Room codes skip the letter V, because the Jaro font draws V like U ("REMOUE BOT", "LEAUE ROOM" read that way on the buttons too). Fine for the codes; worth a look for the font's other text?
+3. Phase order: arena first (as drafted) or feel and juice first? The arena changes how tuning plays, so the draft puts it first.
+4. Audio: is a temporary CC0 sound pack fine until real sounds exist?
+5. Target: a Windows standalone build first; a Steam playtest, or a zip passed around?
+6. Spectator free flight and replays wait until after the playtest build?
+7. Players: the drop to about 40 fps with 8 was most likely the bug fixed today. Stay at 6, or bring 8 back (the two blues need new colors)?
 
 ## Log
 
@@ -75,6 +80,13 @@ Phase report format:
 - Placeholders still in use: <list with asset IDs>
 - Ready for review: yes
 ```
+
+## 2026-11-04: Plan review, optimization pass
+- Did: profiled the demo match (6 bots) in play mode. The one large cost was an exception every tick ("pointer is not properly aligned" in the physics callbacks' list) after a character was knocked down by a collision: the knockdown created the ragdoll and added components inside `OnCollisionEnter3D`, which moved the character's data under the physics engine. About 53 ms a frame in stack traces, and it left the demo stuck on its results. Fixed: the collision callback records the tick's strongest hit on `Knockbackable` (`PendingImpulse`, `PendingSource`) and `KnockbackSystem.Update` applies it after the physics step. `SauceSystem.GlueTouchingBlocks` now copies the block's transform and velocity before gluing, which adds a joints component.
+- Verified: 8-minute soak of the demo: 7 matches to results, 7 knockdowns and 28 staggers from hits, 0 errors. Profile of 600 frames during play: about 5 ms main thread (Quantum's update 1.8 ms including the simulation; no game system over 0.1 ms), rendering about 0.9 ms, GPU 1.6 ms. The frame time read 31–34 ms only because the unfocused editor throttles presentation.
+- Decided: a collision hit is applied one step later (same tick, after physics) and only the strongest hit per tick counts.
+- Questions for Jackson: in Next.
+- Next: Jackson's answers, then write the chosen phases into the plan.
 
 ## Phase 6 report: Front end and bots
 - Built: bots (a `Bot` takes a free player slot and writes its input; actions in our code, decisions in a Bot SDK state machine; the host adds and removes them, and they fill empty slots at a match start, on by default); the F6 all-bot test match; the spectator director camera with viewer controls; 6 players (the two blues cut); Jackson's main menu over an offline bot match, with Start Game (hosts an online room under a 5-letter code), Join Game (by code or any open room), Settings and Pause; the room screen (code, slots in color with bots, you and the host marked, the host's controls); the uGUI match HUD and results. Replaces the stock Quantum start UI and the IMGUI HUD in the Lobby.

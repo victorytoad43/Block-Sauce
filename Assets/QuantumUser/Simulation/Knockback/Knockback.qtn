@@ -1,6 +1,9 @@
 component Knockbackable
 {
     asset_ref<KnockbackConfig> Config;
+    // The strongest hit from this tick's collisions, applied after the physics step (see KnockbackSystem).
+    FPVector3 PendingImpulse;
+    EntityRef PendingSource;
 }
 
 event KnockedBack

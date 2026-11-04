@@ -253,6 +253,21 @@ namespace Quantum.Prototypes.Unity {
     }
   }
   [System.SerializableAttribute()]
+  public unsafe partial class KnockbackablePrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.KnockbackablePrototype> {
+    public AssetRef<KnockbackConfig> Config;
+    public FPVector3 PendingImpulse;
+    public Quantum.QuantumEntityPrototype PendingSource;
+    partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.KnockbackablePrototype prototype);
+    public override Quantum.Prototypes.KnockbackablePrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
+      var result = new Quantum.Prototypes.KnockbackablePrototype();
+      converter.Convert(this.Config, out result.Config);
+      converter.Convert(this.PendingImpulse, out result.PendingImpulse);
+      converter.Convert(this.PendingSource, out result.PendingSource);
+      ConvertUser(converter, ref result);
+      return result;
+    }
+  }
+  [System.SerializableAttribute()]
   public unsafe partial class RagdollLimbPrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.RagdollLimbPrototype> {
     [HideInInspector()]
     public Quantum.QuantumEntityPrototype Owner;

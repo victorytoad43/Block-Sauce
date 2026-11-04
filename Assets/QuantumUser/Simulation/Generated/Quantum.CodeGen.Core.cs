@@ -1202,20 +1202,28 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Knockbackable : Quantum.IComponent {
-    public const Int32 SIZE = 8;
+    public const Int32 SIZE = 40;
     public const Int32 ALIGNMENT = 8;
     [FieldOffset(0)]
     public AssetRef<KnockbackConfig> Config;
+    [FieldOffset(16)]
+    public FPVector3 PendingImpulse;
+    [FieldOffset(8)]
+    public EntityRef PendingSource;
     public override readonly Int32 GetHashCode() {
       unchecked { 
         var hash = 21169;
         hash = hash * 31 + Config.GetHashCode();
+        hash = hash * 31 + PendingImpulse.GetHashCode();
+        hash = hash * 31 + PendingSource.GetHashCode();
         return hash;
       }
     }
     public static void Serialize(void* ptr, FrameSerializer serializer) {
       var p = (Knockbackable*)ptr;
       AssetRef.Serialize(&p->Config, serializer);
+      EntityRef.Serialize(&p->PendingSource, serializer);
+      FPVector3.Serialize(&p->PendingImpulse, serializer);
     }
   }
   [StructLayout(LayoutKind.Explicit)]

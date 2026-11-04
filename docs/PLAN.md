@@ -120,14 +120,24 @@ A rough draft of the menu and UI, the spectator camera and bots, so the game can
 - [x] Done-when verified with 2 clients (MPPM `TwoClients`): menu over the demo match, host, guest by code, bots added, a full match, back to the menu; the demo's 6 bots finish matches alone
 - **Done when:** the game opens on the menu over a bot match; a player can start a room, add bots, play a full match against them and return to the menu; a second player joins that room by code; 6 bots finish a match on their own.
 
-### Plan review
-After Phase 6, Jackson and the agent replan what follows from playing the whole game. It includes an optimization pass (Jackson): profile the full game with 6 players and bots (the frame rate dropped to about 40 fps with 8), CPU and GPU, then fix the top costs. Suspects to measure first: the bots' steering raycasts, which also run again on every rollback; ragdoll physics; the sauce coat shader; IMGUI HUDs. The candidates, from the old Phase 6:
+### Plan review (in progress)
+After Phase 6, Jackson and the agent replan what follows from playing the whole game. It includes an optimization pass (Jackson): profile the full game with 6 players and bots, CPU and GPU, then fix the top costs.
+- [x] Optimization pass (2026-11-04): the one big cost was a bug, an exception thrown every tick after a knockdown from a collision (about 53 ms a frame; it also left the demo stuck on its results). Fixed. With 6 bots playing, a frame now costs about 5 ms on the main thread (the simulation under 1 ms of it; no game system over 0.1 ms) and 1.6 ms on the GPU, in the editor. The 40 fps with 8 players was most likely the same bug.
+- [ ] Replan: drafted below, waiting on Jackson.
+
+The candidates, from the old Phase 6:
 - Final arena with uneven terrain and room for towers; the match runs there (today it runs in the Lobby scene)
 - Camera collision with walls; audio
 - Juice: shake, particles, squash and stretch, count pop; block owner readability (A-013); settle look (A-007); sauce looks (A-009)
 - Feel tuning pass (aim, sensitivity, throw speed, settle, knockdown and glue numbers), now with bots to test against
 - Spectator: join any live room without a player and fly freely; Quantum replays through the same camera for promo capture
 - **Done when** (old Phase 6): a new player finishes a round without explanation.
+
+Draft order (the agent, 2026-11-04; Jackson decides):
+- **Phase 7, Arena:** the final arena with uneven terrain and room for towers, graybox first and A-008 when it arrives; matches move there from the Lobby (menu, HUD, dev keys, vats, spawns); camera collision with walls. Done when: a full 6-player match plays in the arena and the camera never looks through a wall.
+- **Phase 8, Feel and juice:** the tuning pass with bots (aim, sensitivity, throw speed, settle, knockdown, glue, and the open questions below); juice; owner readability (A-013), settle look (A-007), sauce looks (A-009); audio. Done when: a new player finishes a round without explanation.
+- **Phase 9, Playtest build:** a standalone Windows build, profiled on its own; mouse and controller checked by hand; the stats overlay off; a playtest with people outside the project.
+- **Later:** spectator free flight and replays; then Expansion.
 
 ### Later: Expansion (ongoing)
 - [ ] Team modes and roles, new win rules, more sauces; bot tactics for them (Bot SDK utility AI)

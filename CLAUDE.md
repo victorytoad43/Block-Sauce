@@ -50,6 +50,8 @@ Friendslop docs: https://doc.photonengine.com/quantum/v3/game-samples/friendslop
 - **Assets made by script** must be force-reimported and Quantum's asset database refreshed before the simulation sees them.
 - **Automated tests:** an unfocused editor drops synthetic keyboard and mouse input. Drive tests through `PlayerInputPoller.TestInputOverride` or a virtual gamepad.
 - Don't save the Lobby scene after a play session.
+- **Component storage moves:** in Quantum 3.1, adding or removing a component on an entity moves all of that entity's components, so any pointer to them goes stale, including the physics engine's own while it runs its callbacks. Never add or remove components (or create entities that do, like a ragdoll) inside `OnCollisionEnter3D` and the other physics callbacks: record what happened on a component and act in a system's `Update` (see `KnockbackSystem`). Elsewhere, copy values out before an Add, Remove or Create instead of reading through the old pointer afterwards (see `SauceSystem.GlueTouchingBlocks`).
+- **Profiling in the editor:** when the editor isn't the focused window, Unity throttles play mode (about 30 ms per frame shows up as `WaitForLastPresentation`). Read the main-thread and GPU times, not the frame time, or profile with the editor focused or in a build.
 
 ## Testing
 
