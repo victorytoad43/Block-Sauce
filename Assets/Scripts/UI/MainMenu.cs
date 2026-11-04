@@ -1,19 +1,23 @@
 using System.Collections.Generic;
+using Quantum;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using Button = UnityEngine.UI.Button;
 
 namespace BlockSauce
 {
     /// <summary>
     /// The menu screens over the demo match (docs/PLAN.md, Phase 6; Jackson's main menu, A-002): Main (Start Game, Join
-    /// Game, Settings), Join (a room code, or any open room), Settings, and, in a room, Pause (resume, settings, leave),
-    /// plus a connecting notice, the last error, and the room code in a corner while in a room. Mouse and controller
-    /// both drive it through the EventSystem: a panel selects its first button when it opens, Escape or the gamepad's B
-    /// goes back, and in a room Escape or the gamepad's Select opens and closes the pause menu (Start is the match's
-    /// start button). While the menu has the screen the spectator director runs the camera.
+    /// Game, Settings), Join (a room code, or any open room), Settings, and, in a room, the room screen in the lobby
+    /// (<see cref="RoomScreen"/>; it opens on entering the room and again after each match, and closes as a match starts)
+    /// or Pause during a match (resume, settings, leave), plus a connecting notice, the last error, and the room code in
+    /// a corner while in a room. Mouse and controller both drive it through the EventSystem: a panel selects its first
+    /// button when it opens, Escape or the gamepad's B goes back, and in a room Escape or the gamepad's Select opens and
+    /// closes the room screen or pause menu (Start is the match's start button). While the menu has the screen the
+    /// spectator director runs the camera.
     /// Built by Block Sauce › Build Main Menu (MainMenuBuilder); the references below are set there.
     /// </summary>
     public class MainMenu : MonoBehaviour
@@ -24,6 +28,8 @@ namespace BlockSauce
         [SerializeField] private GameObject _joinPanel;
         [SerializeField] private GameObject _settingsPanel;
         [SerializeField] private GameObject _pausePanel;
+        [SerializeField] private GameObject _roomPanel;
+        [SerializeField] private GameObject _logo;
         [SerializeField] private GameObject _statusPanel;
         [SerializeField] private GameObject _roomBadge;
 
@@ -54,6 +60,12 @@ namespace BlockSauce
         [SerializeField] private Button _pauseSettingsButton;
         [SerializeField] private Button _leaveButton;
 
+        [Header("Room")]
+        [SerializeField] private RoomScreen _roomScreen;
+        [SerializeField] private Button _roomPlayButton;
+        [SerializeField] private Button _roomSettingsButton;
+        [SerializeField] private Button _roomLeaveButton;
+
         [Header("Status")]
         [SerializeField] private TMP_Text _statusText;
         [SerializeField] private TMP_Text _roomBadgeText;
@@ -69,6 +81,8 @@ namespace BlockSauce
         private Screen _screen;
         private bool _settingsFromPause;
         private GameFlow _flow;
+        private bool _wasInRoom;
+        private MatchState _lastMatchState;
 
         private void Awake()
         {
@@ -111,6 +125,10 @@ namespace BlockSauce
             _resumeButton.onClick.AddListener(() => SetPaused(false));
             _pauseSettingsButton.onClick.AddListener(() => OpenSettings(fromPause: true));
             _leaveButton.onClick.AddListener(() => _ = _flow.LeaveRoom());
+
+            _roomPlayButton.onClick.AddListener(() => SetPaused(false));
+            _roomSettingsButton.onClick.AddListener(() => OpenSettings(fromPause: true));
+            _roomLeaveButton.onClick.AddListener(() => _ = _flow.LeaveRoom());
         }
 
         private void OnEnable()
@@ -139,6 +157,7 @@ namespace BlockSauce
 
             if (_flow.State == GameFlow.FlowState.InRoom)
             {
+                FollowMatch();
                 if (_flow.IsPaused == false)
                 {
                     if (pauseButton)
@@ -173,6 +192,40 @@ namespace BlockSauce
             KeepSelection();
         }
 
+        /// <summary>
+        /// Opens the room screen when the room's lobby begins (on entering the room, and after each match's results)
+        /// and closes it as a match starts, so everyone plays.
+        /// </summary>
+        private void FollowMatch()
+        {
+            Frame frame = QuantumRunner.Default?.Game?.Frames.Predicted;
+            if (frame == null || frame.TryGetSingleton(out Match match) == false)
+                return;
+
+            MatchState previous = _lastMatchState;
+            _lastMatchState = match.State;
+            if (match.State == previous)
+                return;
+
+            if (match.State == MatchState.Lobby)
+            {
+                SetPaused(true);
+            }
+            else if (previous == MatchState.Lobby && _flow.IsPaused)
+            {
+                SetPaused(false);
+            }
+        }
+
+        /// <summary>
+        /// Whether the room is in its lobby (between matches): the in-room menu is then the room screen.
+        /// </summary>
+        private static bool IsInLobby()
+        {
+            Frame frame = QuantumRunner.Default?.Game?.Frames.Predicted;
+            return frame != null && frame.TryGetSingleton(out Match match) && match.State == MatchState.Lobby;
+        }
+
         private void SetPaused(bool paused)
         {
             _flow.IsPaused = paused;
@@ -180,6 +233,18 @@ namespace BlockSauce
             _settingsPanel.SetActive(false);
             Refresh();
             if (paused)
+            {
+                SelectInRoomMenu();
+            }
+        }
+
+        private void SelectInRoomMenu()
+        {
+            if (_roomPanel.activeInHierarchy)
+            {
+                Select(_roomScreen.FirstSelectable(_roomPlayButton));
+            }
+            else
             {
                 Select(_resumeButton);
             }
@@ -193,6 +258,7 @@ namespace BlockSauce
             if (fromPause)
             {
                 _pausePanel.SetActive(false);
+                _roomPanel.SetActive(false);
                 _settingsPanel.SetActive(true);
                 Select(_volumeSlider);
             }
@@ -209,8 +275,8 @@ namespace BlockSauce
             {
                 _settingsFromPause = false;
                 _settingsPanel.SetActive(false);
-                _pausePanel.SetActive(true);
-                Select(_pauseSettingsButton);
+                Refresh();
+                Select(_roomPanel.activeSelf ? _roomSettingsButton : _pauseSettingsButton);
             }
             else
             {
@@ -254,6 +320,7 @@ namespace BlockSauce
             bool paused = inRoom && _flow.IsPaused;
 
             _root.SetActive(inRoom == false || paused);
+            _logo.SetActive(inRoom == false);
             _mainPanel.SetActive(inRoom == false && _screen == Screen.Main);
             _joinPanel.SetActive(inRoom == false && _screen == Screen.Join);
             if (inRoom == false || paused == false || _settingsFromPause == false)
@@ -261,7 +328,9 @@ namespace BlockSauce
                 _settingsPanel.SetActive(inRoom == false && _screen == Screen.Settings);
             }
 
-            _pausePanel.SetActive(paused && _settingsPanel.activeSelf == false);
+            bool lobby = paused && IsInLobby();
+            _pausePanel.SetActive(paused && lobby == false && _settingsPanel.activeSelf == false);
+            _roomPanel.SetActive(lobby && _settingsPanel.activeSelf == false);
             _statusPanel.SetActive(connecting);
             _statusText.text = "Connecting…";
 
@@ -274,7 +343,7 @@ namespace BlockSauce
             _errorText.text = _flow.Error ?? string.Empty;
             _errorText.gameObject.SetActive(inRoom == false && string.IsNullOrEmpty(_flow.Error) == false);
 
-            _roomBadge.SetActive(inRoom);
+            _roomBadge.SetActive(inRoom && _roomPanel.activeSelf == false);
             _roomBadgeText.text = inRoom ? $"ROOM  {_flow.RoomCode}" : string.Empty;
             _pauseCodeText.text = inRoom ? $"Room code: {_flow.RoomCode}" : string.Empty;
 
@@ -284,6 +353,13 @@ namespace BlockSauce
                 Cursor.visible = true;
             }
 
+            if (inRoom && _wasInRoom == false)
+            {
+                // A new room: the room screen opens once its first frame is in (FollowMatch).
+                _lastMatchState = (MatchState)(-1);
+            }
+
+            _wasInRoom = inRoom;
             PointCamera(inRoom == false);
         }
 
@@ -346,9 +422,9 @@ namespace BlockSauce
             if (selected != null && selected.activeInHierarchy)
                 return;
 
-            if (_pausePanel.activeInHierarchy)
+            if (_pausePanel.activeInHierarchy || _roomPanel.activeInHierarchy)
             {
-                Select(_resumeButton);
+                SelectInRoomMenu();
             }
             else if (_settingsPanel.activeInHierarchy)
             {

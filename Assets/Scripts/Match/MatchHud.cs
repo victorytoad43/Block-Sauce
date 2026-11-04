@@ -1,162 +1,350 @@
-﻿using Quantum;
+﻿using System;
+using System.Collections.Generic;
+using Quantum;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 namespace BlockSauce
 {
     /// <summary>
-    /// Placeholder match HUD (A-006), drawn with IMGUI: the match state and countdown, each player's best stack (3 slots:
-    /// empty, settling with progress, counted), the winner, and the start prompt in the lobby. Enter or the gamepad's
-    /// Start button sends the start command. View only: it reads the predicted frame and sends commands, the only way
-    /// the view talks to the simulation besides input.
+    /// The match HUD (docs/PLAN.md, Phase 6, step 7; a draft until Jackson's HUD art, A-006), in uGUI: the lobby's prompt,
+    /// the countdown, GO!, each player's best tower as three slots (empty, settling with its progress, counted), the
+    /// winner, and the results (everyone ranked by counted blocks, and the time until the room screen comes back). In
+    /// the lobby the host starts the match with Enter (or the gamepad's Start, also over the room screen). Shown only in a
+    /// room with no menu up. View only: it reads the predicted frame and sends the start command.
+    /// Built by Block Sauce › Build Main Menu (PH_MatchHud); the references below are set there.
     /// </summary>
     public class MatchHud : MonoBehaviour
     {
+        [Serializable]
+        public struct TowerRow
+        {
+            public GameObject Root;
+            public Image Swatch;
+            public TMP_Text Name;
+            public Image[] Slots;
+        }
+
+        [Serializable]
+        public struct ResultRow
+        {
+            public GameObject Root;
+            public Image Swatch;
+            public TMP_Text Name;
+            public TMP_Text Count;
+        }
+
         [Tooltip("The player colors.")]
         [SerializeField] private PlayerPalette _palette;
+        [SerializeField] private GameObject _root;
+        [SerializeField] private GameObject _headline;
+        [SerializeField] private TMP_Text _headlineText;
+        [SerializeField] private TMP_Text _bigText;
+        [SerializeField] private TMP_Text _promptText;
+        [SerializeField] private GameObject _towerPanel;
+        [SerializeField] private TowerRow[] _towerRows;
+        [SerializeField] private GameObject _resultsPanel;
+        [SerializeField] private TMP_Text _resultsWinner;
+        [SerializeField] private ResultRow[] _resultRows;
+        [SerializeField] private TMP_Text _resultsFooter;
+        [Tooltip("How long GO! shows once the match starts, in seconds.")]
+        [SerializeField] private float _goSeconds = 1f;
 
-        private GUIStyle _big;
-        private GUIStyle _small;
-        private Texture2D _white;
+        private struct Standing
+        {
+            public PlayerRef Player;
+            public int Counted;
+            public float Progress;
+        }
+
+        private readonly List<Standing> _standings = new List<Standing>();
+        private MatchState _lastState = (MatchState)(-1);
+        private float _playingSince;
+        private int _shownSeconds = -1;
+        private string _shownBig;
+        private bool _shownHost;
+        private float _nextResultsRefresh;
+        private int[] _towerKeys = Array.Empty<int>();
 
         private void Update()
         {
             QuantumGame game = QuantumRunner.Default?.Game;
             Frame frame = game?.Frames.Predicted;
-            if (frame == null || frame.TryGetSingleton(out Match match) == false || GameFlow.AllowsGameInput == false)
+            if (_root == null)
                 return;
 
-            bool startPressed = (Keyboard.current != null && Keyboard.current.enterKey.wasPressedThisFrame)
-                || (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame);
-            if (match.State == MatchState.Lobby && startPressed)
+            GameFlow flow = GameFlow.Instance;
+            bool inRoom = flow == null || flow.State == GameFlow.FlowState.InRoom;
+            if (frame == null || frame.TryGetSingleton(out Match match) == false || inRoom == false)
+            {
+                _root.SetActive(false);
+                _lastState = (MatchState)(-1);
+                return;
+            }
+
+            bool isHost = RoomScreen.IsLocalHost(frame, game);
+            if (match.State == MatchState.Lobby && isHost && StartPressed())
             {
                 game.AddCommand(new CommandStartMatch());
             }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            // Dev shortcut: drop your next block onto your tower.
-            if (match.State == MatchState.Playing && Keyboard.current != null && Keyboard.current.f9Key.wasPressedThisFrame)
+            if (match.State != _lastState)
             {
-                game.AddCommand(new CommandDevStackTower());
+                EnterState(match.State, isHost);
             }
 
-            // Dev shortcut: coat your held block, or all your blocks, with Stack sauce (F8) or Slip sauce (Shift+F8).
-            if (Keyboard.current != null && Keyboard.current.f8Key.wasPressedThisFrame)
-            {
-                bool slip = Keyboard.current.shiftKey.isPressed;
-                game.AddCommand(new CommandDevSauce { Type = slip ? SauceType.Slip : SauceType.Stack });
-            }
+            bool visible = flow == null || flow.IsPaused == false;
+            _root.SetActive(visible);
+            if (visible == false)
+                return;
 
-            // Dev shortcut until the room screen: add a bot in the lobby (F7), or remove one (Shift+F7).
-            if (match.State == MatchState.Lobby && Keyboard.current != null && Keyboard.current.f7Key.wasPressedThisFrame)
+            GameModeConfig mode = frame.FindAsset(match.Mode);
+            switch (match.State)
             {
-                game.AddCommand(Keyboard.current.shiftKey.isPressed ? new CommandRemoveBot() : new CommandAddBot());
-            }
-
-            // Dev shortcut: an all-bot match. In the lobby, F6 hands your character to a bot and starts the match (bots
-            // fill the other slots); you watch your bot. F6 again, at any time, takes your character back.
-            if (Keyboard.current != null && Keyboard.current.f6Key.wasPressedThisFrame)
-            {
-                bool startMatch = match.State == MatchState.Lobby && IsLocalCharacterBot(frame, game) == false;
-                game.AddCommand(new CommandDevBotSelf());
-                if (startMatch)
-                {
-                    game.AddCommand(new CommandStartMatch());
-                }
-            }
-
-            // Dev shortcut until the room screen: F5 switches the main camera to the spectator director, with its
-            // controls, and back.
-            if (Keyboard.current != null && Keyboard.current.f5Key.wasPressedThisFrame && Camera.main != null)
-            {
-                SpectatorDirector director = Camera.main.GetComponent<SpectatorDirector>();
-                if (director == null)
-                {
-                    Camera.main.gameObject.AddComponent<SpectatorDirector>();
-                    Camera.main.gameObject.AddComponent<SpectatorControls>();
-                }
-                else
-                {
-                    director.IsDirecting = director.IsDirecting == false;
-                    if (Camera.main.TryGetComponent(out SpectatorControls controls))
+                case MatchState.Lobby:
+                    if (isHost != _shownHost)
                     {
-                        controls.enabled = director.IsDirecting;
+                        ShowPrompt(isHost);
+                    }
+
+                    break;
+                case MatchState.Countdown:
+                    ShowSeconds(match.Timer.RemainingSeconds(frame).AsFloat, s => s.ToString());
+                    UpdateTowers(frame, mode);
+                    break;
+                case MatchState.Playing:
+                    ShowBig(Time.time - _playingSince < _goSeconds ? "GO!" : string.Empty);
+                    UpdateTowers(frame, mode);
+                    break;
+                case MatchState.RoundEnd:
+                    UpdateTowers(frame, mode);
+                    break;
+                case MatchState.Results:
+                    ShowSeconds(match.Timer.RemainingSeconds(frame).AsFloat, null);
+                    if (Time.unscaledTime >= _nextResultsRefresh)
+                    {
+                        _nextResultsRefresh = Time.unscaledTime + 0.5f;
+                        ShowResults(frame, mode, match.Winner);
+                    }
+
+                    break;
+            }
+        }
+
+        private static bool StartPressed()
+        {
+            // Enter only while playing (over the room screen it presses the selected button); Start always.
+            Keyboard keyboard = Keyboard.current;
+            Gamepad gamepad = Gamepad.current;
+            return (GameFlow.AllowsGameInput && keyboard != null && (keyboard.enterKey.wasPressedThisFrame
+                       || keyboard.numpadEnterKey.wasPressedThisFrame))
+                || (gamepad != null && gamepad.startButton.wasPressedThisFrame);
+        }
+
+        /// <summary>
+        /// Sets up the panels for a new match state.
+        /// </summary>
+        private void EnterState(MatchState state, bool isHost)
+        {
+            _lastState = state;
+            _shownSeconds = -1;
+            _shownBig = null;
+            _nextResultsRefresh = 0f;
+
+            bool towers = state == MatchState.Countdown || state == MatchState.Playing || state == MatchState.RoundEnd;
+            _towerPanel.SetActive(towers);
+            _resultsPanel.SetActive(state == MatchState.Results);
+            // The prompt's bar is its parent.
+            _promptText.transform.parent.gameObject.SetActive(state == MatchState.Lobby);
+            _headline.SetActive(state == MatchState.Countdown || state == MatchState.Playing);
+            _bigText.color = Color.white;
+            ShowBig(string.Empty);
+            for (int i = 0; i < _towerKeys.Length; i++)
+            {
+                _towerKeys[i] = -1;
+            }
+
+            switch (state)
+            {
+                case MatchState.Lobby:
+                    ShowPrompt(isHost);
+                    break;
+                case MatchState.Countdown:
+                    _headlineText.text = "GET READY";
+                    break;
+                case MatchState.Playing:
+                    _playingSince = Time.time;
+                    _headlineText.text = "STACK ALL 3 BLOCKS INTO ONE TOWER";
+                    break;
+                case MatchState.RoundEnd:
+                    ShowWinner();
+                    break;
+            }
+        }
+
+        private void ShowWinner()
+        {
+            Frame frame = QuantumRunner.Default?.Game?.Frames.Predicted;
+            if (frame == null || frame.TryGetSingleton(out Match match) == false)
+                return;
+
+            PlayerRef winner = match.Winner;
+            if (winner.IsValid)
+            {
+                _bigText.color = GetColor(winner);
+                ShowBig($"{GetName(frame, winner)} WINS!");
+            }
+            else
+            {
+                ShowBig("NO WINNER");
+            }
+        }
+
+        private void ShowPrompt(bool isHost)
+        {
+            _shownHost = isHost;
+            _promptText.text = isHost
+                ? "ENTER / START  START MATCH        ESC / SELECT  ROOM"
+                : "WAITING FOR THE HOST TO START        ESC / SELECT  ROOM";
+        }
+
+        private void ShowBig(string text)
+        {
+            if (text == _shownBig)
+                return;
+
+            _shownBig = text;
+            _bigText.text = text;
+            _bigText.gameObject.SetActive(string.IsNullOrEmpty(text) == false);
+        }
+
+        /// <summary>
+        /// Shows whole seconds left: in the big text (the countdown) or in the results' footer.
+        /// </summary>
+        private void ShowSeconds(float remaining, Func<int, string> big)
+        {
+            int seconds = Mathf.Max(1, Mathf.CeilToInt(remaining));
+            if (seconds == _shownSeconds)
+                return;
+
+            _shownSeconds = seconds;
+            if (big != null)
+            {
+                ShowBig(big(seconds));
+            }
+            else
+            {
+                _resultsFooter.text = $"BACK TO THE ROOM IN {seconds}";
+            }
+        }
+
+        private void UpdateTowers(Frame frame, GameModeConfig mode)
+        {
+            if (_towerKeys.Length != _towerRows.Length)
+            {
+                _towerKeys = new int[_towerRows.Length];
+                for (int i = 0; i < _towerKeys.Length; i++)
+                {
+                    _towerKeys[i] = -1;
+                }
+            }
+
+            // One row per player, in slot order.
+            int row = 0;
+            for (int index = 0; index < frame.MaxPlayerCount && row < _towerRows.Length; index++)
+            {
+                PlayerRef player = index;
+                if (PlayerSystem.TryGetCharacter(frame, player, out EntityRef _) == false)
+                    continue;
+
+                TowerRow tower = _towerRows[row++];
+                tower.Root.SetActive(true);
+                Color color = GetColor(player);
+                tower.Swatch.color = color;
+                // Names are rebuilt only when the row's player or bot status changes.
+                int key = index * 2 + (IsBot(frame, player) ? 1 : 0);
+                if (_towerKeys[row - 1] != key)
+                {
+                    _towerKeys[row - 1] = key;
+                    tower.Name.text = GetName(frame, player);
+                }
+
+                EntityRef towerBase = BlockTower.GetBestBase(frame, player);
+                int height = mode != null ? mode.TowerHeight : tower.Slots.Length;
+                for (int level = 0; level < tower.Slots.Length; level++)
+                {
+                    Image slot = tower.Slots[level];
+                    slot.transform.parent.gameObject.SetActive(level < height);
+                    GetSlot(frame, towerBase, level, out bool counted, out float progress);
+                    // The fill grows from the bottom of the slot; set only on change, to keep the canvas still.
+                    float fill = counted ? 1f : progress;
+                    RectTransform rect = slot.rectTransform;
+                    if (Mathf.Abs(rect.anchorMax.y - fill) > 0.01f || (fill == 0f) != (rect.anchorMax.y == 0f))
+                    {
+                        rect.anchorMax = new Vector2(1f, fill);
+                    }
+
+                    Color shade = counted ? color : Color.Lerp(color, Color.black, 0.5f);
+                    if (slot.color != shade)
+                    {
+                        slot.color = shade;
                     }
                 }
             }
 
-            // Dev shortcut: knock yourself down.
-            if (Keyboard.current != null && Keyboard.current.f10Key.wasPressedThisFrame)
+            for (; row < _towerRows.Length; row++)
             {
-                game.AddCommand(new CommandDevKnockdown());
+                _towerRows[row].Root.SetActive(false);
             }
-#endif
         }
 
-        private static bool IsLocalCharacterBot(Frame frame, QuantumGame game)
+        private void ShowResults(Frame frame, GameModeConfig mode, PlayerRef winner)
         {
-            foreach (PlayerRef player in game.GetLocalPlayers())
-            {
-                if (PlayerSystem.TryGetCharacter(frame, player, out EntityRef character) && frame.Has<Bot>(character))
-                    return true;
-            }
-
-            return false;
-        }
-
-        private void OnGUI()
-        {
-            Frame frame = QuantumRunner.Default?.Game?.Frames.Predicted;
-            if (frame == null || frame.TryGetSingleton(out Match match) == false || GameFlow.AllowsGameInput == false)
-                return;
-
-            EnsureStyles();
-            GameModeConfig mode = frame.FindAsset(match.Mode);
-
-            string headline = match.State switch
-            {
-                MatchState.Lobby => "Lobby  ·  press Enter / Start to begin a match",
-                MatchState.Countdown => $"Get ready… {Mathf.CeilToInt(match.Timer.RemainingSeconds(frame).AsFloat)}",
-                MatchState.Playing => "Stack & Lock: stack all 3 of your blocks into one tower",
-                MatchState.RoundEnd => $"Player {(int)match.Winner + 1} wins!",
-                MatchState.Results => $"Results  ·  Player {(int)match.Winner + 1} won  ·  back to lobby in {Mathf.CeilToInt(match.Timer.RemainingSeconds(frame).AsFloat)}",
-                _ => "",
-            };
-            GUI.Label(new Rect(0, 16, Screen.width, 40), headline, _big);
-
-            if (match.State == MatchState.Lobby || mode == null)
-                return;
-
-            float y = 70;
+            _standings.Clear();
             var players = frame.Filter<Player>();
             while (players.Next(out EntityRef _, out Player player))
             {
-                DrawTowerRow(frame, mode, player.Ref, y, player.Ref == match.Winner && match.State != MatchState.Playing);
-                y += 28;
+                EntityRef towerBase = BlockTower.GetBestBase(frame, player.Ref);
+                var standing = new Standing { Player = player.Ref };
+                int height = mode != null ? mode.TowerHeight : 3;
+                for (int level = 0; level < height; level++)
+                {
+                    GetSlot(frame, towerBase, level, out bool counted, out float progress);
+                    standing.Counted += counted ? 1 : 0;
+                    standing.Progress += progress;
+                }
+
+                _standings.Add(standing);
             }
-        }
 
-        private void DrawTowerRow(Frame frame, GameModeConfig mode, PlayerRef player, float y, bool isWinner)
-        {
-            Color color = _palette != null ? _palette.GetColor((int)player) : Color.white;
-            DrawRect(new Rect(16, y, 20, 20), color);
-            GUI.Label(new Rect(42, y, 90, 22), $"Player {(int)player + 1}{(isWinner ? "  ★" : "")}", _small);
-
-            EntityRef towerBase = BlockTower.GetBestBase(frame, player);
-            for (int level = 0; level < mode.TowerHeight; level++)
+            // The winner first, then by counted blocks, then by blocks still settling, then by slot.
+            _standings.Sort((a, b) =>
             {
-                var slot = new Rect(140 + level * 30, y, 24, 20);
-                DrawRect(slot, new Color(0, 0, 0, 0.4f));
-                GetSlot(frame, towerBase, level, out bool counted, out float progress);
-                if (counted)
-                {
-                    DrawRect(slot, color);
-                }
-                else if (progress > 0f)
-                {
-                    DrawRect(new Rect(slot.x, slot.y + slot.height * (1f - progress), slot.width, slot.height * progress),
-                        Color.Lerp(color, Color.black, 0.5f));
-                }
+                if (a.Player == winner != (b.Player == winner))
+                    return a.Player == winner ? -1 : 1;
+                if (a.Counted != b.Counted)
+                    return b.Counted.CompareTo(a.Counted);
+                if (Mathf.Approximately(a.Progress, b.Progress) == false)
+                    return b.Progress.CompareTo(a.Progress);
+                return ((int)a.Player).CompareTo((int)b.Player);
+            });
+
+            _resultsWinner.text = winner.IsValid ? $"{GetName(frame, winner)} WINS!" : "NO WINNER";
+            _resultsWinner.color = winner.IsValid ? GetColor(winner) : Color.white;
+            int towerHeight = mode != null ? mode.TowerHeight : 3;
+            for (int i = 0; i < _resultRows.Length; i++)
+            {
+                ResultRow row = _resultRows[i];
+                row.Root.SetActive(i < _standings.Count);
+                if (i >= _standings.Count)
+                    continue;
+
+                Standing standing = _standings[i];
+                row.Swatch.color = GetColor(standing.Player);
+                row.Name.text = $"{i + 1}.  {GetName(frame, standing.Player)}";
+                row.Count.text = $"{standing.Counted} / {towerHeight}";
             }
         }
 
@@ -174,22 +362,26 @@ namespace BlockSauce
             progress = block.Stack == StackState.Settling ? block.StackProgress.AsFloat : 0f;
         }
 
-        private void DrawRect(Rect rect, Color color)
+        private Color GetColor(PlayerRef player)
         {
-            Color previous = GUI.color;
-            GUI.color = color;
-            GUI.DrawTexture(rect, _white);
-            GUI.color = previous;
+            return _palette != null ? _palette.GetColor((int)player) : Color.white;
         }
 
-        private void EnsureStyles()
+        /// <summary>
+        /// A player's name on the HUD: PLAYER n, or BOT n for a slot the simulation drives.
+        /// </summary>
+        private static string GetName(Frame frame, PlayerRef player)
         {
-            if (_big != null)
-                return;
+            return IsBot(frame, player) ? $"BOT {(int)player + 1}" : $"PLAYER {(int)player + 1}";
+        }
 
-            _white = Texture2D.whiteTexture;
-            _big = new GUIStyle(GUI.skin.label) { fontSize = 26, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
-            _small = new GUIStyle(GUI.skin.label) { fontSize = 16 };
+        /// <summary>
+        /// Whether the slot is a bot's: driven by the simulation with nobody connected to it.
+        /// </summary>
+        private static bool IsBot(Frame frame, PlayerRef player)
+        {
+            return PlayerSystem.TryGetCharacter(frame, player, out EntityRef character) && frame.Has<Bot>(character)
+                && (frame.GetPlayerInputFlags(player) & Photon.Deterministic.DeterministicInputFlags.PlayerNotPresent) != 0;
         }
     }
 }

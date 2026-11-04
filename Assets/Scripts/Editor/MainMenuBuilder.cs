@@ -17,13 +17,17 @@ namespace BlockSauce.Editor
     /// settings), an instance of the menu, the stock Quantum start UI removed and the local debug runner switched off
     /// (it would start a game of its own without a start UI). Rerunning it rebuilds the prefab; edits made by hand in
     /// the prefab are lost. Controls with no art yet (sliders, toggles, the dropdown, the code field) are drafts in the
-    /// button's colors.
+    /// button's colors. It also builds the room screen (in the menu) and the match HUD (PH_MatchHud), drafts in the same
+    /// style until Jackson's room and HUD art (A-002, A-006), and swaps the Lobby's IMGUI HUD for them and DevKeys.
     /// </summary>
     public static class MainMenuBuilder
     {
         private const string PrefabPath = "Assets/Placeholders/PH_MainMenu.prefab";
         private const string FontFolder = "Assets/Art/UI/Fonts";
         private const string LobbyPath = "Assets/Scenes/Lobby.unity";
+        private const string HudPath = "Assets/Placeholders/PH_MatchHud.prefab";
+        private const string PalettePath = "Assets/Placeholders/PH_PlayerColors.asset";
+        private const int MaxPlayers = 6;
 
         // Jackson's mock-up, 1920×1080: the column's center, 462 px in from the right edge, and the button size there.
         private const float ColumnX = -462f;
@@ -42,6 +46,7 @@ namespace BlockSauce.Editor
         private static Sprite _button;
         private static Sprite _buttonHover;
         private static Sprite _buttonPressed;
+        private static PlayerPalette _palette;
 
         [MenuItem("Block Sauce/Build Main Menu")]
         public static void Build()
@@ -51,12 +56,16 @@ namespace BlockSauce.Editor
             _button = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/UI/UI_MenuButton.png");
             _buttonHover = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/UI/UI_MenuButton_Hover.png");
             _buttonPressed = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/UI/UI_MenuButton_Pressed.png");
+            _palette = AssetDatabase.LoadAssetAtPath<PlayerPalette>(PalettePath);
 
             GameObject menu = BuildMenu();
             PrefabUtility.SaveAsPrefabAsset(menu, PrefabPath);
             Object.DestroyImmediate(menu);
+            GameObject hud = BuildHud();
+            PrefabUtility.SaveAsPrefabAsset(hud, HudPath);
+            Object.DestroyImmediate(hud);
             SetUpLobby();
-            Debug.Log($"Built {PrefabPath} and set up the Lobby's menu.");
+            Debug.Log($"Built {PrefabPath} and {HudPath} and set up the Lobby's menu and HUD.");
         }
 
         /// <summary>
@@ -104,6 +113,7 @@ namespace BlockSauce.Editor
                 new Vector2(380f - ColumnX, 0f));
             column.raycastTarget = false;
 
+            // Only over the menu screens: the room screen's column starts higher.
             Image logo = NewChild("Logo", root).gameObject.AddComponent<Image>();
             logo.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/UI/UI_Logo.png");
             logo.preserveAspect = true;
@@ -144,6 +154,44 @@ namespace BlockSauce.Editor
             Button pauseSettings = MakeButton(pause, "SettingsButton", "SETTINGS", 676f + RowStep);
             Button leave = MakeButton(pause, "LeaveButton", "LEAVE ROOM", 676f + RowStep * 2);
 
+            // The room screen, in a room's lobby: the players on the left, the room's controls in the column.
+            RectTransform roomPanel = Stretch(NewChild("RoomPanel", root));
+            roomPanel.SetAsFirstSibling();
+            Image roomDim = Stretch(NewChild("Dim", roomPanel)).gameObject.AddComponent<Image>();
+            roomDim.color = new Color(0f, 0f, 0f, 0.3f);
+            RoomScreen roomScreen = BuildRoomList(roomPanel, out TMP_Text roomCode, out RoomScreen.Row[] roomRows);
+            const float roomTop = 300f;
+            const float roomStep = 100f;
+            Button roomStart = MakeButton(roomPanel, "StartMatchButton", "START MATCH", roomTop);
+            Button addBot = MakeButton(roomPanel, "AddBotButton", "ADD BOT", roomTop + roomStep);
+            Button removeBot = MakeButton(roomPanel, "RemoveBotButton", "REMOVE BOT", roomTop + roomStep * 2);
+            RectTransform fillRow = Stretch(NewChild("FillRow", roomPanel));
+            Toggle fill = MakeToggle(fillRow, "BotFill", "BOTS FILL SLOTS", roomTop + roomStep * 3);
+            Button roomPlay = MakeButton(roomPanel, "PlayButton", "PLAY IN LOBBY", roomTop + roomStep * 4);
+            Button roomSettings = MakeButton(roomPanel, "SettingsButton", "SETTINGS", roomTop + roomStep * 5);
+            Button roomLeave = MakeButton(roomPanel, "LeaveButton", "LEAVE ROOM", roomTop + roomStep * 6);
+            TMP_Text waiting = MakeText(roomPanel, "WaitingText", "WAITING FOR THE HOST\nTO START THE MATCH", _heading, 40f,
+                roomTop + roomStep);
+            waiting.rectTransform.sizeDelta = new Vector2(500f, 160f);
+
+            var roomSerialized = new SerializedObject(roomScreen);
+            roomSerialized.FindProperty("_palette").objectReferenceValue = _palette;
+            Set(roomSerialized, "_codeText", roomCode);
+            SetRows(roomSerialized.FindProperty("_rows"), roomRows.Length, (row, i) =>
+            {
+                row.FindPropertyRelative("Root").objectReferenceValue = roomRows[i].Root;
+                row.FindPropertyRelative("Swatch").objectReferenceValue = roomRows[i].Swatch;
+                row.FindPropertyRelative("Name").objectReferenceValue = roomRows[i].Name;
+                row.FindPropertyRelative("Tag").objectReferenceValue = roomRows[i].Tag;
+            });
+            Set(roomSerialized, "_startButton", roomStart);
+            Set(roomSerialized, "_addBotButton", addBot);
+            Set(roomSerialized, "_removeBotButton", removeBot);
+            Set(roomSerialized, "_fillToggle", fill);
+            Set(roomSerialized, "_fillRow", fillRow.gameObject);
+            Set(roomSerialized, "_waitingText", waiting);
+            roomSerialized.ApplyModifiedPropertiesWithoutUndo();
+
             // Connecting notice and errors, under the column.
             RectTransform status = Stretch(NewChild("StatusPanel", root));
             TMP_Text statusText = MakeText(status, "StatusText", "Connecting…", _heading, 38f, 1040f);
@@ -167,6 +215,12 @@ namespace BlockSauce.Editor
             Set(serialized, "_joinPanel", joinPanel.gameObject);
             Set(serialized, "_settingsPanel", settingsPanel.gameObject);
             Set(serialized, "_pausePanel", pause.gameObject);
+            Set(serialized, "_roomPanel", roomPanel.gameObject);
+            Set(serialized, "_logo", logo.gameObject);
+            Set(serialized, "_roomScreen", roomScreen);
+            Set(serialized, "_roomPlayButton", roomPlay);
+            Set(serialized, "_roomSettingsButton", roomSettings);
+            Set(serialized, "_roomLeaveButton", roomLeave);
             Set(serialized, "_statusPanel", status.gameObject);
             Set(serialized, "_roomBadge", badge.gameObject);
             Set(serialized, "_startButton", start);
@@ -195,10 +249,254 @@ namespace BlockSauce.Editor
             joinPanel.gameObject.SetActive(false);
             settingsPanel.gameObject.SetActive(false);
             pause.gameObject.SetActive(false);
+            roomPanel.gameObject.SetActive(false);
             status.gameObject.SetActive(false);
             error.gameObject.SetActive(false);
             badge.gameObject.SetActive(false);
             return canvasObject;
+        }
+
+        /// <summary>
+        /// The room screen's left side: the room code to share and one row per player slot (color, name, tag).
+        /// </summary>
+        private static RoomScreen BuildRoomList(RectTransform panel, out TMP_Text code, out RoomScreen.Row[] rows)
+        {
+            RectTransform box = NewChild("PlayerList", panel);
+            Place(box, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(160f + 360f, -160f - 340f),
+                new Vector2(720f, 680f));
+            Image boxImage = box.gameObject.AddComponent<Image>();
+            boxImage.color = Shade;
+            boxImage.raycastTarget = false;
+            RoomScreen screen = box.gameObject.AddComponent<RoomScreen>();
+
+            code = MakeLeftText(box, "RoomCode", "ROOM  XXXXX", _heading, 72f, new Vector2(40f, -70f), 640f);
+            MakeLeftText(box, "Hint", "SHARE THE CODE SO FRIENDS CAN JOIN", _body, 26f, new Vector2(40f, -130f), 640f)
+                .color = new Color(1f, 1f, 1f, 0.7f);
+
+            rows = new RoomScreen.Row[MaxPlayers];
+            for (int i = 0; i < MaxPlayers; i++)
+            {
+                RectTransform row = NewChild($"Slot{i + 1}", box);
+                Place(row, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(360f, -210f - i * 76f),
+                    new Vector2(640f, 64f));
+                Image swatch = NewChild("Swatch", row).gameObject.AddComponent<Image>();
+                Place(swatch.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(28f, 0f),
+                    new Vector2(52f, 52f));
+                swatch.raycastTarget = false;
+                rows[i] = new RoomScreen.Row
+                {
+                    Root = row.gameObject,
+                    Swatch = swatch,
+                    Name = MakeLeftText(row, "Name", "PLAYER", _heading, 40f, new Vector2(76f, 0f), 340f, middle: true),
+                    Tag = MakeLeftText(row, "Tag", "", _body, 26f, new Vector2(420f, 0f), 220f, middle: true),
+                };
+                rows[i].Tag.alignment = TextAlignmentOptions.MidlineRight;
+            }
+
+            return screen;
+        }
+
+        /// <summary>
+        /// Left-aligned text, its left edge <paramref name="position"/>.x from the parent's left, its center
+        /// <paramref name="position"/>.y from the parent's top (or its middle, with <paramref name="middle"/>).
+        /// </summary>
+        private static TMP_Text MakeLeftText(Transform parent, string name, string value, TMP_FontAsset font, float size,
+            Vector2 position, float width, bool middle = false)
+        {
+            RectTransform rect = NewChild(name, parent);
+            Vector2 anchor = new Vector2(0f, middle ? 0.5f : 1f);
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = new Vector2(0f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = new Vector2(width, size * 1.4f);
+            TextMeshProUGUI text = rect.gameObject.AddComponent<TextMeshProUGUI>();
+            text.text = value;
+            text.font = font;
+            text.fontSize = size;
+            text.color = Ink;
+            text.alignment = TextAlignmentOptions.MidlineLeft;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.raycastTarget = false;
+            return text;
+        }
+
+        /// <summary>
+        /// The match HUD: the headline bar, the big center text (countdown, GO!, the winner), the lobby prompt, every
+        /// player's tower slots top left, and the results panel. Nothing in it takes clicks.
+        /// </summary>
+        private static GameObject BuildHud()
+        {
+            var canvasObject = new GameObject("PH_MatchHud", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
+            Canvas canvas = canvasObject.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 5;
+            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.matchWidthOrHeight = 0.5f;
+            RectTransform root = Stretch(NewChild("Root", canvasObject.transform));
+
+            Image headline = MakeBar(root, "Headline", new Vector2(0.5f, 1f), new Vector2(0f, -60f), new Vector2(900f, 72f));
+            TMP_Text headlineText = MakeCenterText(headline.rectTransform, "Text", "GET READY", _heading, 40f);
+            Stretch(headlineText.rectTransform);
+
+            TMP_Text big = MakeCenterText(root, "BigText", "3", _heading, 200f);
+            Place(big.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 80f),
+                new Vector2(1600f, 280f));
+            big.enableAutoSizing = true;
+            big.fontSizeMin = 60f;
+            big.fontSizeMax = 200f;
+
+            Image prompt = MakeBar(root, "Prompt", new Vector2(0.5f, 0f), new Vector2(0f, 70f), new Vector2(1100f, 64f));
+            TMP_Text promptText = MakeCenterText(prompt.rectTransform, "Text", "ENTER / START  START MATCH", _heading, 32f);
+            Stretch(promptText.rectTransform);
+
+            // Every player's best tower: color, name, and the three slots.
+            RectTransform towers = NewChild("Towers", root);
+            Place(towers, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f + 250f, -40f - 190f),
+                new Vector2(500f, 380f));
+            Image towersImage = towers.gameObject.AddComponent<Image>();
+            towersImage.color = new Color(Shade.r, Shade.g, Shade.b, 0.6f);
+            towersImage.raycastTarget = false;
+            var towerRows = new MatchHud.TowerRow[MaxPlayers];
+            for (int i = 0; i < MaxPlayers; i++)
+            {
+                RectTransform row = NewChild($"Row{i + 1}", towers);
+                Place(row, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(250f, -40f - i * 60f), new Vector2(480f, 52f));
+                Image swatch = NewChild("Swatch", row).gameObject.AddComponent<Image>();
+                Place(swatch.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(30f, 0f),
+                    new Vector2(36f, 36f));
+                swatch.raycastTarget = false;
+                TMP_Text name = MakeLeftText(row, "Name", "PLAYER", _heading, 32f, new Vector2(62f, 0f), 220f, middle: true);
+                var slots = new Image[3];
+                for (int level = 0; level < slots.Length; level++)
+                {
+                    // Left to right is bottom to top of the tower.
+                    Image back = NewChild($"Slot{level + 1}", row).gameObject.AddComponent<Image>();
+                    Place(back.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                        new Vector2(310f + level * 54f, 0f), new Vector2(46f, 40f));
+                    back.color = new Color(0f, 0f, 0f, 0.5f);
+                    back.raycastTarget = false;
+                    Image fill = Stretch(NewChild("Fill", back.rectTransform)).gameObject.AddComponent<Image>();
+                    fill.raycastTarget = false;
+                    fill.rectTransform.anchorMax = new Vector2(1f, 0f);
+                    slots[level] = fill;
+                }
+
+                towerRows[i] = new MatchHud.TowerRow { Root = row.gameObject, Swatch = swatch, Name = name, Slots = slots };
+            }
+
+            // Results: the winner, everyone ranked, and the time until the room screen.
+            RectTransform results = NewChild("Results", root);
+            Place(results, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(820f, 700f));
+            Image resultsImage = results.gameObject.AddComponent<Image>();
+            resultsImage.color = Shade;
+            resultsImage.raycastTarget = false;
+            TMP_Text resultsTitle = MakeCenterText(results, "Title", "RESULTS", _heading, 48f);
+            Place(resultsTitle.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -55f),
+                new Vector2(760f, 70f));
+            resultsTitle.color = new Color(1f, 1f, 1f, 0.7f);
+            TMP_Text winner = MakeCenterText(results, "Winner", "PLAYER 1 WINS!", _heading, 72f);
+            Place(winner.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -125f),
+                new Vector2(760f, 90f));
+            var resultRows = new MatchHud.ResultRow[MaxPlayers];
+            for (int i = 0; i < MaxPlayers; i++)
+            {
+                RectTransform row = NewChild($"Row{i + 1}", results);
+                Place(row, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -215f - i * 64f),
+                    new Vector2(680f, 56f));
+                Image swatch = NewChild("Swatch", row).gameObject.AddComponent<Image>();
+                Place(swatch.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(22f, 0f),
+                    new Vector2(40f, 40f));
+                swatch.raycastTarget = false;
+                TMP_Text name = MakeLeftText(row, "Name", "1.  PLAYER 1", _heading, 38f, new Vector2(60f, 0f), 440f,
+                    middle: true);
+                TMP_Text count = MakeLeftText(row, "Count", "3 / 3", _heading, 38f, new Vector2(500f, 0f), 180f,
+                    middle: true);
+                count.alignment = TextAlignmentOptions.MidlineRight;
+                resultRows[i] = new MatchHud.ResultRow { Root = row.gameObject, Swatch = swatch, Name = name, Count = count };
+            }
+
+            TMP_Text footer = MakeCenterText(results, "Footer", "BACK TO THE ROOM IN 5", _body, 28f);
+            Place(footer.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 45f),
+                new Vector2(760f, 50f));
+
+            MatchHud hud = canvasObject.AddComponent<MatchHud>();
+            var serialized = new SerializedObject(hud);
+            serialized.FindProperty("_palette").objectReferenceValue = _palette;
+            Set(serialized, "_root", root.gameObject);
+            Set(serialized, "_headline", headline.gameObject);
+            Set(serialized, "_headlineText", headlineText);
+            Set(serialized, "_bigText", big);
+            Set(serialized, "_promptText", promptText);
+            Set(serialized, "_towerPanel", towers.gameObject);
+            SetRows(serialized.FindProperty("_towerRows"), towerRows.Length, (row, i) =>
+            {
+                row.FindPropertyRelative("Root").objectReferenceValue = towerRows[i].Root;
+                row.FindPropertyRelative("Swatch").objectReferenceValue = towerRows[i].Swatch;
+                row.FindPropertyRelative("Name").objectReferenceValue = towerRows[i].Name;
+                SerializedProperty slots = row.FindPropertyRelative("Slots");
+                slots.arraySize = towerRows[i].Slots.Length;
+                for (int level = 0; level < slots.arraySize; level++)
+                {
+                    slots.GetArrayElementAtIndex(level).objectReferenceValue = towerRows[i].Slots[level];
+                }
+            });
+            Set(serialized, "_resultsPanel", results.gameObject);
+            Set(serialized, "_resultsWinner", winner);
+            SetRows(serialized.FindProperty("_resultRows"), resultRows.Length, (row, i) =>
+            {
+                row.FindPropertyRelative("Root").objectReferenceValue = resultRows[i].Root;
+                row.FindPropertyRelative("Swatch").objectReferenceValue = resultRows[i].Swatch;
+                row.FindPropertyRelative("Name").objectReferenceValue = resultRows[i].Name;
+                row.FindPropertyRelative("Count").objectReferenceValue = resultRows[i].Count;
+            });
+            Set(serialized, "_resultsFooter", footer);
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+
+            headline.gameObject.SetActive(false);
+            big.gameObject.SetActive(false);
+            towers.gameObject.SetActive(false);
+            results.gameObject.SetActive(false);
+            return canvasObject;
+        }
+
+        /// <summary>
+        /// A shaded bar in Jackson's button shape, for HUD text.
+        /// </summary>
+        private static Image MakeBar(Transform parent, string name, Vector2 anchor, Vector2 position, Vector2 size)
+        {
+            Image bar = NewChild(name, parent).gameObject.AddComponent<Image>();
+            bar.sprite = _button;
+            bar.type = Image.Type.Sliced;
+            bar.color = Shade;
+            bar.raycastTarget = false;
+            Place(bar.rectTransform, anchor, anchor, position, size);
+            return bar;
+        }
+
+        private static TMP_Text MakeCenterText(Transform parent, string name, string value, TMP_FontAsset font, float size)
+        {
+            RectTransform rect = NewChild(name, parent);
+            TextMeshProUGUI text = rect.gameObject.AddComponent<TextMeshProUGUI>();
+            text.text = value;
+            text.font = font;
+            text.fontSize = size;
+            text.color = Ink;
+            text.alignment = TextAlignmentOptions.Center;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.raycastTarget = false;
+            return text;
+        }
+
+        private static void SetRows(SerializedProperty array, int count, System.Action<SerializedProperty, int> set)
+        {
+            array.arraySize = count;
+            for (int i = 0; i < count; i++)
+            {
+                set(array.GetArrayElementAtIndex(i), i);
+            }
         }
 
         /// <summary>
@@ -502,13 +800,29 @@ namespace BlockSauce.Editor
                 debugRunner.gameObject.SetActive(false);
             }
 
-            GameObject existingMenu = GameObject.Find("PH_MainMenu");
-            if (existingMenu != null)
+            foreach (string name in new[] { "PH_MainMenu", "PH_MatchHud" })
             {
-                Object.DestroyImmediate(existingMenu);
+                GameObject existing = GameObject.Find(name);
+                if (existing != null)
+                {
+                    Object.DestroyImmediate(existing);
+                }
+            }
+
+            // The IMGUI HUD goes; its dev keys move to DevKeys.
+            GameObject oldHud = GameObject.Find("MatchHud");
+            if (oldHud != null)
+            {
+                Object.DestroyImmediate(oldHud);
+            }
+
+            if (Object.FindAnyObjectByType<DevKeys>(FindObjectsInactive.Include) == null)
+            {
+                new GameObject("DevKeys", typeof(DevKeys));
             }
 
             PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath), scene);
+            PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(HudPath), scene);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
         }
