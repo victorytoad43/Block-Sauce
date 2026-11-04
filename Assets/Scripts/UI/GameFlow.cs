@@ -28,9 +28,10 @@ namespace BlockSauce
         }
 
         /// <summary>
-        /// Letters room codes are made of: consonants only, so codes can't spell words and have no O/0 or I/1 to mix up.
+        /// Letters room codes are made of: consonants only, so codes can't spell words and have no O/0 or I/1 to mix up;
+        /// no V either, which the Jaro font draws like a U.
         /// </summary>
-        private const string CodeLetters = "BCDFGHJKLMNPQRSTVWXZ";
+        private const string CodeLetters = "BCDFGHJKLMNPQRSTWXZ";
         private const int CodeLength = 5;
         private const int DemoAttempts = 3;
 
@@ -313,7 +314,8 @@ namespace BlockSauce
     }
 
     /// <summary>
-    /// Multiplayer Play Mode: tells the editor's clones to join the main editor's room.
+    /// Multiplayer Play Mode: tells the editor's clones to join the main editor's room by its code, the same way the
+    /// Join Game screen does.
     /// </summary>
     [Serializable]
     public class GameFlowMppmJoinCommand : QuantumMppmCommand
@@ -323,7 +325,7 @@ namespace BlockSauce
         public override Task ExecuteAsync()
         {
             GameFlow flow = UnityEngine.Object.FindAnyObjectByType<GameFlow>();
-            return flow != null ? flow.JoinOrCreateRoom(RoomName) : Task.CompletedTask;
+            return flow != null ? flow.JoinRoom(RoomName) : Task.CompletedTask;
         }
     }
 

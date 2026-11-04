@@ -4,7 +4,7 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-04)
 
-**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is in progress: steps 1–7 are in. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
+**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is done and waiting for review. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
 
 What plays today, online with up to 6 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
@@ -20,7 +20,7 @@ What plays today, online with up to 6 players, in the Lobby scene:
 - Sauce particles emit over the whole block, not only the coated part.
 - A block let go off-center in a cup rests against the sloped wall, a little tilted (the cup is 1.43 m across at the floor).
 - With the hips dropped for a low foot, Guy's long arms can touch the ground beside him.
-- MPPM: starting the `TwoClients` scenario sometimes hangs the main editor while the clone launches; stopping and starting the scenario again recovers it.
+- MPPM: starting the `TwoClients` scenario can take several minutes, or hang the main editor while the clone launches; stopping and starting the scenario again recovers it.
 - The camera has no wall collision. Phase 6.
 - Quantum's view updater sometimes asserts (`group.Buffer != default`) for about 3 s while creating a ragdoll body's view; seen twice in about an hour of all-bot matches. View only; the simulation is unaffected. Watch for a ragdoll that shows up late or not at all.
 - Bots now and then wedge against each other or a wall for a few seconds; the detour or the task's timeout frees them.
@@ -31,7 +31,7 @@ What plays today, online with up to 6 players, in the Lobby scene:
 - Quantum's stats overlay (frame, ping) shows over the menu. Photon logs an error line when a typed room code doesn't exist (the menu shows its own message).
 - `Arena_Graybox` still has the stock Quantum start UI and the old `MatchHud` object (now with no HUD wired to it, and no dev keys); it gets the menu, HUD and `DevKeys` when matches move there.
 - Bots that filled empty slots at a match start stay in the room afterwards; the host removes them with Remove Bot.
-- The room's host is whoever holds the lowest slot among the connected players; any player's room commands are still accepted by the simulation, the screen only hides the controls from the others.
+- The room's host is whoever holds the lowest slot among the connected players (read from the verified frame); any player's room commands are still accepted by the simulation, the screen only hides the controls from the others.
 - The settings controls (sliders, toggles, the resolution list) and the code field are drafts in the button's colors until A-002's screens arrive; buttons look the same when disabled (while connecting).
 - Matches only run in the Lobby scene; Arena_Graybox has no `Match` yet (Phase 6).
 
@@ -43,34 +43,13 @@ What plays today, online with up to 6 players, in the Lobby scene:
 ### Placeholders in use
 `PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the subdivided `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_SauceVat_Stack`/`_Slip` (the cup at 1.3× with placeholder sauce), `PH_SauceCoat` and `PH_SauceLooks` (A-009), `PH_PlayerColors` (holds the real palette), `PH_` terrain (A-008), `PH_MainMenu` (Jackson's main menu art; the Join, Settings, Pause and room screens are drafts, A-002), `PH_MatchHud` (draft HUD and results, A-006), the IMGUI spectator bar (A-006), `PH_RagdollTest` (stress-test scene only).
 
-## Next: Phase 6 (Front end and bots)
+## Next: plan review
 
-Goal: the whole game seen end to end before the plan review: open on the menu over a bot match, host or join a room, add bots, play a match, come back. See `docs/PLAN.md` › Phase 6 for the done-when.
+Phase 6 is done and waiting for Jackson's review. Then the plan review (see `docs/PLAN.md` › Plan review): play the whole game, replan what follows, and the optimization pass (profile the full game with 6 players and bots, CPU and GPU, then fix the top costs).
 
-**Build order** (each step ends in something playable, and is committed):
-1. **Bot plumbing.** A `Bot` component on a character marks it as driven by the simulation. Bots take free player slots (`PlayerRef`s nobody holds), so ownership, teams, colors, scoring and the HUD treat them as players. `PlayerSystem` skips the network input copy for bot slots; the bot writes `Player.Input` itself, through the same fields a player's input fills. Commands to add and remove a bot (host only); a match start fills empty slots with bots when the room's setting is on. Check: a bot that stands still, then one that walks in a circle, joins a match and gets blocks.
-2. **Bot actions** (our C#, deterministic): steer to a point (avoiding vats, towers and players), turn to face, grab a target block, carry, raise and lower (swing pitch), place on top of a tower, aim and throw at a target, dunk in a vat, recover from a knockdown. Each one testable alone with a dev command.
-3. **Bot brain** (Bot SDK state machine, `HFSMAgent`; done): Waiting (outside a match) → Fetching (nearest loose own block; when all are stacked, a rival's, if a rival has a tower) → Using (own block: place on the tower, after a Stack dunk a quarter of the time; rival's block: throw at the leading rival's tower) → Fetching; a failed task pauses a second. Numbers on `BotConfig`. Bots should look like players, not play well.
-4. **8-bot test match** (done): F6 in a room's lobby hands your own character to a bot and starts the match, bots filling the other slots through the same fill-at-start path; you watch your bot. F6 again takes your character back. Soak-tested back to back.
-5. **Spectator camera** (view only; done, `SpectatorDirector`): a director that picks a subject by interest (a tower near completion, a throw in flight, a knockdown, a scramble near a vat), holds each shot a few seconds, and cuts or eases to the next. Cinematic framing from above and to the side; no input.
-6. **Menu** (done; in the Lobby scene, see the plan's Decisions). An offline local game with bots looping matches behind Jackson's menu, seen through the spectator director. Start Game: shuts the background game down and hosts an online room with a short room code. Join Game: a code field. Settings: volume, look sensitivity, invert Y, fullscreen and resolution, saved locally. uGUI with TextMeshPro and the Jaro font; controller and mouse navigation through the EventSystem. Escape or the gamepad's Back opens a pause menu in a room (leave room, settings). Replaces `BlockSauceStartUI` and the stock Quantum start UI.
-7. **Room screen and HUD** (done; rough draft in Jackson's style): room code, player list in colors with bots marked, add/remove bot, bots-fill-slots toggle, start match; match HUD (countdown, each player's three tower slots, winner) and results. Replaces the IMGUI `MatchHud`.
-8. **Done-when check:** menu over a bot match; host a room, add bots, play a full match, back to the menu; a second client (MPPM) joins by code; 6 bots finish a match alone. Two clients for the online parts; console clean.
-
-**Risks:**
-- Bot movement is the hard part, not the brain: Guy is a force-driven body with knockback, ragdolls, uneven ground and towers to path around. Start with straight-line steering and local avoidance; bake a Quantum NavMesh only if bots get stuck.
-- Placing squarely on a tower needs fine control of the swing; bots may need a tolerance and retry, and may sometimes knock their own tower over (fine, players do too).
-- Room codes: Photon room names are the code; a short random code needs a collision check (join fails, try another).
-- Offline background game and online rooms in one process: the background session must shut down cleanly before connecting, and the menu must survive a failed connection.
-- Bot SDK on a preview Quantum build: it compiles; runtime use is untested until step 3.
-- The stock start UI's MPPM hooks (`QuantumStartUIMppm*`, our SDK patch) keep multi-client tests working; the new menu needs the same MPPM connect path.
-
-**Answered (Jackson, 2026-11-03):**
-1. Join Game: a room code, plus a "join any open room" button.
-2. Bots: the host adds them by hand, and they fill empty slots at match start; the fill is a setting on the room screen, on by default. Jackson's next art drop includes room UI for it.
-3. No solo offline mode: Start Game hosts online, and a room can be all bots. The 8-bot test is for testing only: set up in a live room (add 7 bots, or fill at match start), not a separate button.
-4. One bot skill level, a bit clumsy; difficulty later.
-5. The menu's background match runs in the Lobby until the arena exists.
+Questions for the review:
+1. Bots: slower or clumsier than today? They play one level, "a bit clumsy"; bots won today's test matches in about 2 minutes.
+2. Room codes skip the letter V, because the Jaro font draws V like U ("REMOUE BOT", "LEAUE ROOM" read that way on the buttons too). Fine for the codes; worth a look for the font's other text.
 
 ## Log
 
@@ -97,20 +76,26 @@ Phase report format:
 - Ready for review: yes
 ```
 
-## Phase 5 report: Sauces
-- Since this report (2026-11-03): the Stack shove was replaced by sticky friction, and the coat and vat collision were reworked (see the log).
-- Built: two dip vats (Jackson's cup at 1.3×) in the Lobby. A block dipped in a vat records the sauce surface as a plane in its own space, up to three dips; the deepest dip sets the sauce's strength. Stack sauce: a stacked block shoves rivals within 2.5 m (stagger, drop what they hold), then waits 2 s. Slip sauce: the block takes a low-friction material in four steps. Coat shader (ragged edge, drips growing after the dip, lip bulge, wet shading), bubbles and glints by strength, dip splash, Stack pulse ring. Dev keys F8 / Shift+F8. Also this phase: the aimed block collides with nothing and its model arcs over the head; thrown blocks clear their thrower; Win and Lose placeholders after a round; the subdivided block.
-- Done-when verification ("dipping changes how a round plays and reads at a glance"), two clients through MPPM `TwoClients` in one online room:
-  - Stack: A started a match, coated its blocks with Stack sauce and stacked three. B (scripted) ran at A's tower twice. Each approach ended in one shove at 2.5 m, staggered, and B was thrown back out of range; A logged one pulse each time. On B, each shove arrived as one event.
-  - Slip: A ran into the base of its own three-block tower. Plain, the tower moved 0.15 m and still counted. Slip-sauced, it came apart: all three blocks fell to the ground and slid 2.9, 4.4 and 6.8 m.
-  - Dipping: a block dunked in a cup came out 69% coated at full Stack strength, the player outside the cup throughout. A Slip-thrown block slid 7.9 m after landing against 1.1 m plain.
-  - Reads at a glance: the coat (dark and warm for Stack, pale and glossy for Slip), bubbles or glints, the splash and the shove ring, checked in a capture. Jackson's play-test is the real check.
-  - Round end, seen on B: A (winner) in Win, B in Lose.
+## Phase 6 report: Front end and bots
+- Built: bots (a `Bot` takes a free player slot and writes its input; actions in our code, decisions in a Bot SDK state machine; the host adds and removes them, and they fill empty slots at a match start, on by default); the F6 all-bot test match; the spectator director camera with viewer controls; 6 players (the two blues cut); Jackson's main menu over an offline bot match, with Start Game (hosts an online room under a 5-letter code), Join Game (by code or any open room), Settings and Pause; the room screen (code, slots in color with bots, you and the host marked, the host's controls); the uGUI match HUD and results. Replaces the stock Quantum start UI and the IMGUI HUD in the Lobby.
+- Done-when verification ("the game opens on the menu over a bot match; a player can start a room, add bots, play a full match against them and return to the menu; a second player joins that room by code; 6 bots finish a match on their own"), two clients through MPPM `TwoClients`, everything pressed through the screens' own buttons:
+  - Menu: both clients opened on the menu over the demo match, 6 bots playing, the spectator director on.
+  - Host and join by code: A pressed Start Game and got room CDRVV; B joined it by the code through the same path as the Join Game screen. A saw PLAYER 1 (YOU · HOST) and PLAYER 2 with Start Match, Add Bot, Remove Bot and Bots Fill Slots; B saw PLAYER 1 (HOST) and PLAYER 2 (YOU) with "Waiting for the host" and no controls.
+  - Add bots, full match: A added two bots (BOT 5 and BOT 6 on both clients) and started; bots filled the last two slots; both got the countdown and the HUD. A handed its character to a bot (F6's command) and B stood still; BOT 5 won after about 2 minutes, BOT 5 WINS! on both, then ranked results (BOT 5 3 / 3, the rest 0).
+  - Back: the room screen came back on both after the results, the bots still in it; A pressed Leave Room and both clients went back to the menu and the demo.
+  - 6 bots alone: the demo match behind the menu (6 bots, no one connected) played to its results and started the next match by itself. The F6 all-bot match in a room was soak-tested in step 4.
   - Consoles on both clients: no game errors.
-- Fixed during verification: a three-block Stack tower shoved a rival three times in one tick (now once per player per tick, with the tower firing and cooling down together). The shoved client flinched twice per shove because the knockback event's impulse differed between the predicted and the verified frame; the impulse and the pulse position are now `nothashed`.
-- Known issues: see Current state (sauce particles cover the whole block; the cup art is wider than its collision; a hard dunk can stick for a moment; MPPM scenario start sometimes hangs).
-- Placeholders still in use: `PH_SauceVat_Stack`/`_Slip` and `PH_SauceCoat`/`PH_SauceLooks` (A-009), `PH_PlayerCapsule`, `PH_Block`, `PH_LockDither` (A-007/A-013), `PH_` terrain (A-008), IMGUI `MatchHud` (A-006), stock start UI (A-002); Win and Lose clips are Jackson's placeholders (A-023).
+- Fixed during verification: every client thought it was the host and showed the host's controls, because on predicted frames the other clients' slots look unconnected; the room screen and the HUD now read who is connected from the verified frame. Room codes no longer use V, which the Jaro font draws like U (CDRVV read as CDRUU).
+- Not checked: real mouse and controller input by hand (the screens were driven through their buttons in code); the guest's screen was checked through its log and a screenshot, not by hand.
+- Known issues: see Current state (the stats overlay over the menu; Arena_Graybox still on the old UI; bots that filled slots stay after the match; bots sometimes wedge for a few seconds).
+- Placeholders still in use: `PH_MainMenu` (drafts of the Join, Settings, Pause and room screens, A-002), `PH_MatchHud` (A-006), the IMGUI spectator bar (A-006), `PH_PlayerCapsule`, `PH_Block`, `PH_LockDither` (A-007/A-013), the sauce placeholders (A-009), `PH_` terrain (A-008).
 - Ready for review: yes
+
+## 2026-11-04: Phase 6, step 8: done-when check
+- Did: the done-when with two clients (report above). MPPM clones now join the main editor's room through `JoinRoom` (by its code, never creating one), the Join Game screen's path. New editor-only `MppmReportCommand`: sent from the main editor, each clone writes what its screen shows to its own Editor.log and can save a screenshot.
+- Fixed: the host check and the bot names read who is connected from the verified frame (every client thought it was the host); room codes skip V.
+- Questions for Jackson: in the review (see Next).
+- Next: Jackson's review, then the plan review.
 
 ## 2026-11-04: Phase 6, step 7: room screen and HUD
 - Did: the room screen (`RoomScreen`, in the menu prefab): the room code to share; one row per slot in its color (PLAYER n, BOT n or OPEN; YOU and HOST marked); for the host Start Match, Add Bot, Remove Bot and Bots Fill Slots (the existing room commands); for everyone Play in Lobby, Settings and Leave Room. It is the in-room menu between matches: it opens on entering a room and after each match's results, closes as a match starts, and Escape or Select reopens it in the lobby (during a match they open Pause). The match HUD (`MatchHud`, now uGUI in `PH_MatchHud`, replacing the IMGUI one): the lobby prompt (Enter / Start to start for the host, waiting for the host for the others), the countdown big in the middle, GO!, a headline bar, every player's three tower slots top left in slot order (filling while settling, solid when counted), the winner in their color, and the results (winner, everyone ranked by counted blocks, seconds until the room screen). Dev keys moved from the HUD to `DevKeys`. Both built by **Block Sauce › Build Main Menu**, which now also swaps the Lobby's IMGUI HUD for `PH_MatchHud` and `DevKeys`.

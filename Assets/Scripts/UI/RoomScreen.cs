@@ -53,15 +53,29 @@ namespace BlockSauce
         /// Whether the local client is the room's host: it holds the lowest slot of everyone connected. Every client
         /// works it out the same way from the frame, so the host's leaving hands the controls to the next player.
         /// </summary>
-        public static bool IsLocalHost(Frame frame, QuantumGame game)
+        public static bool IsLocalHost(QuantumGame game)
         {
-            for (int slot = 0; slot < frame.MaxPlayerCount; slot++)
+            Frame verified = game?.Frames.Verified;
+            if (verified == null)
+                return false;
+
+            for (int slot = 0; slot < verified.MaxPlayerCount; slot++)
             {
-                if (IsConnected(frame, slot))
+                if (IsConnected(verified, slot))
                     return game.PlayerIsLocal(slot);
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Whether a client is connected to the slot, read from the verified frame: on predicted frames the other
+        /// clients' slots look empty, since their input (and its flags) is only a guess until the server confirms it.
+        /// </summary>
+        public static bool IsConnected(QuantumGame game, PlayerRef slot)
+        {
+            Frame verified = game?.Frames.Verified;
+            return verified != null && IsConnected(verified, slot);
         }
 
         /// <summary>
@@ -72,6 +86,7 @@ namespace BlockSauce
             return _startButton != null && _startButton.gameObject.activeInHierarchy ? _startButton : fallback;
         }
 
+        // Only meaningful on a verified frame.
         private static bool IsConnected(Frame frame, PlayerRef slot)
         {
             return (frame.GetPlayerInputFlags(slot) & DeterministicInputFlags.PlayerNotPresent) == 0;
@@ -109,8 +124,10 @@ namespace BlockSauce
 
         private void Refresh(bool force)
         {
+            // The verified frame throughout: it is the one that says who is connected (see IsConnected), and it keeps
+            // the rows and the controls in step with each other.
             QuantumGame game = QuantumRunner.Default?.Game;
-            Frame frame = game?.Frames.Predicted;
+            Frame frame = game?.Frames.Verified;
             if (frame == null || frame.TryGetSingleton(out Match match) == false)
                 return;
 
@@ -140,7 +157,7 @@ namespace BlockSauce
                 ShowRow(_rows[i], i, kind, local, host, inGame);
             }
 
-            bool isHost = IsLocalHost(frame, game);
+            bool isHost = IsLocalHost(game);
             if (force || isHost != _shownHost)
             {
                 _shownHost = isHost;

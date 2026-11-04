@@ -84,7 +84,7 @@ namespace BlockSauce
                 return;
             }
 
-            bool isHost = RoomScreen.IsLocalHost(frame, game);
+            bool isHost = RoomScreen.IsLocalHost(game);
             if (match.State == MatchState.Lobby && isHost && StartPressed())
             {
                 game.AddCommand(new CommandStartMatch());
@@ -381,7 +381,7 @@ namespace BlockSauce
         private static bool IsBot(Frame frame, PlayerRef player)
         {
             return PlayerSystem.TryGetCharacter(frame, player, out EntityRef character) && frame.Has<Bot>(character)
-                && (frame.GetPlayerInputFlags(player) & Photon.Deterministic.DeterministicInputFlags.PlayerNotPresent) != 0;
+                && RoomScreen.IsConnected(QuantumRunner.Default?.Game, player) == false;
         }
     }
 }
