@@ -4,7 +4,7 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-03)
 
-**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is in progress: steps 1–5 are in; six bots play matches to a win on their own, back to back, and a spectator director camera can watch them.**
+**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is in progress: steps 1–6 are in. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room, Settings and a pause menu work.**
 
 What plays today, online with up to 8 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
@@ -28,7 +28,9 @@ What plays today, online with up to 8 players, in the Lobby scene:
 - A body still airborne when its knockdown ends stands up mid-air and falls.
 - A player who joins mid-match gets no blocks until the next round.
 - Swing input is sent as per-tick deltas, so a repeated lost input repeats one tick of swing. Revisit only if swings feel jumpy online.
-- The start menu has a stray white banner box (stock Quantum start UI, A-002).
+- Quantum's stats overlay (frame, ping) shows over the menu. Photon logs an error line when a typed room code doesn't exist (the menu shows its own message).
+- `Arena_Graybox` still has the stock Quantum start UI; it gets the menu when matches move there.
+- The settings controls (sliders, toggles, the resolution list) and the code field are drafts in the button's colors until A-002's screens arrive; buttons look the same when disabled (while connecting).
 - Matches only run in the Lobby scene; Arena_Graybox has no `Match` yet (Phase 6).
 
 ### Waiting on Jackson
@@ -37,7 +39,7 @@ What plays today, online with up to 8 players, in the Lobby scene:
 - The older open questions (settle numbers; pickup swings through your own tower).
 
 ### Placeholders in use
-`PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the subdivided `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_SauceVat_Stack`/`_Slip` (the cup at 1.3× with placeholder sauce), `PH_SauceCoat` and `PH_SauceLooks` (A-009), `PH_PlayerColors` (holds the real palette), `PH_` terrain (A-008), the IMGUI `MatchHud` (A-006), the stock Quantum start UI (A-002), `PH_RagdollTest` (stress-test scene only).
+`PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the subdivided `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_SauceVat_Stack`/`_Slip` (the cup at 1.3× with placeholder sauce), `PH_SauceCoat` and `PH_SauceLooks` (A-009), `PH_PlayerColors` (holds the real palette), `PH_` terrain (A-008), the IMGUI `MatchHud` (A-006), `PH_MainMenu` (Jackson's main menu art; the Join, Settings and Pause screens are drafts, A-002), the IMGUI spectator bar (A-006), `PH_RagdollTest` (stress-test scene only).
 
 ## Next: Phase 6 (Front end and bots)
 
@@ -49,7 +51,7 @@ Goal: the whole game seen end to end before the plan review: open on the menu ov
 3. **Bot brain** (Bot SDK state machine, `HFSMAgent`; done): Waiting (outside a match) → Fetching (nearest loose own block; when all are stacked, a rival's, if a rival has a tower) → Using (own block: place on the tower, after a Stack dunk a quarter of the time; rival's block: throw at the leading rival's tower) → Fetching; a failed task pauses a second. Numbers on `BotConfig`. Bots should look like players, not play well.
 4. **8-bot test match** (done): F6 in a room's lobby hands your own character to a bot and starts the match, bots filling the other slots through the same fill-at-start path; you watch your bot. F6 again takes your character back. Soak-tested back to back.
 5. **Spectator camera** (view only; done, `SpectatorDirector`): a director that picks a subject by interest (a tower near completion, a throw in flight, a knockdown, a scramble near a vat), holds each shot a few seconds, and cuts or eases to the next. Cinematic framing from above and to the side; no input.
-6. **Menu scene.** A new `Menu` scene: loads the arena, starts an offline local game (`DeterministicGameMode.Local`) with 8 bots looping matches, and shows Jackson's menu over the spectator camera. Start Game: shuts the background game down and hosts an online room with a short room code. Join Game: a code field. Settings: volume, look sensitivity, invert Y, fullscreen and resolution, saved locally. uGUI with TextMeshPro and the Jaro font; controller and mouse navigation through the EventSystem. Escape or the gamepad's Back opens a pause menu in a room (leave room, settings). Replaces `BlockSauceStartUI` and the stock Quantum start UI.
+6. **Menu** (done; in the Lobby scene, see the plan's Decisions). An offline local game with bots looping matches behind Jackson's menu, seen through the spectator director. Start Game: shuts the background game down and hosts an online room with a short room code. Join Game: a code field. Settings: volume, look sensitivity, invert Y, fullscreen and resolution, saved locally. uGUI with TextMeshPro and the Jaro font; controller and mouse navigation through the EventSystem. Escape or the gamepad's Back opens a pause menu in a room (leave room, settings). Replaces `BlockSauceStartUI` and the stock Quantum start UI.
 7. **Room screen and HUD** (rough draft in Jackson's style): room code, player list in colors with bots marked, add/remove bot, bots-fill-slots toggle, start match; match HUD (countdown, each player's three tower slots, winner) and results. Replaces the IMGUI `MatchHud`.
 8. **Done-when check:** menu over a bot match; host a room, add bots, play a full match, back to the menu; a second client (MPPM) joins by code; 8 bots finish a match alone. Two clients for the online parts; console clean.
 
@@ -107,6 +109,16 @@ Phase report format:
 - Known issues: see Current state (sauce particles cover the whole block; the cup art is wider than its collision; a hard dunk can stick for a moment; MPPM scenario start sometimes hangs).
 - Placeholders still in use: `PH_SauceVat_Stack`/`_Slip` and `PH_SauceCoat`/`PH_SauceLooks` (A-009), `PH_PlayerCapsule`, `PH_Block`, `PH_LockDither` (A-007/A-013), `PH_` terrain (A-008), IMGUI `MatchHud` (A-006), stock start UI (A-002); Win and Lose clips are Jackson's placeholders (A-023).
 - Ready for review: yes
+
+## 2026-11-03: Phase 6, step 6: menu
+- Did: the game opens on Jackson's main menu (A-002) over a bot match. `GameFlow` runs the front end: the demo match (an offline local game with nobody in it; `RuntimeConfig.DemoMatch` has bots fill every slot and the lobby start each match by itself), Start Game (hosts an online room under a 5-letter code of consonants), Join Game (a code, which only ever joins, never creates; or any open room), leaving or losing a room (back to the menu and the demo), one change at a time. `GameConnection` (from the SDK's start UI connection, keeping its settings) starts and stops the games; MPPM clones follow the main editor into and out of rooms (`GameFlowMppmJoinCommand`/`LeaveCommand`). `MainMenu` screens: Main (Start Game, Join Game, Settings, plus Quit), Join (code field, Join, Join Any Room, Back), Settings (volume, look speed, invert Y, fullscreen, resolution; `GameSettings`, saved in PlayerPrefs; the orbit camera applies look speed and invert Y), Pause in a room (room code, Resume, Settings, Leave Room), a connecting notice, the error under the column, and the room code top right while playing. Mouse and controller: each screen selects its first control, Escape or B goes back, Escape or Select pauses in a room (Start still starts the match), and the selected control shows (hover look on buttons, orange on the rest). While a menu is up the player's input and the IMGUI HUD stay out. Jackson's art: the re-exported button over `UI_MenuButton`, its new hover and pressed looks (`UI_MenuButton_Hover`/`_Pressed`, 9-slice ends), TextMeshPro font assets from both Jaro fonts. Built by **Block Sauce › Build Main Menu** (`MainMenuBuilder`) into `Assets/Placeholders/PH_MainMenu.prefab` and the Lobby (stock start UI removed, local debug runner off).
+- Verified (one client, driven through `GameFlow` since an unfocused editor drops clicks): menu over a 6-bot local match with the director on and Start Game selected; host → room GNBQP, alone in its lobby, orbit camera on the player, the code top right; pause → Resume selected, input blocked; leave → menu and demo back; a made-up code → "No room with the code ZZZZZ."; any room with none open → "No open rooms right now. Start a game instead?"; Join and Settings screens captured with focus showing. Console: only Photon's line for the missing room.
+- Fixed: the demo's first start timed out while the editor hitched loading play mode; the start timeout is 30 s and the demo retries.
+- Decided: the menu is an overlay in the Lobby scene rather than its own scene, since the match runs there until the arena exists; the demo is a runtime-config flag so it works in release builds; Quit added under Jackson's three buttons; the 8-bot "one-button" test (F6) stays a dev key.
+- Not yet checked: a second client joining by code (step 8, with MPPM), and real mouse and controller input by hand.
+- Assets: A-002 hover and pressed looks in; A-002 updated (Join, Settings, Pause screens; slider, toggle, dropdown and text field looks; a disabled look).
+- Questions for Jackson: none.
+- Next: step 7, the room screen and HUD.
 
 ## 2026-11-03: Phase 6, 6 players; lighter spectator camera
 - Did (Jackson: about 40 fps with the full game): players cut from 8 to 6 (`max_players 6` in `Input.qtn`, which also sizes the Photon room); the two blues left the palette (`PH_PlayerColors` keeps red, orange, yellow, light green, green and teal). The Lobby's ring of 8 spawn points is shared evenly among the 6 slots in code (`PlayerSystem.FindSpawnTransform`), leaving the scene alone. The spectator director now rescores what to watch 10 times a second instead of every frame (the tower count it uses loops over all blocks for every block, per player), moves only the current shot with its subject in between, builds its label text only when the shot changes (IMGUI asked for it several times a frame), and no longer allocates a lambda each frame for the overview.

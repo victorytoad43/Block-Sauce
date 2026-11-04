@@ -3,7 +3,8 @@ using UnityEngine;
 namespace BlockSauce
 {
     /// <summary>
-    /// The local player's third-person orbit camera. Mouse or right stick turns it around the followed character.
+    /// The local player's third-person orbit camera. Mouse or right stick turns it around the followed character, scaled
+    /// by the look sensitivity setting and flipped vertically by invert Y (<see cref="GameSettings"/>).
     /// Its absolute yaw and pitch are sent as input every tick, so movement, aim and throws follow the camera.
     /// While the character holds a block, the same look input swings the block, collected as swing degrees for the
     /// input poller, and the camera still moves with it on a gradient: slowly while the block is near the middle of its
@@ -137,12 +138,21 @@ namespace BlockSauce
         private void Update()
         {
             UpdateCursorLock();
+            if (GameFlow.AllowsGameInput == false)
+                return;
 
             BlockSauceControls controls = BlockSauceControls.Instance;
             Vector2 turn = controls.LookStick.ReadValue<Vector2>() * (_stickSpeed * Time.deltaTime);
             if (Cursor.lockState == CursorLockMode.Locked)
             {
                 turn += controls.LookMouse.ReadValue<Vector2>() * _mouseSensitivity;
+            }
+
+            // The player's settings: sensitivity scales both, invert Y flips up and down.
+            turn *= GameSettings.LookSensitivity;
+            if (GameSettings.InvertY)
+            {
+                turn.y = -turn.y;
             }
 
             if (_isHolding)
@@ -215,7 +225,7 @@ namespace BlockSauce
 
         /// <summary>
         /// Locks the cursor on click and frees it on Escape, so the mouse can still reach the connection menu. While the
-        /// spectator director has the camera, the cursor stays free for its controls.
+        /// spectator director has the camera, or a menu is open, the cursor stays free for its controls.
         /// </summary>
         private void UpdateCursorLock()
         {
@@ -228,7 +238,7 @@ namespace BlockSauce
                 Cursor.visible = true;
             }
             else if (_target != null && mouse != null && mouse.leftButton.wasPressedThisFrame &&
-                     Cursor.lockState != CursorLockMode.Locked && IsSpectating() == false)
+                     Cursor.lockState != CursorLockMode.Locked && IsSpectating() == false && GameFlow.AllowsGameInput)
             {
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;

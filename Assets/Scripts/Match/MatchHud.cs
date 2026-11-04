@@ -23,7 +23,7 @@ namespace BlockSauce
         {
             QuantumGame game = QuantumRunner.Default?.Game;
             Frame frame = game?.Frames.Predicted;
-            if (frame == null || frame.TryGetSingleton(out Match match) == false)
+            if (frame == null || frame.TryGetSingleton(out Match match) == false || GameFlow.AllowsGameInput == false)
                 return;
 
             bool startPressed = (Keyboard.current != null && Keyboard.current.enterKey.wasPressedThisFrame)
@@ -107,7 +107,7 @@ namespace BlockSauce
         private void OnGUI()
         {
             Frame frame = QuantumRunner.Default?.Game?.Frames.Predicted;
-            if (frame == null || frame.TryGetSingleton(out Match match) == false)
+            if (frame == null || frame.TryGetSingleton(out Match match) == false || GameFlow.AllowsGameInput == false)
                 return;
 
             EnsureStyles();

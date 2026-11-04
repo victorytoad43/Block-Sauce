@@ -10,8 +10,9 @@ The agent builds rough drafts of every screen in the style of the main menu mock
 
 1. **A-002 Menu and room UI** (main menu delivered 2026-11-03).
     - In: the main menu mock-up (`UI_Mockup_MainMenu`: logo and three buttons on the right, Start Game, Join Game, Settings, over a bot match seen from the spectator camera), `UI_Logo` (669×387), `UI_MenuButton` (496×101) and the Jaro font in two optical sizes (`UI_Jaro_36pt` for headings, `UI_Jaro_9pt` for small text; OFL license alongside).
-    - Most needed: the button's highlighted and pressed looks (controller focus shows which button is selected), and a back button.
-    - Then mock-ups for: Join Game (type a room code; maybe a list of open rooms), Settings (volume, look sensitivity, invert Y, fullscreen, resolution), and the room screen (room code to share, player list in their colors with bots marked, add and remove bot buttons, start match).
+    - In since: the button's hover and pressed looks (`UI_MenuButton_Hover`, `_Pressed`; hover doubles as controller focus). The menu is built from these (`PH_MainMenu`), with Quit added under the three buttons and BACK on the same bar.
+    - Most needed: mock-ups for Join Game (today: a code field on the button bar, Join, Join Any Room, Back), Settings (today: label left, control right, for volume, look speed, invert Y, fullscreen, resolution) and Pause in a room (today: the room code, Resume, Settings, Leave Room); looks for a slider, a checkbox, a dropdown and a text field (normal, focused), and a disabled button (shown while connecting). Today's drafts sit in the right-hand column under the logo, 357×72 per row at 1920×1080.
+    - Then the room screen (room code to share, player list in their colors with bots marked, add and remove bot buttons, bots-fill-slots toggle, start match) and the room code badge shown while playing (today top right, 380×64).
     - The logo and button at 2× for sharp 4K (1338×774, 992×202).
 2. **A-006 Match HUD and results screen mock-ups**.
     - States: Lobby (press Start or Enter), Countdown 3 s, Playing, Round end 3 s with the winner, Results 6 s. Per player: their color and 3 slots for their best stack, each empty, settling (0 to 100%) or counted. Mock-ups at 1920×1080 for 2 and 6 players. Bots show in the same list, marked as bots.

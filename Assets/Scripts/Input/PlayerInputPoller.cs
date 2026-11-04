@@ -10,6 +10,8 @@ namespace BlockSauce
     /// Absolute camera angles (as in Friendslop) mean a lost or repeated input never makes the aim drift.
     /// Speed: on a gamepad the stick's tilt sets it, from a slow walk up to a full run (Run is always on, and the
     /// simulation scales the run speed by the stick's magnitude); on a keyboard, keys walk and Shift runs.
+    /// While a menu has the screen (<see cref="GameFlow.AllowsGameInput"/>) only the camera's angles go out: the
+    /// character stands still and presses nothing.
     /// </summary>
     public class PlayerInputPoller : MonoBehaviour
     {
@@ -46,14 +48,21 @@ namespace BlockSauce
                 input.Swing = new FPVector2(swing.x.ToFP(), swing.y.ToFP());
             }
 
-            Vector2 move = controls.Move.ReadValue<Vector2>();
-            input.Move = new FPVector2(move.x.ToFP(), move.y.ToFP());
-            input.Jump = controls.Jump.IsPressed();
-            input.Crouch = controls.Crouch.IsPressed();
-            bool analogMove = controls.Move.activeControl?.device is UnityEngine.InputSystem.Gamepad;
-            input.Run = analogMove || controls.Run.IsPressed();
-            input.Grab = controls.Grab.IsPressed();
-            input.Throw = controls.Throw.IsPressed();
+            if (GameFlow.AllowsGameInput)
+            {
+                Vector2 move = controls.Move.ReadValue<Vector2>();
+                input.Move = new FPVector2(move.x.ToFP(), move.y.ToFP());
+                input.Jump = controls.Jump.IsPressed();
+                input.Crouch = controls.Crouch.IsPressed();
+                bool analogMove = controls.Move.activeControl?.device is UnityEngine.InputSystem.Gamepad;
+                input.Run = analogMove || controls.Run.IsPressed();
+                input.Grab = controls.Grab.IsPressed();
+                input.Throw = controls.Throw.IsPressed();
+            }
+            else
+            {
+                input.Swing = default;
+            }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (TestInputOverride != null)

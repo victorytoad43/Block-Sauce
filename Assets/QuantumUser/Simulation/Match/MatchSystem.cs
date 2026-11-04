@@ -9,6 +9,7 @@ namespace Quantum
     /// bots unless the room turned that off, clears the sandbox blocks, moves every player to a match spawn and gives
     /// each their own blocks; returning to the lobby removes the match blocks
     /// and puts the sandbox back. Rules come from the match's mode asset (see <see cref="GameModeConfig"/>).
+    /// In the menu's demo match (<see cref="RuntimeConfig.DemoMatch"/>) the lobby starts the next match by itself.
     /// </summary>
     public unsafe class MatchSystem : SystemMainThread
     {
@@ -29,7 +30,7 @@ namespace Quantum
             switch (match->State)
             {
                 case MatchState.Lobby:
-                    if (WasStartRequested(frame))
+                    if (WasStartRequested(frame) || frame.RuntimeConfig.DemoMatch)
                     {
                         if (match->LeaveSlotsEmpty == false)
                         {

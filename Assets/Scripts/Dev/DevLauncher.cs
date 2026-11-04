@@ -7,8 +7,9 @@ namespace BlockSauce
 {
     /// <summary>
     /// Development builds only, for multi-client tests launched from a script:
-    /// "-autojoin ROOM" connects straight to that online room, skipping the menu, and "-autoplay" drives the local
-    /// player with simple random input (wander, run, grab, swing, throw, jumpshot) through the input poller's test hook.
+    /// "-autojoin ROOM" connects straight to that online room (through <see cref="GameFlow"/>), skipping the menu, and
+    /// "-autoplay" drives the local player with simple random input (wander, run, grab, swing, throw, jumpshot) through
+    /// the input poller's test hook.
     /// The autoplay only produces input, so every client still simulates the same deterministic game.
     /// Does nothing in the editor or in release builds.
     /// </summary>
@@ -43,21 +44,11 @@ namespace BlockSauce
                 };
             }
 
-            var ui = FindAnyObjectByType<QuantumStartUI>();
-            if (ui != null)
+            GameFlow flow = FindAnyObjectByType<GameFlow>();
+            if (flow != null)
             {
-                ui.SetPanelVisibility(false);
+                await flow.JoinOrCreateRoom(room);
             }
-
-            var connection = FindAnyObjectByType<QuantumStartUIConnectionBase>();
-            await connection.ConnectAsync(new QuantumStartUIConnectionBase.StartParameter
-            {
-                IsOnline = true,
-                IsVisible = true,
-                PlayerName = "Dev" + Random.Range(1000, 9999),
-                RoomName = room,
-                Region = GetArgument("-region") ?? string.Empty,
-            });
         }
 
         /// <summary>
