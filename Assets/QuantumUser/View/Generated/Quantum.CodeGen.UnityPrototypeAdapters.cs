@@ -140,6 +140,8 @@ namespace Quantum.Prototypes.Unity {
     [HideInInspector()]
     public FP Heading;
     [HideInInspector()]
+    public Quantum.QEnum32<BotSkillLevel> Skill;
+    [HideInInspector()]
     public Quantum.QuantumEntityPrototype Home;
     [HideInInspector()]
     public Quantum.QEnum32<BotTaskType> Task;
@@ -161,6 +163,10 @@ namespace Quantum.Prototypes.Unity {
     public Quantum.Prototypes.FrameTimerPrototype TaskTimer;
     [HideInInspector()]
     public Quantum.Prototypes.FrameTimerPrototype ThinkTimer;
+    [HideInInspector()]
+    public FPVector2 AimError;
+    [HideInInspector()]
+    public FPVector2 PlaceError;
     [HideInInspector()]
     public Quantum.QuantumEntityPrototype Unreachable;
     [HideInInspector()]
@@ -191,6 +197,7 @@ namespace Quantum.Prototypes.Unity {
     public override Quantum.Prototypes.BotPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
       var result = new Quantum.Prototypes.BotPrototype();
       converter.Convert(this.Heading, out result.Heading);
+      converter.Convert(this.Skill, out result.Skill);
       converter.Convert(this.Home, out result.Home);
       converter.Convert(this.Task, out result.Task);
       converter.Convert(this.Status, out result.Status);
@@ -202,6 +209,8 @@ namespace Quantum.Prototypes.Unity {
       converter.Convert(this.StepTimer, out result.StepTimer);
       converter.Convert(this.TaskTimer, out result.TaskTimer);
       converter.Convert(this.ThinkTimer, out result.ThinkTimer);
+      converter.Convert(this.AimError, out result.AimError);
+      converter.Convert(this.PlaceError, out result.PlaceError);
       converter.Convert(this.Unreachable, out result.Unreachable);
       converter.Convert(this.UnreachableTimer, out result.UnreachableTimer);
       converter.Convert(this.ProgressPosition, out result.ProgressPosition);

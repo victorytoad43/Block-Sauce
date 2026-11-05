@@ -44,7 +44,7 @@ namespace Quantum
             FPVector3 position = frame.Get<Transform3D>(entity).Position;
             EntityRef skip = bot->UnreachableTimer.IsRunning(frame) ? bot->Unreachable : EntityRef.None;
             EntityRef own = FindNearestFreeBlock(frame, position, self, true, bot->Home, skip);
-            if (own != EntityRef.None || FindLeadingRivalTop(frame, self, config) == EntityRef.None)
+            if (own != EntityRef.None || FindLeadingRivalTop(frame, self, config.GetSkill(frame, bot).RaidAtCount) == EntityRef.None)
                 return own;
 
             return FindNearestFreeBlock(frame, position, self, false, EntityRef.None, skip);
@@ -75,7 +75,7 @@ namespace Quantum
 
             if (heldBlock.Owner != self)
             {
-                EntityRef rival = FindLeadingRivalTop(frame, self, config);
+                EntityRef rival = FindLeadingRivalTop(frame, self, config.GetSkill(frame, bot).RaidAtCount);
                 BotSystem.SetTask(frame, bot, config, rival != EntityRef.None ? BotTaskType.ThrowAt : BotTaskType.Drop,
                     rival, default);
                 return;
@@ -217,12 +217,12 @@ namespace Quantum
 
         /// <summary>
         /// Returns the top of the tallest tower of the rival with the most counted blocks, as long as that is at least
-        /// RaidAtCount; otherwise none.
+        /// the bot's raid count (its skill's RaidAtCount); otherwise none.
         /// </summary>
-        private static EntityRef FindLeadingRivalTop(Frame frame, PlayerRef self, BotConfig config)
+        private static EntityRef FindLeadingRivalTop(Frame frame, PlayerRef self, int raidAtCount)
         {
             EntityRef best = EntityRef.None;
-            int bestCount = config.RaidAtCount - 1;
+            int bestCount = raidAtCount - 1;
             for (int player = 0; player < frame.MaxPlayerCount; player++)
             {
                 EntityRef towerBase = player == (int)self ? EntityRef.None : BlockTower.GetBestBase(frame, player);

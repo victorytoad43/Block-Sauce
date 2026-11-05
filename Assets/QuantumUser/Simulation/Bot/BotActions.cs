@@ -39,6 +39,7 @@ namespace Quantum
             public Grabber Grabber;
             public GrabConfig Grab;
             public BotConfig Config;
+            public BotSkill Skill;
         }
 
         /// <summary>
@@ -56,6 +57,7 @@ namespace Quantum
                 Grabber = grabber,
                 Grab = frame.FindAsset(grabber.Config),
                 Config = config,
+                Skill = config.GetSkill(frame, bot),
             };
 
             BotIntent intent = new BotIntent { MoveYaw = bot->Heading };
@@ -140,7 +142,7 @@ namespace Quantum
             }
 
             if (frame.Exists(bot->Target) == false || IsHeldByOther(frame, bot->Target, context.Entity)
-                || bot->Attempts >= context.Config.GrabAttempts)
+                || bot->Attempts >= context.Skill.GrabAttempts)
             {
                 bot->Status = BotTaskStatus.Failed;
                 return;
@@ -191,7 +193,7 @@ namespace Quantum
             }
 
             if (context.Grabber.Held == EntityRef.None || frame.Exists(bot->Target) == false
-                || bot->Attempts >= config.PlaceAttempts)
+                || bot->Attempts >= context.Skill.PlaceAttempts)
             {
                 bot->Status = BotTaskStatus.Failed;
                 return;
@@ -200,11 +202,13 @@ namespace Quantum
             FPVector3 position = context.Transform->Position;
             FPVector3 top = frame.Get<Transform3D>(bot->Target).Position;
             FP topSurface = top.Y + GetHalfHeight(frame, bot->Target);
-            FP yaw = YawTo(position, top);
+            // Where the bot means to let go: the top's center, off by this placing's error.
+            FPVector3 aimPoint = top + new FPVector3(bot->PlaceError.X, FP._0, bot->PlaceError.Y);
+            FP yaw = YawTo(position, aimPoint);
             FP distance = FlatDistance(position, top);
             bool tall = topSurface > config.PlaceJumpAbove;
             Transform3D held = frame.Get<Transform3D>(context.Grabber.Held);
-            FP offset = FlatDistance(held.Position, top);
+            FP offset = FlatDistance(held.Position, aimPoint);
             FP heldBottom = held.Position.Y - GetHalfHeight(frame, context.Grabber.Held);
             bool clear = heldBottom > topSurface + FP._0_05;
 
@@ -334,7 +338,7 @@ namespace Quantum
             FPVector3 targetVelocity = frame.TryGet(target, out PhysicsBody3D targetBody) ? targetBody.Velocity : FPVector3.Zero;
             targetVelocity.Y = FP._0;
             // Lead the target by about the time the run and slide take to get there.
-            FP lead = FPMath.Min(FlatDistance(position, targetPosition) / 7, FP._1);
+            FP lead = FPMath.Min(FlatDistance(position, targetPosition) / 7, FP._1) * context.Skill.TackleLead;
             FPVector3 aim = targetPosition + targetVelocity * lead;
             FP distance = FlatDistance(position, aim);
 
@@ -342,7 +346,7 @@ namespace Quantum
             intent.Run = true;
             intent.Crouch = false;
 
-            if (distance > config.TackleSlideDistance)
+            if (distance > context.Skill.TackleSlideDistance)
                 return;
 
             // In range: slide once running fast along the line to the target, on the ground, with no wall between.
@@ -353,7 +357,7 @@ namespace Quantum
             intent.MoveYaw = aimYaw;
             bool grounded = frame.TryGet(context.Entity, out GroundedTracker tracker) && tracker.IsGrounded;
             if (grounded == false || speed < config.TackleMinSpeed
-                || FPMath.Abs(AngleDelta(runYaw, aimYaw)) > config.TackleAlignDegrees)
+                || FPMath.Abs(AngleDelta(runYaw, aimYaw)) > context.Skill.TackleAlignDegrees)
                 return;
 
             FPVector3 toAim = aim - position;
@@ -437,7 +441,7 @@ namespace Quantum
                 {
                     intent.Throw = true;
                     bot->Step = 1;
-                    bot->StepTimer = FrameTimer.FromSeconds(frame, config.MinAimSeconds);
+                    bot->StepTimer = FrameTimer.FromSeconds(frame, context.Skill.MinAimSeconds);
                 }
 
                 return;
@@ -445,14 +449,15 @@ namespace Quantum
 
             // Step 1: aiming. Horizontal swing turns the body to the target; vertical swing moves the aim pitch.
             intent.Throw = true;
-            FP yawError = AngleDelta(bodyYaw, yaw);
-            FP pitchError = GetThrowPitch(frame, context, target) - context.Grabber.AimPitch;
+            // Off by this throw's error, which the bot doesn't know about.
+            FP yawError = AngleDelta(bodyYaw, yaw + bot->AimError.X);
+            FP pitchError = GetThrowPitch(frame, context, target) + bot->AimError.Y - context.Grabber.AimPitch;
             intent.Swing = new FPVector2(
                 FPMath.Clamp(yawError, -config.MaxSwingStep, config.MaxSwingStep),
                 FPMath.Clamp(pitchError / context.Grab.AimPitchSensitivity, -config.MaxSwingStep, config.MaxSwingStep));
 
-            if (bot->StepTimer.IsRunning(frame) == false && FPMath.Abs(yawError) < config.AimTolerance
-                && FPMath.Abs(pitchError) < config.AimTolerance)
+            if (bot->StepTimer.IsRunning(frame) == false && FPMath.Abs(yawError) < context.Skill.AimTolerance
+                && FPMath.Abs(pitchError) < context.Skill.AimTolerance)
             {
                 intent.Throw = false;
                 bot->Carried = context.Grabber.Held;
@@ -575,7 +580,7 @@ namespace Quantum
 
             intent.MoveYaw = yaw;
             intent.MoveAmount = FP._1;
-            intent.Run = context.Grabber.Held == EntityRef.None && distance > config.RunDistance;
+            intent.Run = (context.Grabber.Held == EntityRef.None || context.Skill.RunWhileCarrying) && distance > config.RunDistance;
             // Pressed in short pulses, so a jump that falls short is tried again.
             intent.Jump = linkJump || (frame.Number % 16 < 2 && IsLedgeAhead(ref context, yaw));
             intent.Crouch = intent.Run && intent.Jump == false && distance > config.TravelSlideMinDistance

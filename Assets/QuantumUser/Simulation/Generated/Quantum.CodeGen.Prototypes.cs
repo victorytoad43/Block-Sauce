@@ -204,6 +204,8 @@ namespace Quantum.Prototypes {
     [HideInInspector()]
     public FP Heading;
     [HideInInspector()]
+    public Quantum.QEnum32<BotSkillLevel> Skill;
+    [HideInInspector()]
     public MapEntityId Home;
     [HideInInspector()]
     public Quantum.QEnum32<BotTaskType> Task;
@@ -225,6 +227,10 @@ namespace Quantum.Prototypes {
     public Quantum.Prototypes.FrameTimerPrototype TaskTimer;
     [HideInInspector()]
     public Quantum.Prototypes.FrameTimerPrototype ThinkTimer;
+    [HideInInspector()]
+    public FPVector2 AimError;
+    [HideInInspector()]
+    public FPVector2 PlaceError;
     [HideInInspector()]
     public MapEntityId Unreachable;
     [HideInInspector()]
@@ -258,6 +264,7 @@ namespace Quantum.Prototypes {
     }
     public void Materialize(Frame frame, ref Quantum.Bot result, in PrototypeMaterializationContext context = default) {
       result.Heading = this.Heading;
+      result.Skill = this.Skill;
       PrototypeValidator.FindMapEntity(this.Home, in context, out result.Home);
       result.Task = this.Task;
       result.Status = this.Status;
@@ -269,6 +276,8 @@ namespace Quantum.Prototypes {
       this.StepTimer.Materialize(frame, ref result.StepTimer, in context);
       this.TaskTimer.Materialize(frame, ref result.TaskTimer, in context);
       this.ThinkTimer.Materialize(frame, ref result.ThinkTimer, in context);
+      result.AimError = this.AimError;
+      result.PlaceError = this.PlaceError;
       PrototypeValidator.FindMapEntity(this.Unreachable, in context, out result.Unreachable);
       this.UnreachableTimer.Materialize(frame, ref result.UnreachableTimer, in context);
       result.ProgressPosition = this.ProgressPosition;

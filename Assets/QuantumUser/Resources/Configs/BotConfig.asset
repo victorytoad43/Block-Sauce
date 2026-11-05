@@ -24,12 +24,17 @@ MonoBehaviour:
       Value: 305851804599218721
   DunkChance:
     RawValue: 16384
+  Skills:
+  - Id:
+      Value: 403931997955789885
+  - Id:
+      Value: 533118344711210714
+  - Id:
+      Value: 356056852165191317
+  - Id:
+      Value: 297423894570862054
   TaskSeconds:
     RawValue: 983040
-  ThinkSecondsMin:
-    RawValue: 19660
-  ThinkSecondsMax:
-    RawValue: 65536
   UnreachableSeconds:
     RawValue: 1310720
   RunDistance:
@@ -52,7 +57,6 @@ MonoBehaviour:
     RawValue: 1310720
   GrabDistance:
     RawValue: 81920
-  GrabAttempts: 6
   PlaceClearance:
     RawValue: 5242
   PlaceStandDistance:
@@ -71,16 +75,10 @@ MonoBehaviour:
     RawValue: 19660
   PlaceJumpOffset:
     RawValue: 22937
-  PlaceAttempts: 3
   ThrowMinRange:
     RawValue: 196608
-  RaidAtCount: 2
   ThrowMaxRange:
     RawValue: 524288
-  AimTolerance:
-    RawValue: 131072
-  MinAimSeconds:
-    RawValue: 32768
   DunkApproachDistance:
     RawValue: 196608
   DunkLowerSeconds:
@@ -93,14 +91,10 @@ MonoBehaviour:
     RawValue: 786432
   TackleTowerRadius:
     RawValue: 196608
-  TackleSlideDistance:
-    RawValue: 229376
   TackleMinSpeed:
     RawValue: 327680
   TackleSlideSeconds:
     RawValue: 78643
-  TackleAlignDegrees:
-    RawValue: 1310720
   TackleSeconds:
     RawValue: 393216
   TackleCooldownSeconds:

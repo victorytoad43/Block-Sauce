@@ -9,6 +9,24 @@ namespace Quantum
     public class BotConfig : AssetObject
     {
         /// <summary>
+        /// Test only (editor soaks): the level each player slot's bot plays at, overriding its own; null for none. Never
+        /// set in a match that's online, since every client must agree.
+        /// </summary>
+        public static BotSkillLevel[] TestSkillBySlot;
+
+        /// <summary>
+        /// Returns the bot's difficulty: the skill for its level, or the first one listed if that level has none.
+        /// </summary>
+        public unsafe BotSkill GetSkill(Frame frame, Bot* bot)
+        {
+            int level = (int)bot->Skill;
+            if (Skills == null || Skills.Length == 0)
+                return null;
+
+            return frame.FindAsset(Skills[level < Skills.Length ? level : 0]);
+        }
+
+        /// <summary>
         /// The character prototype a bot spawns as; players get theirs from their RuntimePlayer, which bots don't have.
         /// </summary>
         public AssetRef<EntityPrototype> Avatar;
@@ -24,16 +42,15 @@ namespace Quantum
         public FP DunkChance = FP._0_25;
 
         /// <summary>
+        /// The difficulty levels, one per <see cref="BotSkillLevel"/> in order (Easy, Normal, Hard, Expert).
+        /// </summary>
+        public AssetRef<BotSkill>[] Skills;
+
+        /// <summary>
         /// Seconds any task may take before it fails.
         /// </summary>
         [Header("Tasks")]
         public FP TaskSeconds = 15;
-
-        /// <summary>
-        /// Seconds a bot hesitates before starting each task, picked at random between the two.
-        /// </summary>
-        public FP ThinkSecondsMin = (FP)3 / 10;
-        public FP ThinkSecondsMax = 1;
 
         /// <summary>
         /// Seconds a bot leaves alone a block it failed to fetch before trying it again.
@@ -76,10 +93,6 @@ namespace Quantum
         /// Distance, in meters, from a block at which a bot stops walking and turns to grab it.
         /// </summary>
         public FP GrabDistance = (FP)5 / 4;
-        /// <summary>
-        /// Grab presses a bot tries before giving up on a block.
-        /// </summary>
-        public int GrabAttempts = 6;
 
         /// <summary>
         /// Placing on a low tower: the bot holds the block at the lowest pitch that keeps its bottom PlaceClearance
@@ -88,8 +101,8 @@ namespace Quantum
         /// the block as high as it goes (close to the body, clear of the tower), lines up at PlaceLineUpDistance and jumps
         /// straight up; once the block is above the top it lowers it to PlaceJumpReachPitch, reaching out over the tower,
         /// and edges in at PlaceJumpMove of full speed to PlaceJumpStandDistance, no closer. It lets go when the block is
-        /// within PlaceOffset (horizontally) of the top block's center, PlaceJumpOffset in a jump, and tries
-        /// PlaceAttempts jumps.
+        /// within PlaceOffset (horizontally) of the top block's center, PlaceJumpOffset in a jump (the skill's
+        /// PlaceError moves where it aims).
         /// </summary>
         [Header("Placing")]
         public FP PlaceClearance = (FP)8 / 100;
@@ -101,20 +114,13 @@ namespace Quantum
         public FP PlaceJumpStandDistance = (FP)115 / 100;
         public FP PlaceOffset = (FP)3 / 10;
         public FP PlaceJumpOffset = (FP)35 / 100;
-        public int PlaceAttempts = 3;
 
         /// <summary>
-        /// Throwing: the distances, in meters, a bot throws from, and how close its aim must be, in degrees, to let go.
+        /// Throwing: the distances, in meters, a bot throws from (how well it aims is on its skill).
         /// </summary>
         [Header("Throwing")]
         public FP ThrowMinRange = 3;
-        /// <summary>
-        /// The counted blocks a rival's tower needs before bots raid it.
-        /// </summary>
-        public int RaidAtCount = 2;
         public FP ThrowMaxRange = 8;
-        public FP AimTolerance = 2;
-        public FP MinAimSeconds = (FP)1 / 2;
 
         /// <summary>
         /// Dunking: how far from a vat's center, in meters, a bot raises the block before walking in, and how long it
@@ -128,19 +134,16 @@ namespace Quantum
 
         /// <summary>
         /// Slide tackles, with empty hands: a rival within TackleRange (meters) carrying one of the bot's blocks, or
-        /// carrying anything within TackleTowerRadius of the bot's tower, gets run at and slid into from
-        /// TackleSlideDistance out, once the bot's run lines up with where the rival will be (TackleAlignDegrees). The
-        /// tackle gives up after TackleSeconds; the next waits TackleCooldownSeconds.
+        /// carrying anything within TackleTowerRadius of the bot's tower, gets run at and slid into (how far out and how
+        /// well lined up is on its skill). The tackle gives up after TackleSeconds; the next waits TackleCooldownSeconds.
         /// </summary>
         [Header("Tackling")]
         public FP TackleRange = 12;
         public FP TackleTowerRadius = 3;
-        public FP TackleSlideDistance = (FP)7 / 2;
         /// <summary>The slowest run, in m/s, a bot slides from (the slide needs 4).</summary>
         public FP TackleMinSpeed = 5;
         /// <summary>How long after starting the slide, in seconds, a tackle that hasn't hit counts as a miss.</summary>
         public FP TackleSlideSeconds = (FP)6 / 5;
-        public FP TackleAlignDegrees = 20;
         public FP TackleSeconds = 6;
         public FP TackleCooldownSeconds = 5;
 

@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9b9296dcdfbb4e46a5ae2828eff4aa5, type: 3}
+  m_Name: BotSkill_Expert
+  m_EditorClassIdentifier: Quantum.Simulation::Quantum.BotSkill
+  Identifier:
+    Path: QuantumUser/Resources/Configs/Bots/BotSkill_Expert
+    Guid:
+      Value: 297423894570862054
+  ThinkSecondsMin:
+    RawValue: 6553
+  ThinkSecondsMax:
+    RawValue: 19660
+  RaidAtCount: 2
+  RunWhileCarrying: 1
+  GrabAttempts: 10
+  PlaceAttempts: 5
+  PlaceError:
+    RawValue: 0
+  AimTolerance:
+    RawValue: 65536
+  MinAimSeconds:
+    RawValue: 19660
+  AimError:
+    RawValue: 0
+  TackleSlideDistance:
+    RawValue: 209715
+  TackleAlignDegrees:
+    RawValue: 655360
+  TackleLead:
+    RawValue: 65536

@@ -18,6 +18,15 @@ enum BotTaskType
     SlideTackle
 }
 
+// How well a bot plays (BotSkill assets, one per level, on BotConfig).
+enum BotSkillLevel
+{
+    Easy,
+    Normal,
+    Hard,
+    Expert
+}
+
 enum BotTaskStatus
 {
     Running,
@@ -31,6 +40,8 @@ component Bot
 {
     // The yaw, in degrees, the bot is looking and walking toward.
     [HideInInspector] FP Heading;
+    // The difficulty it plays at.
+    [HideInInspector] BotSkillLevel Skill;
     // The ground block the bot builds its tower on, chosen by its brain.
     [HideInInspector] EntityRef Home;
 
@@ -47,6 +58,10 @@ component Bot
     [HideInInspector] FrameTimer TaskTimer;
     // A moment's hesitation before the task starts, so bots don't react with machine speed.
     [HideInInspector] FrameTimer ThinkTimer;
+    // This task's mistakes, picked when it starts (BotSkill): degrees off in a throw's yaw and pitch, and meters off in
+    // where a placing lets go.
+    [HideInInspector] FPVector2 AimError;
+    [HideInInspector] FPVector2 PlaceError;
     // A block the bot failed to fetch (out of reach, say), which it leaves alone until the timer runs out.
     [HideInInspector] EntityRef Unreachable;
     [HideInInspector] FrameTimer UnreachableTimer;

@@ -51,7 +51,7 @@ namespace Quantum
                 return;
 
             FP heading = frame.TryGet(character, out PlayerLook look) ? look.Yaw : FP._0;
-            frame.Add(character, new Bot { Heading = heading });
+            frame.Add(character, new Bot { Heading = heading, Skill = BotSkillLevel.Normal });
             if (config.Brain.IsValid)
             {
                 frame.Add<HFSMAgent>(character);
@@ -149,6 +149,7 @@ namespace Quantum
         public static void SetTask(Frame frame, Bot* bot, BotConfig config, BotTaskType task, EntityRef target,
             FPVector3 point)
         {
+            BotSkill skill = config.GetSkill(frame, bot);
             bot->Task = task;
             bot->Status = BotTaskStatus.Running;
             bot->Target = target;
@@ -160,7 +161,13 @@ namespace Quantum
             BotNavigation.Clear(bot);
             bot->TaskTimer = FrameTimer.FromSeconds(frame, config.TaskSeconds);
             bot->ThinkTimer = task == BotTaskType.None ? default
-                : FrameTimer.FromSeconds(frame, frame.RNG->Next(config.ThinkSecondsMin, config.ThinkSecondsMax));
+                : FrameTimer.FromSeconds(frame, frame.RNG->Next(skill.ThinkSecondsMin, skill.ThinkSecondsMax));
+            bot->AimError = new FPVector2(frame.RNG->Next(-skill.AimError, skill.AimError),
+                frame.RNG->Next(-skill.AimError, skill.AimError));
+            // A point in the disc of radius PlaceError.
+            FP angle = frame.RNG->Next(FP._0, FP.PiTimes2);
+            FP radius = skill.PlaceError * FPMath.Sqrt(frame.RNG->Next());
+            bot->PlaceError = new FPVector2(FPMath.Cos(angle) * radius, FPMath.Sin(angle) * radius);
         }
 
         /// <summary>
@@ -173,6 +180,11 @@ namespace Quantum
             var bots = frame.Filter<Bot, Player>();
             while (bots.NextUnsafe(out EntityRef entity, out Bot* bot, out Player* player))
             {
+                if (BotConfig.TestSkillBySlot != null && (int)player->Ref < BotConfig.TestSkillBySlot.Length)
+                {
+                    bot->Skill = BotConfig.TestSkillBySlot[(int)player->Ref];
+                }
+
                 if (frame.Has<HFSMAgent>(entity))
                 {
                     HFSMManager.Update(frame, frame.DeltaTime, entity);
