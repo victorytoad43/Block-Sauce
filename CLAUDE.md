@@ -49,7 +49,8 @@ Friendslop docs: https://doc.photonengine.com/quantum/v3/game-samples/friendslop
 - **Art scale:** Jackson's art is about 2.5× real-world. `ArtImportPostprocessor` imports everything under `Assets/Art/` at 0.4.
 - **Assets made by script** must be force-reimported and Quantum's asset database refreshed before the simulation sees them.
 - **Automated tests:** an unfocused editor drops synthetic keyboard and mouse input. Drive tests through `PlayerInputPoller.TestInputOverride` or a virtual gamepad.
-- Don't save the Lobby scene after a play session.
+- Don't save the Lobby or Arena scene after a play session; change them through their builders (**Block Sauce › Build Arena**, **Build Main Menu**, **Build Sound Bank**).
+- **Unity's `??` and `?.`** skip Unity's own null check: a missing component or destroyed object isn't C# null in the editor, so `GetComponent<T>() ?? AddComponent<T>()` can hand back a dead object. Use `== null`.
 - **Component storage moves:** in Quantum 3.1, adding or removing a component on an entity moves all of that entity's components, so any pointer to them goes stale, including the physics engine's own while it runs its callbacks. Never add or remove components (or create entities that do, like a ragdoll) inside `OnCollisionEnter3D` and the other physics callbacks: record what happened on a component and act in a system's `Update` (see `KnockbackSystem`). Elsewhere, copy values out before an Add, Remove or Create instead of reading through the old pointer afterwards (see `SauceSystem.GlueTouchingBlocks`).
 - **Profiling:** judge performance in a build, not the editor: Jackson's editor runs a match at 20–30 fps (the Stats window's main and render thread both 30–50 ms, so the main thread is waiting on the render thread) while the same match in a build runs far faster. On this PC, frames also often wait on presentation (`WaitForLastPresentation`: about 28 ms a frame in the editor, single 100–200 ms stalls in a build), with the game's own work at 1–8 ms. Read the main-thread and GPU times, not the frame time. For real numbers, run a development build with `-logframes` (see Testing).
 - **Quantum logs simulation exceptions from worker threads:** listen with `Application.logMessageReceivedThreaded`, not `logMessageReceived`, or a soak test reports 0 errors while the solver throws every tick.
@@ -87,6 +88,7 @@ Assets/
   Art/_Incoming/                      # Jackson's drop zone; you move files out of here
   Art/Characters/  Art/Blocks/  Art/Environment/  Art/UI/  Art/VFX/  Art/Audio/
   Placeholders/                       # all PH_ assets
-  Scenes/                             # Lobby (matches run here), Arena_Graybox, Tests/
+  Scenes/                             # Arena (the game: menu and matches), Lobby (test scene with vats), Arena_Graybox (retired), Tests/
+  Art/Audio/_Pack_FreeSFX/            # Jackson's CC0 sound pack, git-ignored; picks are copied to Art/Audio
 docs/  PLAN.md  ASSETS.md  PROGRESS.md
 ```

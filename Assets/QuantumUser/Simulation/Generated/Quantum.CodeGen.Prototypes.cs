@@ -182,6 +182,23 @@ namespace Quantum.Prototypes {
     }
   }
   [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.BlockSpawnPoint))]
+  public unsafe partial class BlockSpawnPointPrototype : ComponentPrototype<Quantum.BlockSpawnPoint> {
+    public Int32 Slot;
+    public QBoolean Home;
+    partial void MaterializeUser(Frame frame, ref Quantum.BlockSpawnPoint result, in PrototypeMaterializationContext context);
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.BlockSpawnPoint component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.BlockSpawnPoint result, in PrototypeMaterializationContext context = default) {
+      result.Slot = this.Slot;
+      result.Home = this.Home;
+      MaterializeUser(frame, ref result, in context);
+    }
+  }
+  [System.SerializableAttribute()]
   [Quantum.Prototypes.Prototype(typeof(Quantum.Bot))]
   public unsafe class BotPrototype : ComponentPrototype<Quantum.Bot> {
     [HideInInspector()]

@@ -1,4 +1,4 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
 
 namespace Quantum
 {
@@ -146,17 +146,25 @@ namespace Quantum
         }
 
         /// <summary>
+        /// Returns which spawn point, in map order, player <paramref name="player"/> uses (see FindSpawnTransform).
+        /// </summary>
+        public static int GetSpawnIndex(Frame frame, int player)
+        {
+            int spawnPoints = frame.ComponentCount<PlayerSpawnPoint>();
+            if (spawnPoints > frame.MaxPlayerCount)
+                return (player * spawnPoints + frame.MaxPlayerCount / 2) / frame.MaxPlayerCount;
+
+            return player;
+        }
+
+        /// <summary>
         /// Returns the transform of the spawn point for player <paramref name="index"/>, or null when the map has fewer
         /// spawn points. A map with more spawn points than player slots (the Lobby's ring of 8, with 6 players) spreads
         /// the players across them, so they stand evenly round the ring rather than bunched on one side.
         /// </summary>
         private static Transform3D* FindSpawnTransform(Frame frame, int index)
         {
-            int spawnPoints = frame.ComponentCount<PlayerSpawnPoint>();
-            if (spawnPoints > frame.MaxPlayerCount)
-            {
-                index = (index * spawnPoints + frame.MaxPlayerCount / 2) / frame.MaxPlayerCount;
-            }
+            index = GetSpawnIndex(frame, index);
 
             int count = 0;
 

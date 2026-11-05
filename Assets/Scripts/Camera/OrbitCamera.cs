@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace BlockSauce
 {
@@ -11,7 +11,8 @@ namespace BlockSauce
     /// swing, speeding up toward the edges, and at full speed once the swing turns the body (sideways, in the
     /// simulation) or reaches the top or bottom of its range (vertically, where further input only tilts the camera).
     /// Aiming a throw works the same way on the throw angle. While aiming it moves over the character's shoulder,
-    /// clear of the block raised overhead.
+    /// clear of the block raised overhead. Walls and terrain on the CameraBlock layer pull it in, so it never looks
+    /// through them.
     /// This is view-only state: the simulation never reads it except through that input.
     /// </summary>
     public class OrbitCamera : MonoBehaviour
@@ -46,6 +47,13 @@ namespace BlockSauce
         [SerializeField] private Vector2 _aimShoulderOffset = new Vector2(0.9f, 0.3f);
         [Tooltip("How fast the camera moves to and from the shoulder, per second.")]
         [SerializeField] private float _shoulderSharpness = 10f;
+        [Tooltip("Layers the camera can't see through: the arena's camera colliders (layer CameraBlock, set up by "
+            + "Block Sauce › Build Arena).")]
+        [SerializeField] private LayerMask _collisionMask = 1 << 10;
+        [Tooltip("Radius of the sphere swept from the pivot to the camera, in meters; keeps the near plane off walls.")]
+        [SerializeField] private float _collisionRadius = 0.3f;
+        [Tooltip("How fast the camera eases back out once a wall stops pulling it in, per second.")]
+        [SerializeField] private float _collisionReturnSharpness = 4f;
 
         private Transform _target;
         private bool _isHolding;
@@ -59,6 +67,7 @@ namespace BlockSauce
         private float _swingPitchPerInput = 1f;
         private bool _isAiming;
         private float _shoulderWeight;
+        private float _currentDistance = -1f;
 
         /// <summary>
         /// The camera's absolute yaw, in degrees around world up.
@@ -175,7 +184,33 @@ namespace BlockSauce
             Quaternion rotation = Quaternion.Euler(Pitch, Yaw, 0f);
             Vector3 shoulder = Quaternion.Euler(0f, Yaw, 0f) * new Vector3(_aimShoulderOffset.x, _aimShoulderOffset.y, 0f);
             Vector3 pivot = _target.position + Vector3.up * _pivotHeight + shoulder * _shoulderWeight;
-            transform.SetPositionAndRotation(pivot - rotation * Vector3.forward * _distance, rotation);
+            Vector3 back = -(rotation * Vector3.forward);
+            transform.SetPositionAndRotation(pivot + back * UpdateDistance(pivot, back), rotation);
+        }
+
+        /// <summary>
+        /// Returns how far behind the pivot the camera sits this frame: pulled in at once in front of anything on the
+        /// collision layers between the pivot and its usual place, and eased back out once clear.
+        /// </summary>
+        private float UpdateDistance(Vector3 pivot, Vector3 back)
+        {
+            float allowed = _distance;
+            if (Physics.SphereCast(pivot, _collisionRadius, back, out RaycastHit hit, _distance, _collisionMask,
+                    QueryTriggerInteraction.Ignore))
+            {
+                allowed = Mathf.Max(hit.distance, 0.2f);
+            }
+
+            if (_currentDistance < 0f || allowed < _currentDistance)
+            {
+                _currentDistance = allowed;
+            }
+            else
+            {
+                _currentDistance = Mathf.Lerp(_currentDistance, allowed, 1f - Mathf.Exp(-_collisionReturnSharpness * Time.deltaTime));
+            }
+
+            return _currentDistance;
         }
 
         /// <summary>

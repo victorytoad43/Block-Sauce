@@ -1,4 +1,4 @@
-enum MatchState
+﻿enum MatchState
 {
     Lobby,
     Countdown,
@@ -29,4 +29,13 @@ event MatchStateChanged
 {
     MatchState State;
     PlayerRef Winner;
+}
+
+// A map marker where a block appears at match start, for the player on spawn point number Slot (in map order). Home
+// marks the block a player's tower is meant to start on: bots build there, and a fallen block returns to it. A map
+// without markers gives each player a row of blocks in front of their spawn instead.
+component BlockSpawnPoint
+{
+    int Slot;
+    bool Home;
 }

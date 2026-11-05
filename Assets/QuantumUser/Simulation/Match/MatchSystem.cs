@@ -7,7 +7,7 @@ namespace Quantum
     /// Runs match flow on maps that have a Match: Lobby → Countdown → Playing → RoundEnd → Results → Lobby.
     /// The lobby is a sandbox (free blocks, no locking, no win rule). Starting a match fills the empty player slots with
     /// bots unless the room turned that off, clears the sandbox blocks, moves every player to a match spawn and gives
-    /// each their own blocks; returning to the lobby removes the match blocks
+    /// each their own blocks (at the map's block markers, if it has any); returning to the lobby removes the match blocks
     /// and puts the sandbox back. Rules come from the match's mode asset (see <see cref="GameModeConfig"/>).
     /// In the menu's demo match (<see cref="RuntimeConfig.DemoMatch"/>) the lobby starts the next match by itself.
     /// </summary>
@@ -180,15 +180,24 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Gives a player the mode's blocks, in a row in front of them, owned by them and in their team.
-        /// </summary>
-        /// <summary>
-        /// Returns where the middle of a player's row of blocks starts a match, on the ground; false when the map has no
+        /// Returns where a player's tower is meant to start: their home block marker on a map with block markers,
+        /// otherwise the middle of the row of blocks they start a match with, on the ground. False when the map has no
         /// spawn point for the player.
         /// </summary>
         public static bool TryGetBlockRowCenter(Frame frame, GameModeConfig mode, PlayerRef player, out FPVector3 center)
         {
             center = default;
+            int slot = PlayerSystem.GetSpawnIndex(frame, player);
+            var markers = frame.Filter<BlockSpawnPoint, Transform3D>();
+            while (markers.NextUnsafe(out EntityRef _, out BlockSpawnPoint* marker, out Transform3D* markerTransform))
+            {
+                if (marker->Slot == slot && marker->Home)
+                {
+                    center = markerTransform->Position;
+                    return true;
+                }
+            }
+
             if (PlayerSystem.TryGetSpawn(frame, player, out Transform3D spawn) == false)
                 return false;
 
@@ -200,9 +209,32 @@ namespace Quantum
             return true;
         }
 
+        /// <summary>
+        /// Gives a player the mode's blocks, owned by them and in their team: one at each of the map's block markers for
+        /// their spawn point (a bot's home is the Home one), or, on a map without markers, in a row in front of them.
+        /// </summary>
         private static void SpawnPlayerBlocks(Frame frame, GameModeConfig mode, EntityRef entity, PlayerRef player, Transform3D* transform)
         {
             byte team = frame.TryGet(entity, out Team playerTeam) ? playerTeam.Id : TeamIds.None;
+            if (frame.ComponentCount<BlockSpawnPoint>() > 0)
+            {
+                int slot = PlayerSystem.GetSpawnIndex(frame, player);
+                var markers = frame.Filter<BlockSpawnPoint, Transform3D>();
+                while (markers.NextUnsafe(out EntityRef _, out BlockSpawnPoint* marker, out Transform3D* markerTransform))
+                {
+                    if (marker->Slot != slot)
+                        continue;
+
+                    EntityRef block = CreateOwnedBlock(frame, mode, player, team, markerTransform->Position, markerTransform->Rotation);
+                    if (marker->Home && frame.Unsafe.TryGetPointer(entity, out Bot* bot))
+                    {
+                        bot->Home = block;
+                    }
+                }
+
+                return;
+            }
+
             FPVector3 forward = transform->Rotation * FPVector3.Forward;
             FPVector3 right = transform->Rotation * FPVector3.Right;
             FPVector3 rowCenter = transform->Position + forward * mode.BlockSpawnDistance;
@@ -211,20 +243,25 @@ namespace Quantum
             for (int i = 0; i < mode.BlocksPerPlayer; i++)
             {
                 FP sideways = (i - (mode.BlocksPerPlayer - 1) * FP._0_50) * mode.BlockSpawnSpacing;
-                EntityRef block = frame.Create(mode.BlockPrototype);
-
-                Transform3D* blockTransform = frame.Unsafe.GetPointer<Transform3D>(block);
-                blockTransform->Position = rowCenter + right * sideways;
-                blockTransform->Rotation = transform->Rotation;
-
-                Block* blockData = frame.Unsafe.GetPointer<Block>(block);
-                blockData->Owner = player;
-
-                if (frame.Unsafe.TryGetPointer(block, out Team* blockTeam))
-                {
-                    blockTeam->Id = team;
-                }
+                CreateOwnedBlock(frame, mode, player, team, rowCenter + right * sideways, transform->Rotation);
             }
+        }
+
+        private static EntityRef CreateOwnedBlock(Frame frame, GameModeConfig mode, PlayerRef player, byte team,
+            FPVector3 position, FPQuaternion rotation)
+        {
+            EntityRef block = frame.Create(mode.BlockPrototype);
+            Transform3D* blockTransform = frame.Unsafe.GetPointer<Transform3D>(block);
+            blockTransform->Position = position;
+            blockTransform->Rotation = rotation;
+            frame.Unsafe.GetPointer<Block>(block)->Owner = player;
+
+            if (frame.Unsafe.TryGetPointer(block, out Team* blockTeam))
+            {
+                blockTeam->Id = team;
+            }
+
+            return block;
         }
 
         private static void SetState(Frame frame, Match* match, MatchState state, FP seconds)

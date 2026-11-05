@@ -1,4 +1,4 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
 using Quantum.Physics3D;
 
 namespace Quantum
@@ -455,7 +455,24 @@ namespace Quantum
             intent.MoveYaw = yaw;
             intent.MoveAmount = FP._1;
             intent.Run = context.Grabber.Held == EntityRef.None && distance > config.RunDistance;
+            // Pressed in short pulses, so a jump that falls short is tried again.
+            intent.Jump = frame.Number % 16 < 2 && IsLedgeAhead(ref context, yaw);
             return false;
+        }
+
+        /// <summary>
+        /// Returns whether a ledge too high to step onto (a pillar's edge, the inner ring) is just ahead along
+        /// <paramref name="yaw"/>, low enough to jump onto: the knee probe hits a steep static face and the chest probe
+        /// is clear.
+        /// </summary>
+        private static bool IsLedgeAhead(ref Context context, FP yaw)
+        {
+            FPVector3 position = context.Transform->Position;
+            FPVector3 direction = FPQuaternion.AngleAxis(yaw, FPVector3.Up) * FPVector3.Forward;
+            Hit3D? knee = context.Frame.Physics3D.Raycast(position + FPVector3.Up * FP._0_50, direction,
+                context.Config.LedgeProbeLength, -1, QueryOptions.HitStatics | QueryOptions.ComputeDetailedInfo);
+            return knee.HasValue && knee.Value.Normal.Y < FP._0_50
+                && IsClear(ref context, position + FPVector3.Up * (FP._1 + FP._0_20), direction, context.Config.LedgeProbeLength);
         }
 
         /// <summary>
@@ -470,7 +487,7 @@ namespace Quantum
                 int side = i % 2 == 1 ? 1 : -1;
                 FP yaw = desired + side * ((i + 1) / 2) * context.Config.ProbeStepDegrees;
                 FPVector3 direction = FPQuaternion.AngleAxis(yaw, FPVector3.Up) * FPVector3.Forward;
-                if (IsClear(ref context, position + FPVector3.Up * FP._0_50, direction, length)
+                if (IsClear(ref context, position + FPVector3.Up * FP._0_50, direction, length, false)
                     && IsClear(ref context, position + FPVector3.Up * (FP._1 + FP._0_20), direction, length))
                     return yaw;
             }
@@ -478,10 +495,20 @@ namespace Quantum
             return desired;
         }
 
-        private static bool IsClear(ref Context context, FPVector3 origin, FPVector3 direction, FP length)
+        /// <summary>
+        /// Returns whether nothing solid is within <paramref name="length"/> along a probe; with
+        /// <paramref name="statics"/> false, static geometry is ignored (at knee height a static ledge is climbed, not
+        /// walked round; the chest probe still sees walls).
+        /// </summary>
+        private static bool IsClear(ref Context context, FPVector3 origin, FPVector3 direction, FP length, bool statics = true)
         {
-            HitCollection3D hits = context.Frame.Physics3D.RaycastAll(origin, direction, length, -1,
-                QueryOptions.HitStatics | QueryOptions.HitDynamics | QueryOptions.HitKinematics | QueryOptions.ComputeDetailedInfo);
+            QueryOptions options = QueryOptions.HitDynamics | QueryOptions.HitKinematics | QueryOptions.ComputeDetailedInfo;
+            if (statics)
+            {
+                options |= QueryOptions.HitStatics;
+            }
+
+            HitCollection3D hits = context.Frame.Physics3D.RaycastAll(origin, direction, length, -1, options);
             for (int i = 0; i < hits.Count; i++)
             {
                 EntityRef hit = hits[i].Entity;

@@ -53,3 +53,7 @@ Desktop.ini
 
 # Claude Code personal settings
 .claude/settings.local.json
+
+# Jackson's CC0 sound pack, kept locally to pick placeholder sounds from (the picks are copied to Assets/Art/Audio)
+/Assets/Art/Audio/_Pack_FreeSFX/
+/Assets/Art/Audio/_Pack_FreeSFX.meta

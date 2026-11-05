@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06314583f840ea24899e5ff2b8db8a38, type: 3}
+  m_Name: PH_SoundBank
+  m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.SoundBank
+  Jump: {fileID: 8300000, guid: df0094c0e2eb9784aba7445b9fe6513f, type: 3}
+  Knockdown: {fileID: 8300000, guid: 22d94693fb0a2804fbbddfa2e3f9e9ae, type: 3}
+  FallRespawn: {fileID: 8300000, guid: bc8df0451126df14683dcc44750ddd85, type: 3}
+  Grab: {fileID: 8300000, guid: 79f792ef9b110aa4e94fe6dcc0d5e237, type: 3}
+  Place: {fileID: 8300000, guid: f9d749048014ed7479e9bb052d6abf70, type: 3}
+  Drop: {fileID: 8300000, guid: 2f1f63ea65cc1774fa946ecdc6da2874, type: 3}
+  Throw: {fileID: 8300000, guid: e091ca2f61eae664eaa7edb9f707ba2b, type: 3}
+  Impact: {fileID: 8300000, guid: e73a678f152d1394ebb42633639139fd, type: 3}
+  SettleStarted: {fileID: 8300000, guid: 77d17e7c3e954444fb141f04e861d6f2, type: 3}
+  Counted: {fileID: 8300000, guid: aea1d28ccab8a2b458c6e3e6118a3b80, type: 3}
+  Uncounted: {fileID: 8300000, guid: 824bf7abe23f31c4fb26efcb3e8179f3, type: 3}
+  Countdown: {fileID: 8300000, guid: fe5d60ef6fd377f4fb312e681a29dac8, type: 3}
+  MatchStart: {fileID: 8300000, guid: f5c34181ab193a1499ba6039f4652beb, type: 3}
+  RoundEnd: {fileID: 8300000, guid: dfec2bd11d0246c4f8880a3358c6e964, type: 3}
+  Results: {fileID: 8300000, guid: b4398fe1df0bfc248a8e26b8c4ce2382, type: 3}
+  Click: {fileID: 8300000, guid: de3e3f58ae5a2b943a4ff441faae690e, type: 3}
+  MenuMusic: {fileID: 8300000, guid: 79d19a210eb6b7b48bcf1681f956a804, type: 3}
+  MatchMusic: {fileID: 8300000, guid: 921b11e74361e5e4484467d38f3ac87d, type: 3}
+  MusicVolume: 0.25

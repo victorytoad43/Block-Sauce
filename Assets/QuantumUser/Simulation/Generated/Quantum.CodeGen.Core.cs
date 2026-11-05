@@ -927,6 +927,28 @@ namespace Quantum {
     }
   }
   [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct BlockSpawnPoint : Quantum.IComponent {
+    public const Int32 SIZE = 8;
+    public const Int32 ALIGNMENT = 4;
+    [FieldOffset(0)]
+    public Int32 Slot;
+    [FieldOffset(4)]
+    public QBoolean Home;
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 937;
+        hash = hash * 31 + Slot.GetHashCode();
+        hash = hash * 31 + Home.GetHashCode();
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (BlockSpawnPoint*)ptr;
+      serializer.Stream.Serialize(&p->Slot);
+      QBoolean.Serialize(&p->Home, serializer);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Bot : Quantum.IComponent {
     public const Int32 SIZE = 160;
     public const Int32 ALIGNMENT = 8;
@@ -1726,6 +1748,7 @@ namespace Quantum {
       private ComponentSignals _componentSignals_AIBlackboardComponent = CreateComponentSignals<Quantum.AIBlackboardComponent>(frame);
       private ComponentSignals _componentSignals_BTAgent = CreateComponentSignals<Quantum.BTAgent>(frame);
       private ComponentSignals _componentSignals_Block = CreateComponentSignals<Quantum.Block>(frame);
+      private ComponentSignals _componentSignals_BlockSpawnPoint = CreateComponentSignals<Quantum.BlockSpawnPoint>(frame);
       private ComponentSignals _componentSignals_Bot = CreateComponentSignals<Quantum.Bot>(frame);
       private ComponentSignals _componentSignals_BotSDKGlobals = CreateComponentSignals<Quantum.BotSDKGlobals>(frame);
       private ComponentSignals _componentSignals_CharacterController2D = CreateComponentSignals<CharacterController2D>(frame);
@@ -1839,6 +1862,7 @@ namespace Quantum {
         registry.Register<Quantum.BlackboardEntry>(Quantum.BlackboardEntry.SIZE);
         registry.Register<Quantum.BlackboardValue>(Quantum.BlackboardValue.SIZE);
         registry.Register<Quantum.Block>(Quantum.Block.SIZE);
+        registry.Register<Quantum.BlockSpawnPoint>(Quantum.BlockSpawnPoint.SIZE);
         registry.Register<Quantum.Bot>(Quantum.Bot.SIZE);
         registry.Register<Quantum.BotSDKData>(Quantum.BotSDKData.SIZE);
         registry.Register<Quantum.BotSDKGlobals>(Quantum.BotSDKGlobals.SIZE);
@@ -1957,6 +1981,7 @@ namespace Quantum {
         registry.Register<Quantum.AIBlackboardComponent>(Quantum.AIBlackboardComponent.Serialize, null, Quantum.AIBlackboardComponent.OnRemoved, ComponentFlags.None);
         registry.Register<Quantum.BTAgent>(Quantum.BTAgent.Serialize, null, Quantum.BTAgent.OnRemoved, ComponentFlags.None);
         registry.Register<Quantum.Block>(Quantum.Block.Serialize, null, null, ComponentFlags.None);
+        registry.Register<Quantum.BlockSpawnPoint>(Quantum.BlockSpawnPoint.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.Bot>(Quantum.Bot.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.BotSDKGlobals>(Quantum.BotSDKGlobals.Serialize, null, null, ComponentFlags.Singleton);
         registry.Register<Quantum.Grabbable>(Quantum.Grabbable.Serialize, null, null, ComponentFlags.None);

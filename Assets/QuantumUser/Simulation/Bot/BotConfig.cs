@@ -1,4 +1,4 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
 using UnityEngine;
 
 namespace Quantum
@@ -50,6 +50,11 @@ namespace Quantum
         /// </summary>
         public FP ProbeLength = (FP)3 / 2;
         public FP ProbeStepDegrees = 30;
+        /// <summary>
+        /// How far ahead, in meters, a bot checks for a ledge too high to step onto (a pillar, the inner ring); it jumps
+        /// when one is this close and there's room above it.
+        /// </summary>
+        public FP LedgeProbeLength = (FP)8 / 10;
         /// <summary>
         /// A bot that wants to move but has gone less than StuckDistance in StuckSeconds walks off at an angle for
         /// DetourSeconds.

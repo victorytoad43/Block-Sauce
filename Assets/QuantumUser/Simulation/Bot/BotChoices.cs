@@ -1,4 +1,5 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
+using Quantum.Physics3D;
 
 namespace Quantum
 {
@@ -11,9 +12,19 @@ namespace Quantum
     public static unsafe class BotChoices
     {
         /// <summary>
-        /// The highest a block's center may be for a bot to fetch it from the ground: a block lying on one other block.
+        /// The highest a block's center may be above the ground under it for a bot to fetch it: a block lying on one
+        /// other block.
         /// </summary>
         private static readonly FP MaxFetchHeight = (FP)7 / 5;
+        /// <summary>
+        /// The highest a block's center may be above the ground under it to count as on the ground (half a block, plus
+        /// slack for a tilt on uneven ground).
+        /// </summary>
+        private static readonly FP MaxGroundHeight = (FP)6 / 10;
+        /// <summary>
+        /// How far down, in meters, the ground under a block is looked for.
+        /// </summary>
+        private static readonly FP GroundProbeLength = 4;
 
         /// <summary>
         /// Picks the block to fetch: the nearest of the bot's own blocks that is loose, on the ground and not its home
@@ -124,7 +135,17 @@ namespace Quantum
         {
             return home != held && frame.Exists(home) && frame.Get<Block>(home).Owner == self
                 && frame.Get<Grabbable>(home).Holder == EntityRef.None
-                && frame.Get<Transform3D>(home).Position.Y < FP._0_50 + FP._0_10;
+                && HeightAboveGround(frame, frame.Get<Transform3D>(home).Position) < MaxGroundHeight;
+        }
+
+        /// <summary>
+        /// Returns how far <paramref name="position"/> is above the static ground straight under it (the arena's ground
+        /// is uneven), or a large number over a drop.
+        /// </summary>
+        public static FP HeightAboveGround(Frame frame, FPVector3 position)
+        {
+            Hit3D? hit = frame.Physics3D.Raycast(position, FPVector3.Down, GroundProbeLength, -1, QueryOptions.HitStatics);
+            return hit.HasValue ? position.Y - hit.Value.Point.Y : FP.UseableMax;
         }
 
         /// <summary>
@@ -169,7 +190,7 @@ namespace Quantum
                 if (entity == exclude || entity == skip || grabbable->Holder != EntityRef.None || block->Stack != StackState.Loose
                     || (block->StackLevel != BlockStackSystem.NotStacked && block->StackLevel > 0) || block->HasAbove
                     || (block->Owner == self) != own
-                    || transform->Position.Y > MaxFetchHeight
+                    || HeightAboveGround(frame, transform->Position) > MaxFetchHeight
                     || IsBeingFetched(frame, entity))
                     continue;
 

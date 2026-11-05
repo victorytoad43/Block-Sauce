@@ -4,13 +4,13 @@ Every asset still needed, in the order to make them. The top of the list is what
 
 Guy clips go in the one animated `CH_Guy.fbx` (mesh, deform skeleton, all actions), animated in place, at least two keyframes per action. Game speeds below are real-world (Blender units ÷ 2.5).
 
-## Phase 7 (arena)
+## Arena (in: first graybox, 2026-11-05)
 
-1. **A-008 Arena graybox** (Jackson is making the first draft; Phase 7 starts when it arrives).
-    - One FBX with every piece placed where it goes, at the usual Blender scale (it imports at 0.4). Room for 6 towers anywhere, elevation changes, and the vats in the middle (the Lobby's are 4.2 m apart). Bot matches behind the menu run here, so the arena is also the menu's backdrop.
-    - Collision: name simple shapes `COL_<name>` (boxes, or low-poly convex pieces), separate from the visual meshes; the simulation needs simple static colliders, and render meshes are too detailed for physics. Anything without a `COL_` piece gets a box from its bounds.
-    - Markers as empties: `SPAWN_01` to `SPAWN_06` (facing the way players should face), `VAT_01`, `VAT_02`. Separate objects for anything that might move or be reused.
-    - Isolated pieces are fine too, as long as one FBX (or a screenshot with positions) shows the layout.
+1. **A-008 Arena** (graybox in as `EN_Arena` and `EN_ArenaPieces`; Phase 7 built on it).
+    - How it was read: **Block Sauce › Build Arena** uses `EN_Arena` for the layout and visuals (`displace_ground`, `exterior_wall`, `inner_circle`, `spawn_pillars`, `spawn_pillar_stairs`) and only `COL_stairs` from `EN_ArenaPieces`, fitted onto each stair by matching `MESH_stairs`. The rest of `EN_ArenaPieces` isn't used (its inner circle differs from the arranged one: 336 triangles and a deeper base). The ground, wall, ring and pillars collide as their render meshes, which is fine at these triangle counts (the ground's 32,768 are the most).
+    - Spawns and block spots are measured from the pillar and ring meshes, so no empties were needed. If a re-export moves things, rerun Build Arena; for anything the measuring can't guess, add empties named `SPAWN_01`–`06`.
+    - For a re-export: keep the object names; `COL_stairs` has collinear (zero-area) triangles that Quantum warns about at every bake (harmless; merge or dissolve them to quiet it); the stairs' top step is about 0.53 m below the pillar top, just over Guy's 0.5 m step, so players hop the last bit (raise the stairs or lower the pillars a little if that feels wrong).
+    - Materials: everything uses one default material (`Lit`); separate materials for ground, wall, ring and pillars would let them read apart.
 
 ## Phase 6 (front end and bots)
 
@@ -44,6 +44,6 @@ The agent builds rough drafts of every screen in the style of the main menu mock
 8. **A-024 Guy slide polish** (nice to have).
    - Strafes are fixed: the planted foot now moves about 0.5 m/s, so they play at 1.1× walking and 2.25× running.
    - `Slide` holds the sit pose; any motion in it (lean, arms out, dust-kicking feet) plays while a sitting Guy moves faster than 2 m/s.
-9. **A-014 Sound effects**: Jackson is picking a CC0 pack to drop in `_Incoming` as the temporary sounds (Phase 8).
+9. **A-014 Sound effects** (placeholders in, 2026-11-05: 16 sounds and 2 music loops picked by name from Jackson's CC0 FreeSFX pack, in `PH_SoundBank`; the whole pack stays in `Assets/Art/Audio/_Pack_FreeSFX`, kept out of git). Swap any pick in **Block Sauce › Build Sound Bank** or the bank asset.
     - WAV 48 kHz mono, short; one sound each, or a CC0 pack to pull from. Impacts want 2 to 3 variations and a light and heavy version.
     - Events: menu move, select and back; jump, grab, drop, place, throw, block impact (by speed), knockback, knockdown thud, dazed loop, limb impacts, get-up, settle start, settle reset, count pop, uncount, countdown beeps, round start, win; sauce dip splash, Stack sauce sticky landing, Slip sauce slide.

@@ -2,17 +2,18 @@
 
 Where the build stands and what happens next. The agent adds a short entry at the top of the log for each work session, and a report when a phase's done-when is verified. Older entries and phase reports live in git history.
 
-## Current state (2026-11-04)
+## Current state (2026-11-05)
 
-**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is done. The plan review is done; Bot Enhancement (skill levels and personalities) has started while Phase 7 (arena) waits on Jackson's graybox; then Phase 8 feel and juice, Phase 9 playtest build. The per-tick exception after collision knockdowns is fixed. The frame-rate review is pinned: the game itself is light (about 1 ms of work a frame in a build); Jackson's editor runs at 20–33 fps and the standalone build far faster, so performance is judged in builds. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
+**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) and the plan review are done. Phase 7 (Arena) is done and waiting on Jackson's review: matches, the menu and rooms now run in Jackson's graybox arena with his start layout, the camera stays out of walls, and placeholder sounds play. Next: Bot Enhancement, then touch-ups, Phase 8 feel and juice, Phase 9 playtest build. The per-tick exception after collision knockdowns is fixed. The frame-rate review is pinned: the game itself is light (about 1 ms of work a frame in a build); Jackson's editor runs at 20–33 fps and the standalone build far faster, so performance is judged in builds. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
 
-What plays today, online with up to 6 players, in the Lobby scene:
+What plays today, online with up to 6 players, in the Arena scene (the Lobby is now a test scene with the vats):
+- The arena: a walled bowl with uneven ground, six spawn pillars with stairs, a raised inner ring and a dip in the middle. Each player starts on their pillar with their home block in front of them; their second block is on the inner ring across the middle; the third is in a pile of six in the middle.
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
 - Grab (the block keeps whichever face was up), hold and swing (body turns past 45°; the camera follows the swing on a gradient and never locks), place with flush settling, hold-to-aim throw with trajectory preview, jumpshot.
 - Stack & Lock: 3 owned blocks each, settle dither, counting, win, full match loop back to the lobby.
 - Knockdown: Guy's 11-limb ragdoll, Jump to recover faster, carrying bodies, get-up clips, dazed indicator, falling out of the world resets.
 - Animation: idle; walk and run blending forward, back and strafe; jump; sit and slide; stagger flinches by hit side; GrabBlock hold with spine turn and hand IK; aim pose (`Throw` frame 4) and follow-through, grounded and airborne; foot IK on steps, ramps and blocks; win and lose placeholders after a round.
-- Sauces: two vats (Jackson's cup) in the middle of the Lobby. Dunk a held block (or throw one in) to coat it; how deep sets the strength. Stack sauce makes a block sticky: high friction, and it glues to the blocks and ground it rests against until a throw-hard hit or a grab tears it free; Slip sauce makes a block slide (7.9 m after a throw against 1.1 m plain), so a Slip tower comes apart when pushed. The coat is a thick, lumpy, glossy shell that changes the block's silhouette, with bubbles (Stack) or glints (Slip); drips are off for now. Dev keys: F8 coats your held block or all your blocks with Stack sauce, Shift+F8 with Slip.
+- Sauces (Lobby only; the arena has no cups for now): two vats (Jackson's cup) in the middle of the Lobby. Dunk a held block (or throw one in) to coat it; how deep sets the strength. Stack sauce makes a block sticky: high friction, and it glues to the blocks and ground it rests against until a throw-hard hit or a grab tears it free; Slip sauce makes a block slide (7.9 m after a throw against 1.1 m plain), so a Slip tower comes apart when pushed. The coat is a thick, lumpy, glossy shell that changes the block's silhouette, with bubbles (Stack) or glints (Slip); drips are off for now. Dev keys: F8 coats your held block or all your blocks with Stack sauce, Shift+F8 with Slip.
 
 ### Known issues
 - The editor runs a match at 20–33 fps on Jackson's PC (main and render threads both waiting); a build runs far faster. A build can still stall for 100 or 200 ms now and then on presentation. A small hiccup on knockdowns (Phase 9 profiling).
@@ -22,7 +23,6 @@ What plays today, online with up to 6 players, in the Lobby scene:
 - A block let go off-center in a cup rests against the sloped wall, a little tilted (the cup is 1.43 m across at the floor).
 - With the hips dropped for a low foot, Guy's long arms can touch the ground beside him.
 - MPPM: starting the `TwoClients` scenario can take several minutes, or hang the main editor while the clone launches; stopping and starting the scenario again recovers it.
-- The camera has no wall collision (Phase 7).
 - Quantum's view updater sometimes asserts (`group.Buffer != default`) for about 3 s while creating a ragdoll body's view; seen twice in about an hour of all-bot matches. View only; the simulation is unaffected. Watch for a ragdoll that shows up late or not at all.
 - Bots now and then wedge against each other or a wall for a few seconds; the detour or the task's timeout frees them.
 - A ragdoll that spawns half inside a block can launch it; the fall reset recovers it. If it shows up in play, spawn the ragdoll in a tucked pose.
@@ -30,11 +30,13 @@ What plays today, online with up to 6 players, in the Lobby scene:
 - A player who joins mid-match gets no blocks until the next round.
 - Swing input is sent as per-tick deltas, so a repeated lost input repeats one tick of swing. Revisit only if swings feel jumpy online.
 - Quantum's stats overlay (frame, ping) shows over the menu. Photon logs an error line when a typed room code doesn't exist (the menu shows its own message).
-- `Arena_Graybox` still has the stock Quantum start UI and the old `MatchHud` object (now with no HUD wired to it, and no dev keys); it gets the menu, HUD and `DevKeys` when matches move there.
 - Bots that filled empty slots at a match start stay in the room afterwards; the host removes them with Remove Bot.
 - The room's host is whoever holds the lowest slot among the connected players (read from the verified frame); any player's room commands are still accepted by the simulation, the screen only hides the controls from the others.
 - The settings controls (sliders, toggles, the resolution list) and the code field are drafts in the button's colors until A-002's screens arrive; buttons look the same when disabled (while connecting).
-- Matches only run in the Lobby scene; Arena_Graybox has no `Match` yet (Phase 6).
+- `Arena_Graybox` is retired (still in the build list, unused); it has uncommitted changes from outside the agent's work, so it is left alone until Jackson says what to do with it.
+- Bots don't use the stairs: they jump onto pillars and the ring from wherever they arrive, which works but looks hoppy.
+- Blocks sometimes rest tilted against a pillar's rim or the ring's edge and so don't count until moved.
+- The placeholder sounds are unheard picks by file name; some may be wrong for their moment or too loud.
 
 ### Waiting on Jackson
 - A-002 button focus states and the remaining screen mock-ups; A-006 HUD mock-ups (drafts stand in until they arrive).
@@ -42,14 +44,14 @@ What plays today, online with up to 6 players, in the Lobby scene:
 - The older open questions (settle numbers; pickup swings through your own tower).
 
 ### Placeholders in use
-`PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the subdivided `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_SauceVat_Stack`/`_Slip` (the cup at 1.3× with placeholder sauce), `PH_SauceCoat` and `PH_SauceLooks` (A-009), `PH_PlayerColors` (holds the real palette), `PH_` terrain (A-008), `PH_MainMenu` (Jackson's main menu art; the Join, Settings, Pause and room screens are drafts, A-002), `PH_MatchHud` (draft HUD and results, A-006), the IMGUI spectator bar (A-006), `PH_RagdollTest` (stress-test scene only).
+`PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the subdivided `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_SauceVat_Stack`/`_Slip` (the cup at 1.3× with placeholder sauce), `PH_SauceCoat` and `PH_SauceLooks` (A-009), `PH_PlayerColors` (holds the real palette), `PH_` terrain in the Lobby test scene, `PH_MainMenu` (Jackson's main menu art; the Join, Settings, Pause and room screens are drafts, A-002), `PH_MatchHud` (draft HUD and results, A-006), the IMGUI spectator bar (A-006), `PH_RagdollTest` (stress-test scene only), `PH_SoundBank` (CC0 placeholder sounds, A-014).
 
-## Next: Bot Enhancement (started 2026-11-04)
+## Next: Bot Enhancement (after Jackson's review of Phase 7)
 
 Design in `docs/PLAN.md` › Bot Enhancement: four skill levels set per bot, three hidden personalities (Wrecker, Builder, Klutz).
 
 Build order:
-1. **Skill levels.** `BotSkill` assets (`Resources/Configs/Bots/BotSkill_Easy`, `_Normal`, `_Hard`, `_Expert`) listed on `BotConfig`; `Bot.Skill` (byte, the level). The knobs that differ by level move off `BotConfig` onto `BotSkill`: hesitation (`ThinkSecondsMin`/`Max`), aim tolerance and a random aim error per throw (yaw and pitch, degrees), a random placement error (the point it lets go over, meters), how long it holds an aim (`MinAimSeconds`), whether it runs while carrying, grab and place attempts, `RaidAtCount`. Normal keeps today's numbers exactly, so today's soak results are the Normal baseline. First guesses: Easy hesitates 0.8–2 s, ±6° aim, 0.25 m off on placing, walks everywhere; Expert hesitates 0.1–0.3 s, ±0.5°, 0.05 m, runs with a block.
+1. **Skill levels.** `BotSkill` assets (`Resources/Configs/Bots/BotSkill_Easy`, `_Normal`, `_Hard`, `_Expert`) listed on `BotConfig`; `Bot.Skill` (byte, the level). The knobs that differ by level move off `BotConfig` onto `BotSkill`: hesitation (`ThinkSecondsMin`/`Max`), aim tolerance and a random aim error per throw (yaw and pitch, degrees), a random placement error (the point it lets go over, meters), how long it holds an aim (`MinAimSeconds`), whether it runs while carrying, grab and place attempts, `RaidAtCount`. Normal keeps today's numbers exactly, so the arena soak (Phase 7 report) is the Normal baseline. First guesses: Easy hesitates 0.8–2 s, ±6° aim, 0.25 m off on placing, walks everywhere; Expert hesitates 0.1–0.3 s, ±0.5°, 0.05 m, runs with a block.
 2. **Room screen.** A difficulty control on each bot's row (◀ NORMAL ▶, host only; guests see the level as text). `CommandSetBotSkill { Slot, Level }` (lobby only), which also sets `Match.NewBotSkill`, the level new bots and fill bots take. The demo match rolls each bot's level at random. Built by **Block Sauce › Build Main Menu** as before.
 3. **Personalities.** `BotPersonality` assets (`Wrecker`, `Builder`, `Klutz`) listed on `BotConfig`; `Bot.Personality` rolled with `frame.RNG` in `MakeBot`. `BotChoices` turns into a scored choice: each option (build with an own block, raid, guard, dunk, tackle, clear the top) gets a score from the situation times the personality's weight, highest wins, ties broken by the RNG. New tasks in `BotActions`: `Tackle` (run at a player until it hits them or the timeout) and `ClearTop` (fetch a foreign block off its own tower and throw or drop it away; only when the top is in reach). New decision in the brain for interrupting a task to guard (a rival near the tower), rebuilt by **Block Sauce › Build Bot Brain**.
 4. **Klutz mistakes.** Chances per second or per task on the personality: trip while running (a knockdown through the same path as `CommandDevKnockdown`), drop the carried block (a Grab press mid-carry), let go off center (a large placement error), throw wild (a large aim error).
@@ -62,24 +64,6 @@ Risks:
 - Taking a foreign block off a tall tower needs a jump-grab the bots can't do yet; until then a Builder leaves an out-of-reach top alone.
 - Hidden personalities make tuning hard to see; the dev label and soak log are there for that.
 - More decisions per tick: scoring loops over players and blocks; keep it to a few times a second per bot (the hesitation already spaces decisions).
-
-## Then: Phase 7, Arena (waiting on Jackson's graybox, A-008)
-
-Starts when the graybox lands in `_Incoming` (format in `docs/ASSETS.md`, A-008).
-
-Build order:
-1. Import: `ArtImportPostprocessor` already scales it to 0.4. An editor step (**Block Sauce › Build Arena**) reads the FBX's names: `COL_` pieces become Quantum static colliders (box when the piece is a box, static mesh collider otherwise) with their renderers off; `SPAWN_01`–`06` and `VAT_01`/`02` become the spawn points and vat positions; every other mesh is visual only.
-2. Arena scene and map: a new `Arena` scene with the imported prefab, the map baked from it; the Lobby's systems (match, vats, bots, spectator director, menu, HUD, `DevKeys`) moved over by the same builders that set up the Lobby (`MainMenuBuilder.SetUpLobby` and friends), so nothing is hand-wired. `Arena_Graybox` is retired once this works.
-3. Matches run in the arena: the menu, room screen and demo match load it; the Lobby stays as a test scene.
-4. Bots on uneven ground: they steer straight at targets today, so slopes, steps and walls need checking; add detours or ramp-aware targets as needed.
-5. Camera collision: a sphere cast from the character to the camera's spot, pulled in when it hits arena geometry (view only, Unity physics on the visual colliders or a cast against the Quantum static colliders); eased back out.
-6. Done-when: a full 6-player match (MPPM plus bots) in the arena; the camera checked against every wall and overhang.
-
-Risks:
-- Static mesh colliders cost more than boxes and can snag the capsule and ragdolls on seams; prefer boxes, and note any piece that needs simplifying in A-008.
-- Blocks resting on slopes may not settle (the settle check assumes nearly flat ground); tune or flatten tower spots.
-- Spawns or vats placed where towers can't be built; fixed by moving the markers (asked of Jackson, not edited).
-- Bots stuck on terrain (point 4).
 
 ## Log
 
@@ -105,6 +89,24 @@ Phase report format:
 - Placeholders still in use: <list with asset IDs>
 - Ready for review: yes
 ```
+
+## Phase 7 report: Arena
+- Built: Jackson's graybox as the game's arena (**Block Sauce › Build Arena** makes the `Arena` scene from the Lobby: colliders, stair colliders fitted per stair, spawns on the six pillars, block markers, its own map and mode, first in the build). Match blocks now come from map markers (`BlockSpawnPoint`): home block on the pillar, one on the inner ring across the middle, one in the center pile; a bot's tower starts on its home block. Bots measure "on the ground" from the ground under a block and jump onto ledges. Camera collision (sweep against `CameraBlock` colliders, eased back out). Placeholder audio (`GameAudio`, `PH_SoundBank`, **Block Sauce › Build Sound Bank**).
+- Done-when verification:
+  - A full 6-player match in the arena: a 15-minute all-bot soak of the demo (6 bots) played 8 matches to a winner, 52 to 140 s each (about 97 s on average; Lobby matches took about 2 minutes), with 0 errors (listening on every thread) and no block lost off the map. An online room (host plus 5 fill bots) started and played a match in the arena with sound and no errors. Not checked with 6 human clients (MPPM); the arena changes no networking.
+  - The camera never looks through a wall: at the spawns the camera's usual place stays clear of the wall; looking up from a pillar (the camera's usual place is under the ground) pulls it in from 4.5 to 3.8 m, above the ground, and it eases back to 4.5 m within 2 s. The sweep covers the ground, wall, ring, pillars and stairs, the only geometry there is.
+- How the layout played (8 matches): towers that won stood on the ground beside a pillar (3), in the middle (2), on a pillar (2) and on the ring (1). Every win took the full trip; no player won from the pillar alone. Knockdowns were rare (0 to 2 a match; bots throw little), and bots made 4 to 31 short detours a match round each other and the ledges. Uneven ground didn't stop towers settling; blocks that tipped against the pillar rims and the ring's edge did.
+- Known issues: see Current state (bots hop rather than use stairs; blocks tilted against rims; unheard sounds; `Arena_Graybox` left alone).
+- Placeholders still in use: see Current state; new: `PH_SoundBank` (A-014).
+- Ready for review: yes
+
+## 2026-11-05: Phase 7, arena
+- Did: Jackson's graybox (`arena_map.fbx`, `arena_map_pieces.fbx` to `EN_Arena`, `EN_ArenaPieces`) and his start layout; the Arena scene and builder; block markers in the simulation (`BlockSpawnPoint`, `PlayerSystem.GetSpawnIndex`); bots on uneven ground (ground height under a block, ledge jumps, the knee probe ignores static ledges); camera collision; the CC0 sound pack (`FreeSFX`) moved to `Assets/Art/Audio/_Pack_FreeSFX` (git-ignored, 164 MB) with 18 picks copied in as `SFX_*` and `MUS_*` (32 MB, LFS); `GameAudio` and `PH_SoundBank`.
+- Verified: see the Phase 7 report.
+- Decided: the arena scene starts as a copy of the Lobby, so the menu, HUD, bots and dev keys come along unchanged; the Lobby stays as the sauce test scene. Collision uses the render meshes (low enough counts) and Jackson's stair collider; spawns are measured from the meshes rather than empties. Camera collision uses Unity colliders on their own layer, not the Quantum statics (view only). Rooms on the arena use the app version postfix `-Arena`, so they don't mix with Lobby builds. The bot changes for uneven ground change Normal bots slightly ahead of Bot Enhancement (jumping onto ledges, ground height); the arena soak is the new Normal baseline.
+- Assets: A-008 graybox in (notes for a re-export in `docs/ASSETS.md`); A-014 placeholders in.
+- Questions for Jackson: see the review message.
+- Next: Jackson's review; then Bot Enhancement.
 
 ## 2026-11-04: Bot Enhancement planned
 - Did: Jackson's answers into the plan: four skill levels (Easy, Normal, Hard, Expert; today's bot is Normal), set per bot by the host; three personalities (Wrecker, Builder, Klutz), random and hidden. The phase moves ahead of Phase 7, which waits on the graybox. Build order and risks in Next; A-002 gains the difficulty control on a bot's row.
