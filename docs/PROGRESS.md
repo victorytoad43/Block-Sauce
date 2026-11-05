@@ -4,7 +4,7 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-04)
 
-**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is done. The plan review is nearly done: the replan is agreed (Phase 7 arena, waiting on Jackson's graybox; Phase 8 feel and juice; Phase 9 playtest build). The per-tick exception after collision knockdowns is fixed. Jackson's low frame rate is the display chain on this PC, not the game: a development build does about 1 ms of work a frame and runs at 165 fps with vsync, but stalls on presentation now and then. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
+**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is done. The plan review is nearly done: the replan is agreed (Phase 7 arena, waiting on Jackson's graybox; Phase 8 feel and juice; Phase 9 playtest build). The per-tick exception after collision knockdowns is fixed. The frame-rate review is pinned: the game itself is light (about 1 ms of work a frame in a build); Jackson's editor runs at 20–33 fps and the standalone build far faster, so performance is judged in builds. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
 
 What plays today, online with up to 6 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
@@ -15,14 +15,14 @@ What plays today, online with up to 6 players, in the Lobby scene:
 - Sauces: two vats (Jackson's cup) in the middle of the Lobby. Dunk a held block (or throw one in) to coat it; how deep sets the strength. Stack sauce makes a block sticky: high friction, and it glues to the blocks and ground it rests against until a throw-hard hit or a grab tears it free; Slip sauce makes a block slide (7.9 m after a throw against 1.1 m plain), so a Slip tower comes apart when pushed. The coat is a thick, lumpy, glossy shell that changes the block's silhouette, with bubbles (Stack) or glints (Slip); drips are off for now. Dev keys: F8 coats your held block or all your blocks with Stack sauce, Shift+F8 with Slip.
 
 ### Known issues
-- On this PC, presentation stalls: the editor waits about 28 ms a frame for the last presentation (about 30 fps), and a build stalls for 100 or 200 ms now and then (seen as drops to about 9 fps). The game's own work is 1–8 ms a frame. Suspect the Meta Virtual Monitor; see Next.
+- The editor runs a match at 20–33 fps on Jackson's PC (main and render threads both waiting); a build runs far faster. A build can still stall for 100 or 200 ms now and then on presentation. A small hiccup on knockdowns (Phase 9 profiling).
 - Sitting while holding a block keeps the block at the standing hold height; the arms reach up to it. If it reads badly, lower the hold pivot while sitting (simulation).
 - A block dunked hard against the cup's side can stick at the bottom for a moment before the hold lifts it out.
 - Sauce particles emit over the whole block, not only the coated part.
 - A block let go off-center in a cup rests against the sloped wall, a little tilted (the cup is 1.43 m across at the floor).
 - With the hips dropped for a low foot, Guy's long arms can touch the ground beside him.
 - MPPM: starting the `TwoClients` scenario can take several minutes, or hang the main editor while the clone launches; stopping and starting the scenario again recovers it.
-- The camera has no wall collision (draft Phase 7).
+- The camera has no wall collision (Phase 7).
 - Quantum's view updater sometimes asserts (`group.Buffer != default`) for about 3 s while creating a ragdoll body's view; seen twice in about an hour of all-bot matches. View only; the simulation is unaffected. Watch for a ragdoll that shows up late or not at all.
 - Bots now and then wedge against each other or a wall for a few seconds; the detour or the task's timeout frees them.
 - A ragdoll that spawns half inside a block can launch it; the fall reset recovers it. If it shows up in play, spawn the ragdoll in a tucked pose.
@@ -44,10 +44,23 @@ What plays today, online with up to 6 players, in the Lobby scene:
 ### Placeholders in use
 `PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the subdivided `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_SauceVat_Stack`/`_Slip` (the cup at 1.3× with placeholder sauce), `PH_SauceCoat` and `PH_SauceLooks` (A-009), `PH_PlayerColors` (holds the real palette), `PH_` terrain (A-008), `PH_MainMenu` (Jackson's main menu art; the Join, Settings, Pause and room screens are drafts, A-002), `PH_MatchHud` (draft HUD and results, A-006), the IMGUI spectator bar (A-006), `PH_RagdollTest` (stress-test scene only).
 
-## Next: frame rate, then Phase 7
+## Next: Phase 7, Arena (waiting on Jackson's graybox, A-008)
 
-1. Frame rate: Jackson retests the development build (`Builds/BlockSauce_Dev/BlockSauce.exe -logframes`) with the Meta Virtual Monitor off (quit the Meta Quest Link / Horizon app). If the 100 ms stalls stop, it was the virtual display; if not, next suspects are the AMD driver and the compositor (try exclusive fullscreen).
-2. Phase 7 starts when Jackson's graybox arrives (format in `docs/ASSETS.md`, A-008).
+Starts when the graybox lands in `_Incoming` (format in `docs/ASSETS.md`, A-008).
+
+Build order:
+1. Import: `ArtImportPostprocessor` already scales it to 0.4. An editor step (**Block Sauce › Build Arena**) reads the FBX's names: `COL_` pieces become Quantum static colliders (box when the piece is a box, static mesh collider otherwise) with their renderers off; `SPAWN_01`–`06` and `VAT_01`/`02` become the spawn points and vat positions; every other mesh is visual only.
+2. Arena scene and map: a new `Arena` scene with the imported prefab, the map baked from it; the Lobby's systems (match, vats, bots, spectator director, menu, HUD, `DevKeys`) moved over by the same builders that set up the Lobby (`MainMenuBuilder.SetUpLobby` and friends), so nothing is hand-wired. `Arena_Graybox` is retired once this works.
+3. Matches run in the arena: the menu, room screen and demo match load it; the Lobby stays as a test scene.
+4. Bots on uneven ground: they steer straight at targets today, so slopes, steps and walls need checking; add detours or ramp-aware targets as needed.
+5. Camera collision: a sphere cast from the character to the camera's spot, pulled in when it hits arena geometry (view only, Unity physics on the visual colliders or a cast against the Quantum static colliders); eased back out.
+6. Done-when: a full 6-player match (MPPM plus bots) in the arena; the camera checked against every wall and overhang.
+
+Risks:
+- Static mesh colliders cost more than boxes and can snag the capsule and ragdolls on seams; prefer boxes, and note any piece that needs simplifying in A-008.
+- Blocks resting on slopes may not settle (the settle check assumes nearly flat ground); tune or flatten tower spots.
+- Spawns or vats placed where towers can't be built; fixed by moving the markers (asked of Jackson, not edited).
+- Bots stuck on terrain (point 4).
 
 ## Log
 
@@ -73,6 +86,12 @@ Phase report format:
 - Placeholders still in use: <list with asset IDs>
 - Ready for review: yes
 ```
+
+## 2026-11-04: Plan review pinned, Phase 7 prepared
+- Did: Jackson's retest into the plan: his editor runs 20–33 fps (Unity Stats: main and render thread both 30–50 ms, so waiting), Quantum's simulation 2.75 ms a frame online, and the standalone build far faster; the Meta Virtual Monitor made no clear difference. The review is pinned: performance is judged in builds, and the knockdown hiccup and triangle counts go to Phase 9's profiling. The PowerShell form of the `-logframes` command into CLAUDE.md (a quoted path needs `&`). Phase 7's build order and risks written up (Next).
+- Found: blocks are 3,168 triangles, Guy 15,532; 4 shadow cascades at 50 m.
+- Questions for Jackson: none.
+- Next: Phase 7 when the graybox arrives.
 
 ## 2026-11-04: Plan review, frame rate in a build
 - Did: a Windows development build (`Builds/BlockSauce_Dev`, 188 MB). New dev-only `FrameLog` (`-logframes`, `-fps N`; see CLAUDE.md › Testing). Frame timing stats on in the player settings (so `FrameTimingManager` reports in builds). Vsync on in both quality levels: it was off, so the build ran at about 900 fps.

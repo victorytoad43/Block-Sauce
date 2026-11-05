@@ -123,7 +123,7 @@ A rough draft of the menu and UI, the spectator camera and bots, so the game can
 ### Plan review (in progress)
 After Phase 6, Jackson and the agent replan what follows from playing the whole game. It includes an optimization pass (Jackson): profile the full game with 6 players and bots, CPU and GPU, then fix the top costs.
 - [x] Optimization pass (2026-11-04): the one big cost was a bug, an exception thrown every tick after a knockdown from a collision (about 53 ms a frame; it also left the demo stuck on its results). Fixed. With 6 bots playing, a frame costs about 5 ms on the main thread offline and about 8 ms online (7 simulation steps a frame with rollbacks), and 1.5 ms on the GPU, measured in the agent's unfocused editor.
-- [x] Jackson's 30 fps in the editor and drops to about 9 fps (2026-11-04): not the game. On this PC, frames wait on the display: in the editor about 28 ms of each 33 ms frame is the wait for the last presentation, and a development build (about 1 ms of work a frame, 165 fps with vsync) stalls now and then for 100 or 200 ms, every one of them spent waiting on presentation. Suspect the Meta Virtual Monitor driver; Jackson to retest with it off. Vsync is now on by default (it was off, so the game ran at about 900 fps).
+- [x] Jackson's 30 fps in the editor and drops to about 9 fps (2026-11-04): not the game. On this PC, frames wait on the display: in the editor about 28 ms of each 33 ms frame is the wait for the last presentation, and a development build (about 1 ms of work a frame, 165 fps with vsync) stalls now and then for 100 or 200 ms, every one of them spent waiting on presentation. Vsync is now on by default (it was off, so the game ran at about 900 fps). Jackson's retest: the standalone build runs far faster than his editor (20–33 fps there, with the main and render threads both at 30–50 ms: waiting, not working; the simulation 2.75 ms). Closing the Meta Virtual Monitor made no clear difference. Pinned (Jackson, 2026-11-04): judge performance in builds; the small hiccup on knockdowns goes to Phase 9's profiling.
 - [x] Replan agreed (Jackson, 2026-11-04): the phases below.
 
 The candidates, from the old Phase 6:
@@ -148,7 +148,8 @@ The candidates, from the old Phase 6:
 - **Done when:** a new player finishes a round without explanation.
 
 ### Phase 9: Playtest build
-- [ ] A Windows standalone build, profiled on its own; the distributable later goes to Steam for private playtests
+- [ ] A Windows standalone build, profiled on its own (`-logframes`); the distributable later goes to Steam for private playtests
+- [ ] The small hiccup when someone is knocked down (most likely creating the ragdoll's entities and view; pool them if so). Blocks are 3,168 triangles each, and with 4 shadow cascades a match draws about 520k triangles: fine on Jackson's GPU, worth a lighter block mesh or fewer cascades if lower-end PCs struggle
 - [ ] Every match saves a replay (Quantum's replay file), viewable later through the spectator camera; spectator free flight if it fits
 - [ ] Mouse and controller checked by hand; Quantum's stats overlay off
 - **Done when:** people outside the project play a round from the build, and their matches can be replayed.
