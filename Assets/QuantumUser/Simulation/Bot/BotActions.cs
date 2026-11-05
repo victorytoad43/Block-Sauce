@@ -18,6 +18,8 @@ namespace Quantum
         public bool Grab;
         public bool Throw;
         public bool Jump;
+        /// <summary>Pressed while running fast, it starts a slide; released, the slide ends standing.</summary>
+        public bool Crouch;
     }
 
     /// <summary>
@@ -94,6 +96,9 @@ namespace Quantum
                     break;
                 case BotTaskType.Dunk:
                     Dunk(ref context, ref intent);
+                    break;
+                case BotTaskType.SlideTackle:
+                    SlideTackle(ref context, ref intent);
                     break;
                 case BotTaskType.Drop:
                     if (context.Grabber.Held == EntityRef.None)
@@ -274,6 +279,119 @@ namespace Quantum
                 bot->Step = 3;
                 bot->StepTimer = FrameTimer.FromSeconds(frame, FP._1);
             }
+        }
+
+        /// <summary>
+        /// Runs at the target character, aiming where it will be when the bot gets there, and once the run lines up
+        /// from TackleSlideDistance out, slides into it (a slide is over the body-check speed, so the hit staggers the
+        /// target, which drops what it holds). Done when the slide hits; Failed when it misses or the target stops
+        /// being worth tackling before the slide.
+        /// </summary>
+        private static void SlideTackle(ref Context context, ref BotIntent intent)
+        {
+            Frame frame = context.Frame;
+            Bot* bot = context.Bot;
+            BotConfig config = context.Config;
+            EntityRef target = bot->Target;
+
+            if (frame.Exists(target) == false)
+            {
+                EndTackle(ref context, false);
+                return;
+            }
+
+            if (bot->Step == 1)
+            {
+                // Sliding, with crouch released so the slide ends standing.
+                if (IsHit(frame, target))
+                {
+                    EndTackle(ref context, true);
+                }
+                else if (bot->StepTimer.IsRunning(frame) == false)
+                {
+                    EndTackle(ref context, false);
+                }
+
+                return;
+            }
+
+            // Running into the target before the slide is a body check: as good as a slide if it staggers it.
+            if (IsHit(frame, target) && FlatDistance(context.Transform->Position, frame.Get<Transform3D>(target).Position) < 2)
+            {
+                bot->Carried = frame.Get<Grabber>(target).Held;
+                EndTackle(ref context, true);
+                return;
+            }
+
+            if (context.Grabber.Held != EntityRef.None || BotChoices.IsTackleTarget(frame, context.Entity, target, config) == false)
+            {
+                EndTackle(ref context, false);
+                return;
+            }
+
+            FPVector3 position = context.Transform->Position;
+            FPVector3 targetPosition = frame.Get<Transform3D>(target).Position;
+            FPVector3 targetVelocity = frame.TryGet(target, out PhysicsBody3D targetBody) ? targetBody.Velocity : FPVector3.Zero;
+            targetVelocity.Y = FP._0;
+            // Lead the target by about the time the run and slide take to get there.
+            FP lead = FPMath.Min(FlatDistance(position, targetPosition) / 7, FP._1);
+            FPVector3 aim = targetPosition + targetVelocity * lead;
+            FP distance = FlatDistance(position, aim);
+
+            Steer(ref context, ref intent, aim, FP._0);
+            intent.Run = true;
+            intent.Crouch = false;
+
+            if (distance > config.TackleSlideDistance)
+                return;
+
+            // In range: slide once running fast along the line to the target, on the ground, with no wall between.
+            FPVector3 velocity = frame.Get<PhysicsBody3D>(context.Entity).Velocity;
+            FP speed = FPMath.Sqrt(velocity.X * velocity.X + velocity.Z * velocity.Z);
+            FP runYaw = FPMath.Atan2(velocity.X, velocity.Z) * FP.Rad2Deg;
+            FP aimYaw = YawTo(position, aim);
+            intent.MoveYaw = aimYaw;
+            bool grounded = frame.TryGet(context.Entity, out GroundedTracker tracker) && tracker.IsGrounded;
+            if (grounded == false || speed < config.TackleMinSpeed
+                || FPMath.Abs(AngleDelta(runYaw, aimYaw)) > config.TackleAlignDegrees)
+                return;
+
+            FPVector3 toAim = aim - position;
+            toAim.Y = FP._0;
+            if (toAim.SqrMagnitude > FP._0 && frame.Physics3D.Raycast(position + FPVector3.Up * FP._1, toAim.Normalized,
+                    distance, -1, QueryOptions.HitStatics).HasValue)
+                return;
+
+            intent.Crouch = true;
+            intent.Jump = false;
+            bot->Carried = frame.Get<Grabber>(target).Held;
+            NextStep(frame, bot, config.TackleSlideSeconds);
+        }
+
+        /// <summary>
+        /// Ends a slide tackle, reports how it went, and starts the wait before the next one.
+        /// </summary>
+        private static void EndTackle(ref Context context, bool hit)
+        {
+            Frame frame = context.Frame;
+            Bot* bot = context.Bot;
+            bot->Status = hit ? BotTaskStatus.Done : BotTaskStatus.Failed;
+            bot->TackleTimer = FrameTimer.FromSeconds(frame, context.Config.TackleCooldownSeconds);
+            if (bot->Step == 1 || hit)
+            {
+                bool dropped = bot->Carried != EntityRef.None && (frame.Exists(bot->Target) == false
+                    || frame.Get<Grabber>(bot->Target).Held != bot->Carried);
+                frame.Events.BotTackleEnded(context.Entity, bot->Target, bot->Step == 1, hit, dropped);
+            }
+        }
+
+        /// <summary>
+        /// Returns whether <paramref name="target"/> has been hit: staggered or knocked down.
+        /// </summary>
+        private static bool IsHit(Frame frame, EntityRef target)
+        {
+            return frame.Has<RagdollOwner>(target)
+                || (frame.TryGet(target, out MovementData movement) && movement.Tier == ControlTier.Staggered);
         }
 
         /// <summary>
@@ -460,7 +578,39 @@ namespace Quantum
             intent.Run = context.Grabber.Held == EntityRef.None && distance > config.RunDistance;
             // Pressed in short pulses, so a jump that falls short is tried again.
             intent.Jump = linkJump || (frame.Number % 16 < 2 && IsLedgeAhead(ref context, yaw));
+            intent.Crouch = intent.Run && intent.Jump == false && distance > config.TravelSlideMinDistance
+                && TryTravelSlide(ref context, yaw, next);
             return false;
+        }
+
+        /// <summary>
+        /// Now and then, while running along a long clear stretch, slides to cover ground (TravelSlideChance a second).
+        /// Returns true on the tick to press crouch.
+        /// </summary>
+        private static bool TryTravelSlide(ref Context context, FP yaw, FPVector3 next)
+        {
+            Frame frame = context.Frame;
+            Bot* bot = context.Bot;
+            BotConfig config = context.Config;
+            if (bot->Task == BotTaskType.SlideTackle || bot->TravelSlideTimer.IsRunning(frame)
+                || frame.RNG->Next() >= config.TravelSlideChance * frame.DeltaTime)
+                return false;
+
+            FPVector3 position = context.Transform->Position;
+            FPVector3 velocity = frame.Get<PhysicsBody3D>(context.Entity).Velocity;
+            FP speed = FPMath.Sqrt(velocity.X * velocity.X + velocity.Z * velocity.Z);
+            if (speed < config.TackleMinSpeed || FlatDistance(position, next) < config.TravelSlideClearance
+                || FPMath.Abs(AngleDelta(FPMath.Atan2(velocity.X, velocity.Z) * FP.Rad2Deg, yaw)) > 10
+                || frame.TryGet(context.Entity, out GroundedTracker tracker) == false || tracker.IsGrounded == false)
+                return false;
+
+            FPVector3 direction = FPQuaternion.AngleAxis(yaw, FPVector3.Up) * FPVector3.Forward;
+            if (IsClear(ref context, position + FPVector3.Up * FP._0_50, direction, config.TravelSlideClearance) == false
+                || IsClear(ref context, position + FPVector3.Up * (FP._1 + FP._0_20), direction, config.TravelSlideClearance) == false)
+                return false;
+
+            bot->TravelSlideTimer = FrameTimer.FromSeconds(frame, config.TravelSlideCooldownSeconds);
+            return true;
         }
 
         /// <summary>

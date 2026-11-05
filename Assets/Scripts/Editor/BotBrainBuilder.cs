@@ -39,6 +39,7 @@ namespace BlockSauce.Editor
             BotStopAction stop = Make<BotStopAction>("Action_Stop", a => a.Label = "Stop");
             BotFetchAction fetch = Make<BotFetchAction>("Action_Fetch", a => a.Label = "Fetch");
             BotUseBlockAction useBlock = Make<BotUseBlockAction>("Action_UseBlock", a => a.Label = "Use block");
+            BotTackleAction tackle = Make<BotTackleAction>("Action_Tackle", a => a.Label = "Slide tackle");
 
             BotMatchPlayingDecision playing = Make<BotMatchPlayingDecision>("Decision_Playing", d => { d.Label = "Playing"; d.Invert = false; });
             BotMatchPlayingDecision notPlaying = Make<BotMatchPlayingDecision>("Decision_NotPlaying", d => { d.Label = "Not playing"; d.Invert = true; });
@@ -47,11 +48,13 @@ namespace BlockSauce.Editor
             BotTaskEndedDecision failed = Ended("Decision_Failed", BotTaskStatus.Failed, Holding.Either);
             BotWaitedDecision waitedHolding = Waited("Decision_WaitedHolding", Holding.Yes);
             BotWaitedDecision waitedEmpty = Waited("Decision_WaitedEmpty", Holding.No);
+            BotTackleDecision canTackle = Make<BotTackleDecision>("Decision_CanTackle", d => d.Label = "Rival to tackle");
 
             HFSMState waiting = Make<HFSMState>("State_Waiting", s => { });
             HFSMState fetching = Make<HFSMState>("State_Fetching", s => { });
             HFSMState usingBlock = Make<HFSMState>("State_Using", s => { });
             HFSMState pausing = Make<HFSMState>("State_Pausing", s => { });
+            HFSMState tackling = Make<HFSMState>("State_Tackling", s => { });
             HFSMRoot root = Make<HFSMRoot>("BotBrain", r => { });
 
             // Quantum gives each asset its GUID on import; link them only once every one has one.
@@ -60,14 +63,17 @@ namespace BlockSauce.Editor
             Fill(waiting, "Waiting", 0, stop,
                 (playing, fetching));
             Fill(fetching, "Fetching", 1, fetch,
-                (notPlaying, waiting), (doneHolding, usingBlock), (failed, pausing), (doneEmpty, pausing));
+                (notPlaying, waiting), (canTackle, tackling), (doneHolding, usingBlock), (failed, pausing), (doneEmpty, pausing));
             Fill(usingBlock, "Using", 2, useBlock,
                 (notPlaying, waiting), (failed, pausing), (doneHolding, usingBlock), (doneEmpty, fetching));
             Fill(pausing, "Pausing", 3, stop,
-                (notPlaying, waiting), (waitedHolding, usingBlock), (waitedEmpty, fetching));
+                (notPlaying, waiting), (canTackle, tackling), (waitedHolding, usingBlock), (waitedEmpty, fetching));
+            // A hit knocks the rival's block loose: straight on to fetching (it may be the bot's own). A miss pauses.
+            Fill(tackling, "Tackling", 4, tackle,
+                (notPlaying, waiting), (doneEmpty, fetching), (doneHolding, usingBlock), (failed, pausing));
 
             root.Label = "Bot brain";
-            root.StatesLinks = new[] { Ref(waiting), Ref(fetching), Ref(usingBlock), Ref(pausing) };
+            root.StatesLinks = new[] { Ref(waiting), Ref(fetching), Ref(usingBlock), Ref(pausing), Ref(tackling) };
             root.EventsNames = Array.Empty<string>();
             EditorUtility.SetDirty(root);
 

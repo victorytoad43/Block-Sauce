@@ -62,6 +62,7 @@ namespace Quantum {
     ThrowAt,
     Dunk,
     Drop,
+    SlideTackle,
   }
   public enum ControlTier : int {
     InControl,
@@ -950,7 +951,7 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Bot : Quantum.IComponent {
-    public const Int32 SIZE = 224;
+    public const Int32 SIZE = 240;
     public const Int32 ALIGNMENT = 8;
     [FieldOffset(64)]
     [HideInInspector()]
@@ -967,7 +968,7 @@ namespace Quantum {
     [FieldOffset(40)]
     [HideInInspector()]
     public EntityRef Target;
-    [FieldOffset(176)]
+    [FieldOffset(192)]
     [HideInInspector()]
     public FPVector3 Point;
     [FieldOffset(24)]
@@ -982,19 +983,19 @@ namespace Quantum {
     [FieldOffset(96)]
     [HideInInspector()]
     public FrameTimer StepTimer;
-    [FieldOffset(104)]
+    [FieldOffset(112)]
     [HideInInspector()]
     public FrameTimer TaskTimer;
-    [FieldOffset(112)]
+    [FieldOffset(120)]
     [HideInInspector()]
     public FrameTimer ThinkTimer;
     [FieldOffset(48)]
     [HideInInspector()]
     public EntityRef Unreachable;
-    [FieldOffset(120)]
+    [FieldOffset(136)]
     [HideInInspector()]
     public FrameTimer UnreachableTimer;
-    [FieldOffset(200)]
+    [FieldOffset(216)]
     [HideInInspector()]
     public FPVector3 ProgressPosition;
     [FieldOffset(88)]
@@ -1006,10 +1007,10 @@ namespace Quantum {
     [FieldOffset(72)]
     [HideInInspector()]
     public FrameTimer DetourTimer;
-    [FieldOffset(128)]
+    [FieldOffset(144)]
     [HideInInspector()]
     public FPVector3 PathPoint;
-    [FieldOffset(152)]
+    [FieldOffset(168)]
     [HideInInspector()]
     public FPVector3 PathTarget;
     [FieldOffset(80)]
@@ -1021,6 +1022,12 @@ namespace Quantum {
     [FieldOffset(12)]
     [HideInInspector()]
     public QBoolean HasPath;
+    [FieldOffset(104)]
+    [HideInInspector()]
+    public FrameTimer TackleTimer;
+    [FieldOffset(128)]
+    [HideInInspector()]
+    public FrameTimer TravelSlideTimer;
     public override readonly Int32 GetHashCode() {
       unchecked { 
         var hash = 419;
@@ -1047,6 +1054,8 @@ namespace Quantum {
         hash = hash * 31 + PathTimer.GetHashCode();
         hash = hash * 31 + PathJump.GetHashCode();
         hash = hash * 31 + HasPath.GetHashCode();
+        hash = hash * 31 + TackleTimer.GetHashCode();
+        hash = hash * 31 + TravelSlideTimer.GetHashCode();
         return hash;
       }
     }
@@ -1068,8 +1077,10 @@ namespace Quantum {
       FrameTimer.Serialize(&p->PathTimer, serializer);
       FrameTimer.Serialize(&p->ProgressTimer, serializer);
       FrameTimer.Serialize(&p->StepTimer, serializer);
+      FrameTimer.Serialize(&p->TackleTimer, serializer);
       FrameTimer.Serialize(&p->TaskTimer, serializer);
       FrameTimer.Serialize(&p->ThinkTimer, serializer);
+      FrameTimer.Serialize(&p->TravelSlideTimer, serializer);
       FrameTimer.Serialize(&p->UnreachableTimer, serializer);
       FPVector3.Serialize(&p->PathPoint, serializer);
       FPVector3.Serialize(&p->PathTarget, serializer);

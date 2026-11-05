@@ -183,6 +183,10 @@ namespace Quantum.Prototypes.Unity {
     public QBoolean PathJump;
     [HideInInspector()]
     public QBoolean HasPath;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype TackleTimer;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype TravelSlideTimer;
     partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.BotPrototype prototype);
     public override Quantum.Prototypes.BotPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
       var result = new Quantum.Prototypes.BotPrototype();
@@ -209,6 +213,8 @@ namespace Quantum.Prototypes.Unity {
       converter.Convert(this.PathTimer, out result.PathTimer);
       converter.Convert(this.PathJump, out result.PathJump);
       converter.Convert(this.HasPath, out result.HasPath);
+      converter.Convert(this.TackleTimer, out result.TackleTimer);
+      converter.Convert(this.TravelSlideTimer, out result.TravelSlideTimer);
       ConvertUser(converter, ref result);
       return result;
     }

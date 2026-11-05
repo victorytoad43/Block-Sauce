@@ -125,5 +125,34 @@ namespace Quantum
         public FP DunkLowerSeconds = 2;
         public FP DunkSoakSeconds = 1;
         public FP DunkLiftSeconds = (FP)3 / 2;
+
+        /// <summary>
+        /// Slide tackles, with empty hands: a rival within TackleRange (meters) carrying one of the bot's blocks, or
+        /// carrying anything within TackleTowerRadius of the bot's tower, gets run at and slid into from
+        /// TackleSlideDistance out, once the bot's run lines up with where the rival will be (TackleAlignDegrees). The
+        /// tackle gives up after TackleSeconds; the next waits TackleCooldownSeconds.
+        /// </summary>
+        [Header("Tackling")]
+        public FP TackleRange = 12;
+        public FP TackleTowerRadius = 3;
+        public FP TackleSlideDistance = (FP)7 / 2;
+        /// <summary>The slowest run, in m/s, a bot slides from (the slide needs 4).</summary>
+        public FP TackleMinSpeed = 5;
+        /// <summary>How long after starting the slide, in seconds, a tackle that hasn't hit counts as a miss.</summary>
+        public FP TackleSlideSeconds = (FP)6 / 5;
+        public FP TackleAlignDegrees = 20;
+        public FP TackleSeconds = 6;
+        public FP TackleCooldownSeconds = 5;
+
+        /// <summary>
+        /// Travel slides: running with empty hands toward something more than TravelSlideMinDistance away, with nothing
+        /// in the way for TravelSlideClearance, a bot slides with this chance per second (at most once per
+        /// TravelSlideCooldownSeconds).
+        /// </summary>
+        [Header("Travel slides")]
+        public FP TravelSlideChance = (FP)15 / 100;
+        public FP TravelSlideMinDistance = 10;
+        public FP TravelSlideClearance = 6;
+        public FP TravelSlideCooldownSeconds = 4;
     }
 }

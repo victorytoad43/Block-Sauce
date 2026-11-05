@@ -27,6 +27,12 @@ namespace Quantum
         private static readonly FP GroundProbeLength = 4;
 
         /// <summary>
+        /// Test only (editor soaks comparing with and without): no bot starts a slide tackle. Never set in a match
+        /// that's online, since every client must agree.
+        /// </summary>
+        public static bool TestDisableTackles;
+
+        /// <summary>
         /// Picks the block to fetch: the nearest of the bot's own blocks that is loose, on the ground and not its home
         /// block; when all its blocks are stacked, the nearest rival's loose block to raid with, as long as a rival has a
         /// tower worth raiding (RaidAtCount). Never a block another bot is already fetching. None when there's nothing to
@@ -102,6 +108,67 @@ namespace Quantum
             }
 
             BotSystem.SetTask(frame, bot, config, BotTaskType.PlaceOn, top, default);
+        }
+
+        /// <summary>
+        /// Returns the rival worth a slide tackle nearest the bot (see <see cref="IsTackleTarget"/>), or none; none too
+        /// while the bot holds a block or is still waiting after its last tackle.
+        /// </summary>
+        public static EntityRef ChooseTackleTarget(Frame frame, EntityRef entity, Bot* bot, BotConfig config)
+        {
+            if (TestDisableTackles || bot->TackleTimer.IsRunning(frame) || frame.Get<Grabber>(entity).Held != EntityRef.None)
+                return EntityRef.None;
+
+            FPVector3 position = frame.Get<Transform3D>(entity).Position;
+            EntityRef best = EntityRef.None;
+            FP bestDistance = FP.UseableMax;
+            var players = frame.Filter<Player, Transform3D>();
+            while (players.NextUnsafe(out EntityRef other, out Player* _, out Transform3D* transform))
+            {
+                FP distance = (transform->Position - position).SqrMagnitude;
+                if (distance < bestDistance && IsTackleTarget(frame, entity, other, config))
+                {
+                    best = other;
+                    bestDistance = distance;
+                }
+            }
+
+            return best;
+        }
+
+        /// <summary>
+        /// Returns whether <paramref name="target"/> is worth a slide tackle for the bot: a rival on its feet and in
+        /// control, within TackleRange and about level with the bot, carrying one of the bot's blocks, or carrying
+        /// anything near the bot's tower.
+        /// </summary>
+        public static bool IsTackleTarget(Frame frame, EntityRef entity, EntityRef target, BotConfig config)
+        {
+            if (target == entity || frame.Has<Player>(target) == false || frame.Has<RagdollOwner>(target)
+                || frame.TryGet(target, out Grabber grabber) == false || grabber.Held == EntityRef.None
+                || (frame.TryGet(target, out MovementData movement) && (movement.Tier != ControlTier.InControl || movement.IsSliding)))
+                return false;
+
+            if (frame.TryGet(entity, out Team team) && team.Id != TeamIds.None && frame.TryGet(target, out Team targetTeam)
+                && targetTeam.Id == team.Id)
+                return false;
+
+            FPVector3 position = frame.Get<Transform3D>(entity).Position;
+            FPVector3 targetPosition = frame.Get<Transform3D>(target).Position;
+            FPVector3 offset = targetPosition - position;
+            if (FPMath.Abs(offset.Y) > FP._1 || offset.X * offset.X + offset.Z * offset.Z > config.TackleRange * config.TackleRange)
+                return false;
+
+            PlayerRef self = frame.Get<Player>(entity).Ref;
+            if (frame.TryGet(grabber.Held, out Block held) && held.Owner == self)
+                return true;
+
+            EntityRef towerBase = BlockTower.GetBestBase(frame, self);
+            if (towerBase == EntityRef.None)
+                return false;
+
+            FPVector3 tower = frame.Get<Transform3D>(towerBase).Position;
+            FPVector3 fromTower = targetPosition - tower;
+            return fromTower.X * fromTower.X + fromTower.Z * fromTower.Z < config.TackleTowerRadius * config.TackleTowerRadius;
         }
 
         /// <summary>

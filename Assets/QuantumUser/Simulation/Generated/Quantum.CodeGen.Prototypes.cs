@@ -247,6 +247,10 @@ namespace Quantum.Prototypes {
     public QBoolean PathJump;
     [HideInInspector()]
     public QBoolean HasPath;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype TackleTimer;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype TravelSlideTimer;
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
       Quantum.Bot component = default;
       Materialize((Frame)f, ref component, in context);
@@ -276,6 +280,8 @@ namespace Quantum.Prototypes {
       this.PathTimer.Materialize(frame, ref result.PathTimer, in context);
       result.PathJump = this.PathJump;
       result.HasPath = this.HasPath;
+      this.TackleTimer.Materialize(frame, ref result.TackleTimer, in context);
+      this.TravelSlideTimer.Materialize(frame, ref result.TravelSlideTimer, in context);
     }
   }
   [System.SerializableAttribute()]

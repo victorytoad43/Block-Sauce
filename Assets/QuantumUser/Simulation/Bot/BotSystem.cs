@@ -198,7 +198,7 @@ namespace Quantum
                 input->Grab.Update(frame.Number, intent.Grab);
                 input->Throw.Update(frame.Number, intent.Throw);
                 input->Jump.Update(frame.Number, intent.Jump);
-                input->Crouch.Update(frame.Number, false);
+                input->Crouch.Update(frame.Number, intent.Crouch);
             }
         }
 

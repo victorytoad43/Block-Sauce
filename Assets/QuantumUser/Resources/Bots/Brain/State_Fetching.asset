@@ -36,6 +36,17 @@ MonoBehaviour:
     TransitionSetLink:
       Id:
         Value: 0
+  - Id: "Fetching \u2192 Tackling (Rival to tackle)"
+    EventKey: 0
+    DecisionLink:
+      Id:
+        Value: 363398126812155432
+    StateLink:
+      Id:
+        Value: 271266269730215031
+    TransitionSetLink:
+      Id:
+        Value: 0
   - Id: "Fetching \u2192 Using (Task Done, holding Yes)"
     EventKey: 0
     DecisionLink:

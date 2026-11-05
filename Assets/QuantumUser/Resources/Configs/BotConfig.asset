@@ -26,12 +26,20 @@ MonoBehaviour:
     RawValue: 16384
   TaskSeconds:
     RawValue: 983040
+  ThinkSecondsMin:
+    RawValue: 19660
+  ThinkSecondsMax:
+    RawValue: 65536
+  UnreachableSeconds:
+    RawValue: 1310720
   RunDistance:
     RawValue: 327680
   ProbeLength:
     RawValue: 98304
   ProbeStepDegrees:
     RawValue: 1966080
+  LedgeProbeLength:
+    RawValue: 52428
   StuckSeconds:
     RawValue: 65536
   StuckDistance:
@@ -66,6 +74,7 @@ MonoBehaviour:
   PlaceAttempts: 3
   ThrowMinRange:
     RawValue: 196608
+  RaidAtCount: 2
   ThrowMaxRange:
     RawValue: 524288
   AimTolerance:
@@ -80,3 +89,27 @@ MonoBehaviour:
     RawValue: 65536
   DunkLiftSeconds:
     RawValue: 98304
+  TackleRange:
+    RawValue: 786432
+  TackleTowerRadius:
+    RawValue: 196608
+  TackleSlideDistance:
+    RawValue: 229376
+  TackleMinSpeed:
+    RawValue: 327680
+  TackleSlideSeconds:
+    RawValue: 78643
+  TackleAlignDegrees:
+    RawValue: 1310720
+  TackleSeconds:
+    RawValue: 393216
+  TackleCooldownSeconds:
+    RawValue: 327680
+  TravelSlideChance:
+    RawValue: 9830
+  TravelSlideMinDistance:
+    RawValue: 655360
+  TravelSlideClearance:
+    RawValue: 393216
+  TravelSlideCooldownSeconds:
+    RawValue: 262144
