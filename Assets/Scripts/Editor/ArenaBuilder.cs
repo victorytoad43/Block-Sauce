@@ -20,7 +20,8 @@ namespace BlockSauce.Editor
     /// <item>Block markers (<see cref="BlockSpawnPoint"/>): each player's home block on their pillar in front of them,
     /// one on the inner ring across the center from them, and one in a jumbled pile of six in the center.</item>
     /// <item>Six sandbox blocks in the center pile for the room's free play, and the arena's own map and game mode.</item>
-    /// <item>Unity mesh colliders on the CameraBlock layer, which only the orbit camera sweeps against.</item>
+    /// <item>Unity mesh colliders on the CameraBlock layer, which only the orbit camera sweeps against, and from which
+    /// the navmesh is baked (Unity's bake, imported into the Quantum map for the bots' pathfinding).</item>
     /// </list>
     /// Rerun it after a re-export of the graybox; it rebuilds everything it owns.
     /// </summary>
@@ -75,7 +76,7 @@ namespace BlockSauce.Editor
             AddMeshCollider(wall, false);
             AddMeshCollider(ring, false);
             AddMeshCollider(pillars, false);
-            AddStairColliders(arena.transform, stairs);
+            List<Vector3> stairCenters = AddStairColliders(arena.transform, stairs);
             foreach (Transform part in new[] { ground, wall, ring, pillars, stairs })
             {
                 AddCameraCollider(part);
@@ -91,8 +92,10 @@ namespace BlockSauce.Editor
             }
 
             Physics.SyncTransforms();
-            List<Vector3> pillarCenters = FindPillarCenters(pillars);
-            float pillarRadius = MeasurePillarRadius(pillars, pillarCenters);
+            MeshCollider pillarProbe = probes[2];
+            List<Vector3> pillarCenters = FindPillarCenters(pillars)
+                .Select(rough => MeasurePillarTop(pillarProbe, rough, out _)).ToList();
+            MeasurePillarTop(pillarProbe, pillarCenters[0], out float pillarRadius);
             (float ringInner, float ringOuter) = MeasureRing(ring);
 
             var spawnRoot = new GameObject("SpawnPoints").transform;
@@ -124,6 +127,7 @@ namespace BlockSauce.Editor
                 block.SetPositionAndRotation(pile[slot], PileRotation(slot));
             }
 
+            AddNavLinks(arena.transform, probes, pillarCenters, pillarRadius, ringInner, ringOuter, stairCenters);
             foreach (MeshCollider probe in probes)
             {
                 Object.DestroyImmediate(probe);
@@ -134,8 +138,8 @@ namespace BlockSauce.Editor
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
 
-            Quantum.Editor.QuantumEditorAutoBaker.BakeCurrentScene_MapData();
-            EditorSceneManager.SaveScene(scene);
+            SetUpNavMesh();
+            BakeNavMesh();
             AddToBuild();
             Debug.Log($"Built {ArenaPath}: pillar radius {pillarRadius:F2} m, inner ring {ringInner:F2}–{ringOuter:F2} m.");
         }
@@ -168,6 +172,148 @@ namespace BlockSauce.Editor
             tags.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        /// <summary>
+        /// The navmesh's walker: Guy's capsule (0.4 m radius), standing height, the slope he walks up, and a climb just
+        /// under his 0.5 m step, so the pillar tops and the inner ring are areas of their own, joined to the ground only
+        /// by the links from <see cref="AddNavLinks"/> (where bots hop up or down).
+        /// </summary>
+        private const float AgentRadius = 0.4f, AgentHeight = 1.8f, AgentSlope = 35f, AgentClimb = 0.45f;
+
+        /// <summary>
+        /// Block Sauce › Bake Arena NavMesh: rebakes the arena's navmesh (Unity's bake of the arena's CameraBlock
+        /// colliders, imported by Quantum into the map) and the map, after a hand change to the arena scene.
+        /// </summary>
+        [MenuItem("Block Sauce/Bake Arena NavMesh")]
+        public static void BakeNavMeshMenu()
+        {
+            UnityEngine.SceneManagement.Scene scene = EditorSceneManager.OpenScene(ArenaPath);
+            SetUpNavMesh();
+            BakeNavMesh();
+        }
+
+        /// <summary>
+        /// Puts the navmesh surface and Quantum's importer under the map data (Quantum only imports navmeshes parented
+        /// there) and sets Unity's default agent to Guy's size.
+        /// </summary>
+        private static void SetUpNavMesh()
+        {
+            var agents = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/NavMeshAreas.asset")[0]);
+            SerializedProperty agent = agents.FindProperty("m_Settings").GetArrayElementAtIndex(0);
+            agent.FindPropertyRelative("agentRadius").floatValue = AgentRadius;
+            agent.FindPropertyRelative("agentHeight").floatValue = AgentHeight;
+            agent.FindPropertyRelative("agentSlope").floatValue = AgentSlope;
+            agent.FindPropertyRelative("agentClimb").floatValue = AgentClimb;
+            agents.ApplyModifiedPropertiesWithoutUndo();
+
+            var mapData = Object.FindAnyObjectByType<QuantumMapData>();
+            Transform existing = mapData.transform.Find(NavMeshName);
+            if (existing != null)
+            {
+                // Unity's bake data from last time, saved beside the scene; the next bake saves a fresh one.
+                var oldSurface = existing.GetComponent<Unity.AI.Navigation.NavMeshSurface>();
+                string oldData = oldSurface != null && oldSurface.navMeshData != null
+                    ? AssetDatabase.GetAssetPath(oldSurface.navMeshData) : null;
+                Object.DestroyImmediate(existing.gameObject);
+                if (string.IsNullOrEmpty(oldData) == false)
+                {
+                    AssetDatabase.DeleteAsset(oldData);
+                }
+            }
+
+            var host = new GameObject(NavMeshName);
+            host.transform.SetParent(mapData.transform, false);
+            var surface = host.AddComponent<Unity.AI.Navigation.NavMeshSurface>();
+            surface.agentTypeID = 0;
+            surface.collectObjects = Unity.AI.Navigation.CollectObjects.All;
+            surface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.PhysicsColliders;
+            surface.layerMask = 1 << CameraBlockLayer;
+            var importer = host.AddComponent<QuantumMapNavMeshUnity>();
+            importer.NavMeshSurfaces = new[] { host };
+            importer.Settings = new QuantumNavMesh.ImportSettings { LinkErrorCorrection = 0.6f };
+
+            // The top of the wall isn't anywhere to go.
+            Transform wall = GameObject.Find("Arena").transform.Find("exterior_wall/CameraCollider");
+            var skip = wall.GetComponent<Unity.AI.Navigation.NavMeshModifier>();
+            if (skip == null)
+            {
+                skip = wall.gameObject.AddComponent<Unity.AI.Navigation.NavMeshModifier>();
+            }
+
+            skip.ignoreFromBuild = true;
+            EditorSceneManager.MarkSceneDirty(host.scene);
+        }
+
+        /// <summary>
+        /// Bakes Unity's navmesh, then the Quantum map with the navmesh imported into it, and saves the scene.
+        /// </summary>
+        private static void BakeNavMesh()
+        {
+            var surface = Object.FindAnyObjectByType<Unity.AI.Navigation.NavMeshSurface>();
+            surface.BuildNavMesh();
+            UnityEngine.SceneManagement.Scene scene = surface.gameObject.scene;
+            EditorSceneManager.SaveScene(scene);
+            Quantum.Editor.QuantumEditorAutoBaker.BakeCurrentScene_ImportNavMesh();
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
+        }
+
+        /// <summary>
+        /// The navmesh's name in the map; the simulation looks it up by this name (<c>BotNavigation</c>).
+        /// </summary>
+        public const string NavMeshName = "ArenaNavMesh";
+
+        /// <summary>
+        /// Jump links, both ways, between the ground and the ledges a bot has to hop: round the inner ring's outer and
+        /// inner edges every 20°, round each pillar's rim every 45° (skipping the stair side and the side facing the middle, where the
+        /// home block and tower stand; the top ends sit just inside the rim, clear of the tower), and from the top of each
+        /// stair onto its pillar (the top step is just over Guy's step). Named <c>Jump</c>; the simulation jumps on any
+        /// link.
+        /// </summary>
+        private static void AddNavLinks(Transform arena, List<MeshCollider> probes, List<Vector3> pillars, float pillarRadius,
+            float ringInner, float ringOuter, List<Vector3> stairs)
+        {
+            var root = new GameObject("NavLinks").transform;
+            root.SetParent(arena, false);
+            void Link(Vector3 from, Vector3 to)
+            {
+                var link = new GameObject("Jump").AddComponent<Unity.AI.Navigation.NavMeshLink>();
+                link.transform.SetParent(root, false);
+                link.agentTypeID = 0;
+                link.bidirectional = true;
+                link.width = 0f;
+                link.startPoint = new Vector3(from.x, SurfaceY(from, probes), from.z);
+                link.endPoint = new Vector3(to.x, SurfaceY(to, probes), to.z);
+            }
+
+            const float reach = 0.9f;
+            for (float angle = 0f; angle < 360f; angle += 20f)
+            {
+                Vector3 direction = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+                Link(direction * (ringOuter + reach), direction * (ringOuter - reach));
+                Link(direction * (ringInner - reach), direction * (ringInner + reach));
+            }
+
+            for (int i = 0; i < pillars.Count; i++)
+            {
+                Vector3 center = Flat(pillars[i]);
+                Vector3 toStair = Flat(stairs.OrderBy(s => (Flat(s) - center).sqrMagnitude).First()) - center;
+                for (float angle = 0f; angle < 360f; angle += 45f)
+                {
+                    Vector3 direction = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+                    // Not over the stair, and not on the side facing the arena's middle, where the home block (and
+                    // so the player's tower) stands.
+                    if (Vector3.Angle(direction, toStair) < 35f || Vector3.Angle(direction, -center) < 35f)
+                        continue;
+
+                    Link(center + direction * (pillarRadius + reach), center + direction * (pillarRadius - 0.5f));
+                }
+
+                // The stair's top end: from the stair's middle onto the pillar.
+                Vector3 stairDirection = toStair.normalized;
+                Link(center + toStair, center + stairDirection * (pillarRadius - 0.5f));
+            }
+        }
+
         private static void AddMeshCollider(Transform part, bool smooth)
         {
             var collider = part.gameObject.AddComponent<QuantumStaticMeshCollider3D>();
@@ -180,7 +326,7 @@ namespace BlockSauce.Editor
         /// vertices are found by direction from the center and <c>MESH_stairs</c> (the same stair, alone at the origin)
         /// is fitted to them by turning it about the vertical and moving it; the ramp gets the same move.
         /// </summary>
-        private static void AddStairColliders(Transform arena, Transform stairs)
+        private static List<Vector3> AddStairColliders(Transform arena, Transform stairs)
         {
             GameObject pieces = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(PiecesModel));
             try
@@ -191,11 +337,13 @@ namespace BlockSauce.Editor
                 Vector3 modelCenter = Centroid(model);
 
                 Vector3[] all = WorldVertices(stairs);
+                var centers = new List<Vector3>();
                 var root = new GameObject("StairColliders").transform;
                 root.SetParent(arena, false);
                 foreach (Vector3[] cluster in ClusterByAngle(all, Slots))
                 {
                     Vector3 target = Centroid(cluster);
+                    centers.Add(target);
                     float bestYaw = 0f, bestError = float.MaxValue;
                     for (float yaw = 0f; yaw < 360f; yaw += 0.5f)
                     {
@@ -224,6 +372,8 @@ namespace BlockSauce.Editor
                     var collider = ramp.gameObject.AddComponent<QuantumStaticMeshCollider3D>();
                     collider.Mesh = colStair.GetComponent<MeshFilter>().sharedMesh;
                 }
+
+                return centers;
             }
             finally
             {
@@ -251,26 +401,52 @@ namespace BlockSauce.Editor
         }
 
         /// <summary>
-        /// The centers of the six pillar tops, ordered round the ring (counter-clockwise seen from above, from +Z).
+        /// The centers of the six pillar tops, ordered round the ring (clockwise seen from above, from +Z).
         /// </summary>
         private static List<Vector3> FindPillarCenters(Transform pillars)
         {
             return ClusterByAngle(WorldVertices(pillars), Slots)
                 .Select(cluster =>
                 {
+                    // The middle of the pillar's bounds: an average of its vertices leans toward where they bunch
+                    // up (round the stair's cutout in the rim).
                     float top = cluster.Max(v => v.y);
-                    Vector3[] rim = cluster.Where(v => v.y > top - 0.05f).ToArray();
-                    Vector3 center = Centroid(rim);
-                    return new Vector3(center.x, top, center.z);
+                    float x = (cluster.Min(v => v.x) + cluster.Max(v => v.x)) * 0.5f;
+                    float z = (cluster.Min(v => v.z) + cluster.Max(v => v.z)) * 0.5f;
+                    return new Vector3(x, top, z);
                 })
                 .ToList();
         }
 
-        private static float MeasurePillarRadius(Transform pillars, List<Vector3> centers)
+        /// <summary>
+        /// Finds a pillar's standing surface by looking down on a grid round <paramref name="rough"/> (the pillar mesh
+        /// reaches out past its top, so its vertices only give a rough place): the middle of the surface, at its height,
+        /// and its radius (from its area, so inside the rim).
+        /// </summary>
+        private static Vector3 MeasurePillarTop(MeshCollider pillar, Vector3 rough, out float radius)
         {
-            Vector3[] vertices = WorldVertices(pillars);
-            Vector3 center = centers[0];
-            return vertices.Where(v => Flat(v - center).magnitude < 4f).Max(v => Flat(v - center).magnitude);
+            const float step = 0.1f, span = 4f;
+            float top = float.MinValue;
+            var hits = new List<Vector3>();
+            for (float x = -span; x <= span; x += step)
+            {
+                for (float z = -span; z <= span; z += step)
+                {
+                    var ray = new Ray(new Vector3(rough.x + x, 50f, rough.z + z), Vector3.down);
+                    if (pillar.Raycast(ray, out RaycastHit hit, 100f))
+                    {
+                        hits.Add(hit.point);
+                        top = Mathf.Max(top, hit.point.y);
+                    }
+                }
+            }
+
+            // The standing surface: everything within 10 cm of the rim's top.
+            Vector3[] surface = hits.Where(h => h.y > top - 0.1f).ToArray();
+            Vector3 center = Centroid(surface);
+            radius = Mathf.Sqrt(surface.Length * step * step / Mathf.PI);
+            float floor = surface.Min(h => h.y);
+            return new Vector3(center.x, floor, center.z);
         }
 
         private static (float inner, float outer) MeasureRing(Transform ring)

@@ -173,6 +173,16 @@ namespace Quantum.Prototypes.Unity {
     public FP DetourYaw;
     [HideInInspector()]
     public Quantum.Prototypes.FrameTimerPrototype DetourTimer;
+    [HideInInspector()]
+    public FPVector3 PathPoint;
+    [HideInInspector()]
+    public FPVector3 PathTarget;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype PathTimer;
+    [HideInInspector()]
+    public QBoolean PathJump;
+    [HideInInspector()]
+    public QBoolean HasPath;
     partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.BotPrototype prototype);
     public override Quantum.Prototypes.BotPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
       var result = new Quantum.Prototypes.BotPrototype();
@@ -194,6 +204,11 @@ namespace Quantum.Prototypes.Unity {
       converter.Convert(this.ProgressTimer, out result.ProgressTimer);
       converter.Convert(this.DetourYaw, out result.DetourYaw);
       converter.Convert(this.DetourTimer, out result.DetourTimer);
+      converter.Convert(this.PathPoint, out result.PathPoint);
+      converter.Convert(this.PathTarget, out result.PathTarget);
+      converter.Convert(this.PathTimer, out result.PathTimer);
+      converter.Convert(this.PathJump, out result.PathJump);
+      converter.Convert(this.HasPath, out result.HasPath);
       ConvertUser(converter, ref result);
       return result;
     }

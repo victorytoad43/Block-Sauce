@@ -1,4 +1,4 @@
-using Photon.Deterministic;
+﻿using Photon.Deterministic;
 
 namespace Quantum
 {
@@ -157,6 +157,7 @@ namespace Quantum
             bot->Step = 0;
             bot->Attempts = 0;
             bot->StepTimer = default;
+            BotNavigation.Clear(bot);
             bot->TaskTimer = FrameTimer.FromSeconds(frame, config.TaskSeconds);
             bot->ThinkTimer = task == BotTaskType.None ? default
                 : FrameTimer.FromSeconds(frame, frame.RNG->Next(config.ThinkSecondsMin, config.ThinkSecondsMax));

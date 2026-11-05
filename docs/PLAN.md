@@ -146,7 +146,7 @@ Bots get pathfinding on a navmesh, slide tackles, four skill levels the host set
   - **Builder** (defensive): raids only a rival one block from winning; dunks in Stack more; guards its tower: runs at a rival who comes near it, and takes a foreign block off its top.
   - **Klutz** (clumsy): on top of its skill level, now and then trips while running (falls flat, a knockdown), drops the block it carries, lets go well off center, or throws wild. A Hard Klutz is still a good bot with funny mistakes.
 - Each personality is a `BotPersonality` asset of weights and chances that `BotChoices` scores the bot's options with (build, raid, guard, dunk, tackle); the Bot SDK state machine stays as the frame around them.
-- [ ] Navigation: arena navmesh (Unity bake, Quantum import, links for ledges and stairs), path following and jump links in `BotActions`, the rebake menu; straight-line fallback without a navmesh
+- [x] Navigation (2026-11-05): arena navmesh (Unity bake of the arena's collision, Quantum import into the map), 70 jump links (ring edges every 20°, pillar rims every 45° away from the stair and the tower side, one per stair), path following and link jumps in `BotNavigation`, **Block Sauce › Bake Arena NavMesh**; straight-line fallback without a navmesh. In this open arena it roughly matches straight walking (see the log); it's the base for busier maps.
 - [ ] Slides: a slide intent for bots, the slide tackle task, travel slides
 - [ ] Skill levels: `BotSkill` assets, actions read them, aim and placement error
 - [ ] Room screen difficulty per bot; new bots take the last setting; demo mix

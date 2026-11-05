@@ -21,7 +21,8 @@ namespace Quantum
     }
 
     /// <summary>
-    /// Carries out a bot's task (docs/PLAN.md, Phase 6): walking with simple obstacle avoidance, and the hand work of
+    /// Carries out a bot's task (docs/PLAN.md, Phase 6): walking along a path on the navmesh (<see cref="BotNavigation"/>)
+    /// with simple obstacle avoidance, and the hand work of
     /// fetching, placing on a tower, throwing at a target, dunking in a vat and setting a block down, through the same input a player gives.
     /// Each task reports Done or Failed on the bot; the brain chooses the next one.
     /// </summary>
@@ -441,7 +442,9 @@ namespace Quantum
             if (distance <= arriveDistance)
                 return true;
 
-            FP yaw = YawTo(position, target);
+            // Toward the next corner of the path on the navmesh (or straight at the target without one).
+            FPVector3 next = BotNavigation.NextPoint(frame, bot, position, target, out bool linkJump);
+            FP yaw = YawTo(position, next);
             if (bot->DetourTimer.IsRunning(frame))
             {
                 yaw = bot->DetourYaw;
@@ -456,7 +459,7 @@ namespace Quantum
             intent.MoveAmount = FP._1;
             intent.Run = context.Grabber.Held == EntityRef.None && distance > config.RunDistance;
             // Pressed in short pulses, so a jump that falls short is tried again.
-            intent.Jump = frame.Number % 16 < 2 && IsLedgeAhead(ref context, yaw);
+            intent.Jump = linkJump || (frame.Number % 16 < 2 && IsLedgeAhead(ref context, yaw));
             return false;
         }
 

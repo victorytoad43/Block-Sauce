@@ -37,8 +37,12 @@ MonoBehaviour:
   GridSizeX: 64
   GridSizeY: 64
   GridNodeSize: 4
-  NavMeshAssets: []
-  Regions: []
+  NavMeshAssets:
+  - Id:
+      Value: 393998107203783901
+  Regions:
+  - MainArea
+  - Walkable
   StaticColliders2D: []
   StaticColliders3D:
   - Rotation:
@@ -563,81 +567,104 @@ MonoBehaviour:
   - Components:
     - rid: 5613472560952901632
   - Components:
-    - rid: 5606730239687262208
-    - rid: 5606730239687262209
+    - rid: 5211013324791087104
+    - rid: 5211013324791087105
   - Components:
-    - rid: 545763186519834624
-    - rid: 545763186519834625
+    - rid: 7238166280660844544
+    - rid: 7238166280660844545
   - Components:
-    - rid: 4259609381462605824
-    - rid: 4259609381462605825
+    - rid: 1975800963226664960
+    - rid: 1975800963226664961
   - Components:
-    - rid: 3020335121975738368
-    - rid: 3020335121975738369
+    - rid: 2957685578637770752
+    - rid: 2957685578637770753
   - Components:
-    - rid: 1269622605774585856
-    - rid: 1269622605774585857
+    - rid: 6771978942531239936
+    - rid: 6771978942531239937
   - Components:
-    - rid: 8365748983607328768
-    - rid: 8365748983607328769
+    - rid: 6667503008357548032
+    - rid: 6667503008357548033
   - Components:
-    - rid: 3900627356208857088
-    - rid: 3900627356208857089
+    - rid: 6963081102890106880
+    - rid: 6963081102890106881
   - Components:
-    - rid: 3571795105872347136
-    - rid: 3571795105872347137
+    - rid: 8335257533304274944
+    - rid: 8335257533304274945
   - Components:
-    - rid: 3792340452456267776
-    - rid: 3792340452456267777
+    - rid: 496563966776967168
+    - rid: 496563966776967169
   - Components:
-    - rid: 3709528228096901120
-    - rid: 3709528228096901121
+    - rid: 9122259313329438720
+    - rid: 9122259313329438721
   - Components:
-    - rid: 1232180796727492608
-    - rid: 1232180796727492609
+    - rid: 170987239373799424
+    - rid: 170987239373799425
   - Components:
-    - rid: 3252275336771010560
-    - rid: 3252275336771010561
+    - rid: 2483018570611556352
+    - rid: 2483018570611556353
   - Components:
-    - rid: 5762179762705399808
-    - rid: 5762179762705399809
+    - rid: 8305123250334072832
+    - rid: 8305123250334072833
   - Components:
-    - rid: 6875276006966427648
-    - rid: 6875276006966427649
+    - rid: 6343818134591373312
+    - rid: 6343818134591373313
   - Components:
-    - rid: 9080993744290840576
-    - rid: 9080993744290840577
+    - rid: 5944366661879463936
+    - rid: 5944366661879463937
   - Components:
-    - rid: 8372861262618427392
-    - rid: 8372861262618427393
+    - rid: 1298600236872105984
+    - rid: 1298600236872105985
   - Components:
-    - rid: 2882916412832088064
-    - rid: 2882916412832088065
+    - rid: 4362286716476719104
+    - rid: 4362286716476719105
   - Components:
-    - rid: 2722801552455630848
-    - rid: 2722801552455630849
+    - rid: 7198332054570795008
+    - rid: 7198332054570795009
   - Components:
-    - rid: 649903509801533440
-    - rid: 649903509801533441
+    - rid: 2954849824333103104
+    - rid: 2954849824333103105
   - Components:
-    - rid: 8928316354226814976
-    - rid: 8928316354226814977
+    - rid: 8594950392247222272
+    - rid: 8594950392247222273
   - Components:
-    - rid: 5232842317831864320
-    - rid: 5232842317831864321
+    - rid: 5062067791008366592
+    - rid: 5062067791008366593
   - Components:
-    - rid: 4587280266199826432
-    - rid: 4587280266199826433
+    - rid: 7307411386231947264
+    - rid: 7307411386231947265
   - Components:
-    - rid: 5407194526643126272
-    - rid: 5407194526643126273
+    - rid: 5054178906748223488
+    - rid: 5054178906748223489
   - Components:
-    - rid: 1879567028344324096
-    - rid: 1879567028344324097
+    - rid: 6406658541981007872
+    - rid: 6406658541981007873
   SerializedTriangleDataUncompressedSize: 664700
   references:
     version: 2
     RefIds:
+    - rid: 170987239373799424
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: -590787
+          Y:
+            RawValue: 68524
+          Z:
+            RawValue: -66
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 5897815
+          Z:
+            RawValue: 0
+    - rid: 170987239373799425
+      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        Slot: 1
+        Home:
+          Value: 0
     - rid: 384103797921677312
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
@@ -812,117 +839,73 @@ MonoBehaviour:
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Id: 255
-    - rid: 545763186519834624
+    - rid: 496563966776967168
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
           X:
-            RawValue: 977144
+            RawValue: -40632
           Y:
-            RawValue: 55013
+            RawValue: 19530
           Z:
-            RawValue: 0
+            RawValue: -39321
         Rotation:
           X:
             RawValue: 0
           Y:
-            RawValue: 17694720
+            RawValue: 786432
           Z:
             RawValue: 0
-    - rid: 545763186519834625
-      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+    - rid: 496563966776967169
+      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        _empty_prototype_dummy_field_: 0
-    - rid: 649903509801533440
+        Slot: 0
+        Home:
+          Value: 0
+    - rid: 1298600236872105984
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
           X:
-            RawValue: -878839
+            RawValue: -439549
           Y:
             RawValue: 84504
           Z:
-            RawValue: 0
+            RawValue: -761493
         Rotation:
           X:
             RawValue: 0
           Y:
-            RawValue: 5898240
+            RawValue: 1965714
           Z:
             RawValue: 0
-    - rid: 649903509801533441
+    - rid: 1298600236872105985
       type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        Slot: 4
+        Slot: 3
         Home:
           Value: 1
-    - rid: 1232180796727492608
+    - rid: 1975800963226664960
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
           X:
-            RawValue: -590787
-          Y:
-            RawValue: 68524
-          Z:
-            RawValue: 0
-        Rotation:
-          X:
-            RawValue: 0
-          Y:
-            RawValue: 5898239
-          Z:
-            RawValue: 0
-    - rid: 1232180796727492609
-      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
-      data:
-        Slot: 1
-        Home:
-          Value: 0
-    - rid: 1269622605774585856
-      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
-      data:
-        Position:
-          X:
-            RawValue: -977144
+            RawValue: 488526
           Y:
             RawValue: 55013
           Z:
-            RawValue: 0
+            RawValue: -845960
         Rotation:
           X:
             RawValue: 0
           Y:
-            RawValue: 5898240
+            RawValue: 21626512
           Z:
             RawValue: 0
-    - rid: 1269622605774585857
+    - rid: 1975800963226664961
       type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         _empty_prototype_dummy_field_: 0
-    - rid: 1879567028344324096
-      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
-      data:
-        Position:
-          X:
-            RawValue: 16384
-          Y:
-            RawValue: 160565
-          Z:
-            RawValue: -9830
-        Rotation:
-          X:
-            RawValue: 2293760
-          Y:
-            RawValue: 327679
-          Z:
-            RawValue: 1146879
-    - rid: 1879567028344324097
-      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
-      data:
-        Slot: 5
-        Home:
-          Value: 0
     - rid: 2315749757156327424
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
@@ -1097,52 +1080,73 @@ MonoBehaviour:
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Id: 255
-    - rid: 2722801552455630848
+    - rid: 2483018570611556352
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
           X:
-            RawValue: 41943
+            RawValue: 39321
           Y:
-            RawValue: 31859
+            RawValue: 32770
           Z:
-            RawValue: 38010
+            RawValue: -41943
         Rotation:
           X:
             RawValue: 0
           Y:
-            RawValue: 1835008
+            RawValue: 3080192
           Z:
             RawValue: 0
-    - rid: 2722801552455630849
+    - rid: 2483018570611556353
       type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        Slot: 3
+        Slot: 1
         Home:
           Value: 0
-    - rid: 2882916412832088064
+    - rid: 2954849824333103104
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
           X:
-            RawValue: 295393
+            RawValue: -879195
           Y:
-            RawValue: 68525
+            RawValue: 84504
           Z:
-            RawValue: 511636
+            RawValue: 99
         Rotation:
           X:
             RawValue: 0
           Y:
-            RawValue: 13762561
+            RawValue: 5898663
           Z:
             RawValue: 0
-    - rid: 2882916412832088065
+    - rid: 2954849824333103105
       type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        Slot: 3
+        Slot: 4
         Home:
-          Value: 0
+          Value: 1
+    - rid: 2957685578637770752
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: -488307
+          Y:
+            RawValue: 55013
+          Z:
+            RawValue: -845964
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 1965714
+          Z:
+            RawValue: 0
+    - rid: 2957685578637770753
+      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        _empty_prototype_dummy_field_: 0
     - rid: 2978675944954265600
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
@@ -1317,163 +1321,29 @@ MonoBehaviour:
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Id: 255
-    - rid: 3020335121975738368
+    - rid: 4362286716476719104
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
           X:
-            RawValue: -488572
+            RawValue: 295343
           Y:
-            RawValue: 55013
+            RawValue: 68525
           Z:
-            RawValue: -846231
+            RawValue: 511665
         Rotation:
           X:
             RawValue: 0
           Y:
-            RawValue: 1966081
+            RawValue: 13762195
           Z:
             RawValue: 0
-    - rid: 3020335121975738369
-      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
-      data:
-        _empty_prototype_dummy_field_: 0
-    - rid: 3252275336771010560
-      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
-      data:
-        Position:
-          X:
-            RawValue: 39321
-          Y:
-            RawValue: 32770
-          Z:
-            RawValue: -41943
-        Rotation:
-          X:
-            RawValue: 0
-          Y:
-            RawValue: 3080192
-          Z:
-            RawValue: 0
-    - rid: 3252275336771010561
+    - rid: 4362286716476719105
       type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        Slot: 1
+        Slot: 3
         Home:
           Value: 0
-    - rid: 3571795105872347136
-      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
-      data:
-        Position:
-          X:
-            RawValue: -295393
-          Y:
-            RawValue: 68524
-          Z:
-            RawValue: -511636
-        Rotation:
-          X:
-            RawValue: 0
-          Y:
-            RawValue: 1966081
-          Z:
-            RawValue: 0
-    - rid: 3571795105872347137
-      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
-      data:
-        Slot: 0
-        Home:
-          Value: 0
-    - rid: 3709528228096901120
-      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
-      data:
-        Position:
-          X:
-            RawValue: 878839
-          Y:
-            RawValue: 84504
-          Z:
-            RawValue: 0
-        Rotation:
-          X:
-            RawValue: 0
-          Y:
-            RawValue: 17694720
-          Z:
-            RawValue: 0
-    - rid: 3709528228096901121
-      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
-      data:
-        Slot: 1
-        Home:
-          Value: 1
-    - rid: 3792340452456267776
-      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
-      data:
-        Position:
-          X:
-            RawValue: -40632
-          Y:
-            RawValue: 19530
-          Z:
-            RawValue: -39321
-        Rotation:
-          X:
-            RawValue: 0
-          Y:
-            RawValue: 786432
-          Z:
-            RawValue: 0
-    - rid: 3792340452456267777
-      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
-      data:
-        Slot: 0
-        Home:
-          Value: 0
-    - rid: 3900627356208857088
-      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
-      data:
-        Position:
-          X:
-            RawValue: 439419
-          Y:
-            RawValue: 84504
-          Z:
-            RawValue: 761097
-        Rotation:
-          X:
-            RawValue: 0
-          Y:
-            RawValue: 13762561
-          Z:
-            RawValue: 0
-    - rid: 3900627356208857089
-      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
-      data:
-        Slot: 0
-        Home:
-          Value: 1
-    - rid: 4259609381462605824
-      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
-      data:
-        Position:
-          X:
-            RawValue: 488572
-          Y:
-            RawValue: 55013
-          Z:
-            RawValue: -846231
-        Rotation:
-          X:
-            RawValue: 0
-          Y:
-            RawValue: 21626878
-          Z:
-            RawValue: 0
-    - rid: 4259609381462605825
-      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
-      data:
-        _empty_prototype_dummy_field_: 0
     - rid: 4471304638695473152
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
@@ -1648,30 +1518,30 @@ MonoBehaviour:
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Id: 255
-    - rid: 4587280266199826432
+    - rid: 5054178906748223488
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
           X:
-            RawValue: -439419
+            RawValue: 295314
           Y:
-            RawValue: 84504
+            RawValue: 68524
           Z:
-            RawValue: 761096
+            RawValue: -511682
         Rotation:
           X:
             RawValue: 0
           Y:
-            RawValue: 9830399
+            RawValue: 21627458
           Z:
             RawValue: 0
-    - rid: 4587280266199826433
+    - rid: 5054178906748223489
       type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Slot: 5
         Home:
-          Value: 1
-    - rid: 5232842317831864320
+          Value: 0
+    - rid: 5062067791008366592
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
@@ -1688,53 +1558,30 @@ MonoBehaviour:
             RawValue: 4128767
           Z:
             RawValue: 720896
-    - rid: 5232842317831864321
+    - rid: 5062067791008366593
       type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Slot: 4
         Home:
           Value: 0
-    - rid: 5407194526643126272
+    - rid: 5211013324791087104
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
           X:
-            RawValue: 295393
-          Y:
-            RawValue: 68524
-          Z:
-            RawValue: -511636
-        Rotation:
-          X:
-            RawValue: 0
-          Y:
-            RawValue: 21626878
-          Z:
-            RawValue: 0
-    - rid: 5407194526643126273
-      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
-      data:
-        Slot: 5
-        Home:
-          Value: 0
-    - rid: 5606730239687262208
-      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
-      data:
-        Position:
-          X:
-            RawValue: 488572
+            RawValue: 488524
           Y:
             RawValue: 55013
           Z:
-            RawValue: 846231
+            RawValue: 846066
         Rotation:
           X:
             RawValue: 0
           Y:
-            RawValue: 13762561
+            RawValue: 13762718
           Z:
             RawValue: 0
-    - rid: 5606730239687262209
+    - rid: 5211013324791087105
       type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         _empty_prototype_dummy_field_: 0
@@ -1758,52 +1605,207 @@ MonoBehaviour:
         SandboxBlocks: []
         LeaveSlotsEmpty:
           Value: 0
-    - rid: 5762179762705399808
+    - rid: 5944366661879463936
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
           X:
-            RawValue: 439420
+            RawValue: -38010
           Y:
-            RawValue: 84504
+            RawValue: 18919
           Z:
-            RawValue: -761097
+            RawValue: 40632
         Rotation:
           X:
             RawValue: 0
           Y:
-            RawValue: 21626878
+            RawValue: 4653056
           Z:
             RawValue: 0
-    - rid: 5762179762705399809
-      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
-      data:
-        Slot: 2
-        Home:
-          Value: 1
-    - rid: 6875276006966427648
-      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
-      data:
-        Position:
-          X:
-            RawValue: -295393
-          Y:
-            RawValue: 68525
-          Z:
-            RawValue: 511636
-        Rotation:
-          X:
-            RawValue: 0
-          Y:
-            RawValue: 9830398
-          Z:
-            RawValue: 0
-    - rid: 6875276006966427649
+    - rid: 5944366661879463937
       type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Slot: 2
         Home:
           Value: 0
+    - rid: 6343818134591373312
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: -295443
+          Y:
+            RawValue: 68525
+          Z:
+            RawValue: 511607
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 9830031
+          Z:
+            RawValue: 0
+    - rid: 6343818134591373313
+      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        Slot: 2
+        Home:
+          Value: 0
+    - rid: 6406658541981007872
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: 16384
+          Y:
+            RawValue: 160565
+          Z:
+            RawValue: -9830
+        Rotation:
+          X:
+            RawValue: 2293760
+          Y:
+            RawValue: 327679
+          Z:
+            RawValue: 1146879
+    - rid: 6406658541981007873
+      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        Slot: 5
+        Home:
+          Value: 0
+    - rid: 6667503008357548032
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: -488305
+          Y:
+            RawValue: 55013
+          Z:
+            RawValue: 846070
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 9830977
+          Z:
+            RawValue: 0
+    - rid: 6667503008357548033
+      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        _empty_prototype_dummy_field_: 0
+    - rid: 6771978942531239936
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: -976728
+          Y:
+            RawValue: 55013
+          Z:
+            RawValue: 110
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 5898663
+          Z:
+            RawValue: 0
+    - rid: 6771978942531239937
+      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        _empty_prototype_dummy_field_: 0
+    - rid: 6963081102890106880
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: 439754
+          Y:
+            RawValue: 84504
+          Z:
+            RawValue: 761602
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 13762718
+          Z:
+            RawValue: 0
+    - rid: 6963081102890106881
+      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        Slot: 0
+        Home:
+          Value: 1
+    - rid: 7198332054570795008
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: 41943
+          Y:
+            RawValue: 31859
+          Z:
+            RawValue: 38010
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 1835008
+          Z:
+            RawValue: 0
+    - rid: 7198332054570795009
+      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        Slot: 3
+        Home:
+          Value: 0
+    - rid: 7238166280660844544
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: 976833
+          Y:
+            RawValue: 55013
+          Z:
+            RawValue: 110
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 17694296
+          Z:
+            RawValue: 0
+    - rid: 7238166280660844545
+      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        _empty_prototype_dummy_field_: 0
+    - rid: 7307411386231947264
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: -439552
+          Y:
+            RawValue: 84504
+          Z:
+            RawValue: 761597
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 9830977
+          Z:
+            RawValue: 0
+    - rid: 7307411386231947265
+      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        Slot: 5
+        Home:
+          Value: 1
     - rid: 7548980949917106176
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
@@ -2152,51 +2154,53 @@ MonoBehaviour:
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Id: 255
-    - rid: 8365748983607328768
+    - rid: 8305123250334072832
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
           X:
-            RawValue: -488571
-          Y:
-            RawValue: 55013
-          Z:
-            RawValue: 846230
-        Rotation:
-          X:
-            RawValue: 0
-          Y:
-            RawValue: 9830399
-          Z:
-            RawValue: 0
-    - rid: 8365748983607328769
-      type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
-      data:
-        _empty_prototype_dummy_field_: 0
-    - rid: 8372861262618427392
-      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
-      data:
-        Position:
-          X:
-            RawValue: -439419
+            RawValue: 439751
           Y:
             RawValue: 84504
           Z:
-            RawValue: -761097
+            RawValue: -761499
         Rotation:
           X:
             RawValue: 0
           Y:
-            RawValue: 1966081
+            RawValue: 21626512
           Z:
             RawValue: 0
-    - rid: 8372861262618427393
+    - rid: 8305123250334072833
       type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        Slot: 3
+        Slot: 2
         Home:
           Value: 1
-    - rid: 8928316354226814976
+    - rid: 8335257533304274944
+      type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
+      data:
+        Position:
+          X:
+            RawValue: -295415
+          Y:
+            RawValue: 68524
+          Z:
+            RawValue: -511624
+        Rotation:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 1966238
+          Z:
+            RawValue: 0
+    - rid: 8335257533304274945
+      type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        Slot: 0
+        Home:
+          Value: 0
+    - rid: 8594950392247222272
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
@@ -2205,40 +2209,40 @@ MonoBehaviour:
           Y:
             RawValue: 68524
           Z:
-            RawValue: 0
+            RawValue: -66
         Rotation:
           X:
             RawValue: 0
           Y:
-            RawValue: 17694720
+            RawValue: 17695144
           Z:
             RawValue: 0
-    - rid: 8928316354226814977
+    - rid: 8594950392247222273
       type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Slot: 4
         Home:
           Value: 0
-    - rid: 9080993744290840576
+    - rid: 9122259313329438720
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
           X:
-            RawValue: -38010
+            RawValue: 879300
           Y:
-            RawValue: 18919
+            RawValue: 84504
           Z:
-            RawValue: 40632
+            RawValue: 99
         Rotation:
           X:
             RawValue: 0
           Y:
-            RawValue: 4653056
+            RawValue: 17694296
           Z:
             RawValue: 0
-    - rid: 9080993744290840577
+    - rid: 9122259313329438721
       type: {class: BlockSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
-        Slot: 2
+        Slot: 1
         Home:
-          Value: 0
+          Value: 1

@@ -237,6 +237,16 @@ namespace Quantum.Prototypes {
     public FP DetourYaw;
     [HideInInspector()]
     public Quantum.Prototypes.FrameTimerPrototype DetourTimer;
+    [HideInInspector()]
+    public FPVector3 PathPoint;
+    [HideInInspector()]
+    public FPVector3 PathTarget;
+    [HideInInspector()]
+    public Quantum.Prototypes.FrameTimerPrototype PathTimer;
+    [HideInInspector()]
+    public QBoolean PathJump;
+    [HideInInspector()]
+    public QBoolean HasPath;
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
       Quantum.Bot component = default;
       Materialize((Frame)f, ref component, in context);
@@ -261,6 +271,11 @@ namespace Quantum.Prototypes {
       this.ProgressTimer.Materialize(frame, ref result.ProgressTimer, in context);
       result.DetourYaw = this.DetourYaw;
       this.DetourTimer.Materialize(frame, ref result.DetourTimer, in context);
+      result.PathPoint = this.PathPoint;
+      result.PathTarget = this.PathTarget;
+      this.PathTimer.Materialize(frame, ref result.PathTimer, in context);
+      result.PathJump = this.PathJump;
+      result.HasPath = this.HasPath;
     }
   }
   [System.SerializableAttribute()]

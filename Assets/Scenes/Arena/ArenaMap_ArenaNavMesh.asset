@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1283927171, guid: b156eeaae3f741b40af66649a4748430, type: 3}
+  m_Name: ArenaMap_ArenaNavMesh
+  m_EditorClassIdentifier: Quantum.Engine.dll::Quantum.NavMesh
+  Identifier:
+    Path: Scenes/Arena/ArenaMap_ArenaNavMesh
+    Guid:
+      Value: 393998107203783901
+  Name: ArenaNavMesh
+  SerializeType: 0
+  RegionMaskBlockCount: 8
+  DataAsset:
+    Id:
+      Value: 467202140472133570
+  GridSizeX: 64
+  GridSizeY: 64
+  GridNodeSize: 4
+  WorldOffset:
+    X:
+      RawValue: -8388608
+    Y:
+      RawValue: -8388608
+  MinAgentRadius:
+    RawValue: 26214

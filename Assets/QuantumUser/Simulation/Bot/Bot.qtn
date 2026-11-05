@@ -1,4 +1,4 @@
-// What a bot is doing; the brain sets a task and reads its status (BotActions carries it out).
+﻿// What a bot is doing; the brain sets a task and reads its status (BotActions carries it out).
 enum BotTaskType
 {
     None,
@@ -54,6 +54,14 @@ component Bot
     [HideInInspector] FrameTimer ProgressTimer;
     [HideInInspector] FP DetourYaw;
     [HideInInspector] FrameTimer DetourTimer;
+
+    // Pathfinding on the map's navmesh (BotNavigation): the point the bot is walking to next, the target the path was
+    // found for, when to look again, and whether the point is the far end of a jump link (and so worth a jump).
+    [HideInInspector] FPVector3 PathPoint;
+    [HideInInspector] FPVector3 PathTarget;
+    [HideInInspector] FrameTimer PathTimer;
+    [HideInInspector] bool PathJump;
+    [HideInInspector] bool HasPath;
 }
 
 event BotAdded

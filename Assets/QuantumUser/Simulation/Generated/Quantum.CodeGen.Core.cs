@@ -950,12 +950,12 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Bot : Quantum.IComponent {
-    public const Int32 SIZE = 160;
+    public const Int32 SIZE = 224;
     public const Int32 ALIGNMENT = 8;
-    [FieldOffset(56)]
+    [FieldOffset(64)]
     [HideInInspector()]
     public FP Heading;
-    [FieldOffset(24)]
+    [FieldOffset(32)]
     [HideInInspector()]
     public EntityRef Home;
     [FieldOffset(8)]
@@ -964,13 +964,13 @@ namespace Quantum {
     [FieldOffset(4)]
     [HideInInspector()]
     public BotTaskStatus Status;
-    [FieldOffset(32)]
+    [FieldOffset(40)]
     [HideInInspector()]
     public EntityRef Target;
-    [FieldOffset(112)]
+    [FieldOffset(176)]
     [HideInInspector()]
     public FPVector3 Point;
-    [FieldOffset(16)]
+    [FieldOffset(24)]
     [HideInInspector()]
     public EntityRef Carried;
     [FieldOffset(1)]
@@ -979,33 +979,48 @@ namespace Quantum {
     [FieldOffset(0)]
     [HideInInspector()]
     public Byte Attempts;
-    [FieldOffset(80)]
-    [HideInInspector()]
-    public FrameTimer StepTimer;
-    [FieldOffset(88)]
-    [HideInInspector()]
-    public FrameTimer TaskTimer;
     [FieldOffset(96)]
     [HideInInspector()]
-    public FrameTimer ThinkTimer;
-    [FieldOffset(40)]
-    [HideInInspector()]
-    public EntityRef Unreachable;
+    public FrameTimer StepTimer;
     [FieldOffset(104)]
     [HideInInspector()]
-    public FrameTimer UnreachableTimer;
-    [FieldOffset(136)]
+    public FrameTimer TaskTimer;
+    [FieldOffset(112)]
     [HideInInspector()]
-    public FPVector3 ProgressPosition;
-    [FieldOffset(72)]
-    [HideInInspector()]
-    public FrameTimer ProgressTimer;
+    public FrameTimer ThinkTimer;
     [FieldOffset(48)]
     [HideInInspector()]
+    public EntityRef Unreachable;
+    [FieldOffset(120)]
+    [HideInInspector()]
+    public FrameTimer UnreachableTimer;
+    [FieldOffset(200)]
+    [HideInInspector()]
+    public FPVector3 ProgressPosition;
+    [FieldOffset(88)]
+    [HideInInspector()]
+    public FrameTimer ProgressTimer;
+    [FieldOffset(56)]
+    [HideInInspector()]
     public FP DetourYaw;
-    [FieldOffset(64)]
+    [FieldOffset(72)]
     [HideInInspector()]
     public FrameTimer DetourTimer;
+    [FieldOffset(128)]
+    [HideInInspector()]
+    public FPVector3 PathPoint;
+    [FieldOffset(152)]
+    [HideInInspector()]
+    public FPVector3 PathTarget;
+    [FieldOffset(80)]
+    [HideInInspector()]
+    public FrameTimer PathTimer;
+    [FieldOffset(16)]
+    [HideInInspector()]
+    public QBoolean PathJump;
+    [FieldOffset(12)]
+    [HideInInspector()]
+    public QBoolean HasPath;
     public override readonly Int32 GetHashCode() {
       unchecked { 
         var hash = 419;
@@ -1027,6 +1042,11 @@ namespace Quantum {
         hash = hash * 31 + ProgressTimer.GetHashCode();
         hash = hash * 31 + DetourYaw.GetHashCode();
         hash = hash * 31 + DetourTimer.GetHashCode();
+        hash = hash * 31 + PathPoint.GetHashCode();
+        hash = hash * 31 + PathTarget.GetHashCode();
+        hash = hash * 31 + PathTimer.GetHashCode();
+        hash = hash * 31 + PathJump.GetHashCode();
+        hash = hash * 31 + HasPath.GetHashCode();
         return hash;
       }
     }
@@ -1036,6 +1056,8 @@ namespace Quantum {
       serializer.Stream.Serialize(&p->Step);
       serializer.Stream.Serialize((Int32*)&p->Status);
       serializer.Stream.Serialize((Int32*)&p->Task);
+      QBoolean.Serialize(&p->HasPath, serializer);
+      QBoolean.Serialize(&p->PathJump, serializer);
       EntityRef.Serialize(&p->Carried, serializer);
       EntityRef.Serialize(&p->Home, serializer);
       EntityRef.Serialize(&p->Target, serializer);
@@ -1043,11 +1065,14 @@ namespace Quantum {
       FP.Serialize(&p->DetourYaw, serializer);
       FP.Serialize(&p->Heading, serializer);
       FrameTimer.Serialize(&p->DetourTimer, serializer);
+      FrameTimer.Serialize(&p->PathTimer, serializer);
       FrameTimer.Serialize(&p->ProgressTimer, serializer);
       FrameTimer.Serialize(&p->StepTimer, serializer);
       FrameTimer.Serialize(&p->TaskTimer, serializer);
       FrameTimer.Serialize(&p->ThinkTimer, serializer);
       FrameTimer.Serialize(&p->UnreachableTimer, serializer);
+      FPVector3.Serialize(&p->PathPoint, serializer);
+      FPVector3.Serialize(&p->PathTarget, serializer);
       FPVector3.Serialize(&p->Point, serializer);
       FPVector3.Serialize(&p->ProgressPosition, serializer);
     }
