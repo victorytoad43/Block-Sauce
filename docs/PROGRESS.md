@@ -4,7 +4,7 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-04)
 
-**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is done. The plan review is nearly done: the replan is agreed (Phase 7 arena, waiting on Jackson's graybox; Phase 8 feel and juice; Phase 9 playtest build). The per-tick exception after collision knockdowns is fixed. The frame-rate review is pinned: the game itself is light (about 1 ms of work a frame in a build); Jackson's editor runs at 20–33 fps and the standalone build far faster, so performance is judged in builds. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
+**Phases 0–5 are done and reviewed. Phase 6 (Front end and bots) is done. The plan review is done; Bot Enhancement (skill levels and personalities) has started while Phase 7 (arena) waits on Jackson's graybox; then Phase 8 feel and juice, Phase 9 playtest build. The per-tick exception after collision knockdowns is fixed. The frame-rate review is pinned: the game itself is light (about 1 ms of work a frame in a build); Jackson's editor runs at 20–33 fps and the standalone build far faster, so performance is judged in builds. The game opens on Jackson's menu over a bot match; Start Game hosts a room with a code, Join Game joins by code or any open room. In a room, the room screen lists the players and lets the host add and remove bots, set the bot fill and start the match; the HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back.**
 
 What plays today, online with up to 6 players, in the Lobby scene:
 - Guy on a force-driven capsule (0.40 m radius, his real width): walk/run (analog on gamepad), jump, sit, slide, stagger.
@@ -44,7 +44,26 @@ What plays today, online with up to 6 players, in the Lobby scene:
 ### Placeholders in use
 `PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the subdivided `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_SauceVat_Stack`/`_Slip` (the cup at 1.3× with placeholder sauce), `PH_SauceCoat` and `PH_SauceLooks` (A-009), `PH_PlayerColors` (holds the real palette), `PH_` terrain (A-008), `PH_MainMenu` (Jackson's main menu art; the Join, Settings, Pause and room screens are drafts, A-002), `PH_MatchHud` (draft HUD and results, A-006), the IMGUI spectator bar (A-006), `PH_RagdollTest` (stress-test scene only).
 
-## Next: Phase 7, Arena (waiting on Jackson's graybox, A-008)
+## Next: Bot Enhancement (started 2026-11-04)
+
+Design in `docs/PLAN.md` › Bot Enhancement: four skill levels set per bot, three hidden personalities (Wrecker, Builder, Klutz).
+
+Build order:
+1. **Skill levels.** `BotSkill` assets (`Resources/Configs/Bots/BotSkill_Easy`, `_Normal`, `_Hard`, `_Expert`) listed on `BotConfig`; `Bot.Skill` (byte, the level). The knobs that differ by level move off `BotConfig` onto `BotSkill`: hesitation (`ThinkSecondsMin`/`Max`), aim tolerance and a random aim error per throw (yaw and pitch, degrees), a random placement error (the point it lets go over, meters), how long it holds an aim (`MinAimSeconds`), whether it runs while carrying, grab and place attempts, `RaidAtCount`. Normal keeps today's numbers exactly, so today's soak results are the Normal baseline. First guesses: Easy hesitates 0.8–2 s, ±6° aim, 0.25 m off on placing, walks everywhere; Expert hesitates 0.1–0.3 s, ±0.5°, 0.05 m, runs with a block.
+2. **Room screen.** A difficulty control on each bot's row (◀ NORMAL ▶, host only; guests see the level as text). `CommandSetBotSkill { Slot, Level }` (lobby only), which also sets `Match.NewBotSkill`, the level new bots and fill bots take. The demo match rolls each bot's level at random. Built by **Block Sauce › Build Main Menu** as before.
+3. **Personalities.** `BotPersonality` assets (`Wrecker`, `Builder`, `Klutz`) listed on `BotConfig`; `Bot.Personality` rolled with `frame.RNG` in `MakeBot`. `BotChoices` turns into a scored choice: each option (build with an own block, raid, guard, dunk, tackle, clear the top) gets a score from the situation times the personality's weight, highest wins, ties broken by the RNG. New tasks in `BotActions`: `Tackle` (run at a player until it hits them or the timeout) and `ClearTop` (fetch a foreign block off its own tower and throw or drop it away; only when the top is in reach). New decision in the brain for interrupting a task to guard (a rival near the tower), rebuilt by **Block Sauce › Build Bot Brain**.
+4. **Klutz mistakes.** Chances per second or per task on the personality: trip while running (a knockdown through the same path as `CommandDevKnockdown`), drop the carried block (a Grab press mid-carry), let go off center (a large placement error), throw wild (a large aim error).
+5. **Dev view and soak stats.** Dev builds only: the spectator label and the room screen's bot rows add the personality; a `BotSoakLog` (view, dev only) counts per bot from simulation events: wins, placements, misses, throws, tackles, guards, knockdowns caused and taken, trips, drops; it writes a line per match to the log. Events added where missing (`BotTaskEnded` with the task and result).
+6. **Tuning and done-when.** Head-to-head soaks (2 bots, one level each; 10 matches per pair), then 6-bot mixed matches for the personalities; tune until the done-when holds; then Jackson's play-test.
+
+Risks:
+- Expert stops being fun to play against; it is capped by `BotSkill` numbers, and Jackson's play-test decides.
+- Tackling and guarding could feel like griefing, especially with a Wrecker on a player who is trying to build; tackle cooldowns live on the personality.
+- Taking a foreign block off a tall tower needs a jump-grab the bots can't do yet; until then a Builder leaves an out-of-reach top alone.
+- Hidden personalities make tuning hard to see; the dev label and soak log are there for that.
+- More decisions per tick: scoring loops over players and blocks; keep it to a few times a second per bot (the hesitation already spaces decisions).
+
+## Then: Phase 7, Arena (waiting on Jackson's graybox, A-008)
 
 Starts when the graybox lands in `_Incoming` (format in `docs/ASSETS.md`, A-008).
 
@@ -86,6 +105,14 @@ Phase report format:
 - Placeholders still in use: <list with asset IDs>
 - Ready for review: yes
 ```
+
+## 2026-11-04: Bot Enhancement planned
+- Did: Jackson's answers into the plan: four skill levels (Easy, Normal, Hard, Expert; today's bot is Normal), set per bot by the host; three personalities (Wrecker, Builder, Klutz), random and hidden. The phase moves ahead of Phase 7, which waits on the graybox. Build order and risks in Next; A-002 gains the difficulty control on a bot's row.
+- Verified: nothing to run.
+- Decided: personalities weight a scored choice in `BotChoices` rather than the Bot SDK's utility AI (its documents can't be built from a script, like the state machine's, and the choices are few); utility AI stays planned for team modes. New bots and fill bots take the difficulty the host set last. The demo match mixes levels. Dev builds show personalities; players never see them.
+- Assets: A-002 gains the bot row's difficulty control.
+- Questions for Jackson: none.
+- Next: step 1, skill levels.
 
 ## 2026-11-04: Plan review pinned, Phase 7 prepared
 - Did: Jackson's retest into the plan: his editor runs 20–33 fps (Unity Stats: main and render thread both 30–50 ms, so waiting), Quantum's simulation 2.75 ms a frame online, and the standalone build far faster; the Meta Virtual Monitor made no clear difference. The review is pinned: performance is judged in builds, and the knockdown hiccup and triangle counts go to Phase 9's profiling. The PowerShell form of the `-logframes` command into CLAUDE.md (a quoted path needs `&`). Phase 7's build order and risks written up (Next).

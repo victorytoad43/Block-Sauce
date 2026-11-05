@@ -134,6 +134,23 @@ The candidates, from the old Phase 6:
 - Spectator: join any live room without a player and fly freely; Quantum replays through the same camera for promo capture
 - **Done when** (old Phase 6): a new player finishes a round without explanation.
 
+### Bot Enhancement (in progress, started 2026-11-04 while Phase 7 waits on the graybox)
+Bots get four skill levels the host sets per bot, and three hidden personalities, so rooms of bots feel like different people (Jackson, 2026-11-04).
+- **Skill: Easy, Normal, Hard, Expert.** Normal is today's bot. Each level is a `BotSkill` asset: hesitation before each task, aim error and tolerance on throws, placement error (how far off center it lets go), speed while carrying, how soon it reacts to a raid, attempts before giving up. Easy is slow and sloppy; Expert is close to a good player (fast, tight aim, runs with a block) but still beatable.
+- **Per bot:** each bot's row on the room screen has a difficulty control (host only, `CommandSetBotSkill`). New bots, including those that fill empty slots at a match start, take the difficulty the host set last (Normal until then). The demo match behind the menu mixes all four.
+- **Personalities, random and hidden:** each bot rolls one when it is added (the simulation's RNG). Nothing in the game shows it; players read it from how the bot plays. Dev builds show it in the spectator label.
+  - **Wrecker** (aggressive): raids from a rival's first counted block, even before its own tower is done; throws at players carrying blocks as well as at towers; runs into rivals standing at their towers.
+  - **Builder** (defensive): raids only a rival one block from winning; dunks in Stack more; guards its tower: runs at a rival who comes near it, and takes a foreign block off its top.
+  - **Klutz** (clumsy): on top of its skill level, now and then trips while running (falls flat, a knockdown), drops the block it carries, lets go well off center, or throws wild. A Hard Klutz is still a good bot with funny mistakes.
+- Each personality is a `BotPersonality` asset of weights and chances that `BotChoices` scores the bot's options with (build, raid, guard, dunk, tackle); the Bot SDK state machine stays as the frame around them.
+- [ ] Skill levels: `BotSkill` assets, actions read them, aim and placement error
+- [ ] Room screen difficulty per bot; new bots take the last setting; demo mix
+- [ ] Personalities: rolled at random, scored choices, new tasks (tackle a player, clear a foreign top)
+- [ ] Klutz mistakes (trip, drop, off-center place, wild throw)
+- [ ] Dev view of skill and personality; soak stats per bot
+- [ ] Done-when verified
+- **Done when:** the host sets each bot's difficulty on the room screen; in all-bot soaks Expert beats Easy in at least 8 of 10 head-to-head matches and each level beats the one below more often than not; the personalities show in the soak stats (Wreckers throw and tackle most, Builders guard and clear their tops, Klutzes make the most mistakes); Jackson plays a room of mixed bots and can tell them apart.
+
 ### Phase 7: Arena (waits on Jackson's graybox, A-008)
 - [ ] Import Jackson's graybox: visual meshes, simple `COL_` collision meshes as Quantum static colliders, spawn and vat markers
 - [ ] Matches move from the Lobby to the arena: menu, HUD, dev keys, vats, spawns; the demo match behind the menu plays there
@@ -153,9 +170,6 @@ The candidates, from the old Phase 6:
 - [ ] Every match saves a replay (Quantum's replay file), viewable later through the spectator camera; spectator free flight if it fits
 - [ ] Mouse and controller checked by hand; Quantum's stats overlay off
 - **Done when:** people outside the project play a round from the build, and their matches can be replayed.
-
-### Later: Bot Enhancement
-- [ ] Skill levels (a difficulty setting) and personalities: aggressive, defensive, clumsy, and others (Jackson, 2026-11-04)
 
 ### Later: Steam
 - [ ] Steam integration (store page, Steamworks), once the build has been playtested
@@ -184,8 +198,8 @@ Current decisions only; how they were reached is in git history.
 - **Players: 2–6** (Jackson, 2026-11-03; kept 2026-11-04): cut from 8 when 8 ran at about 40 fps, most likely because of the per-tick exception fixed on 2026-11-04, so 8 is technically possible again; the two blues left the palette. `max_players` in `Input.qtn` sets the session and room size. The Lobby's ring of 8 spawn points is shared out evenly among the 6 slots.
 - **Optimization** (Jackson, 2026-11-03): a profiling and optimization pass is part of the plan review that follows the menu build.
 - **UI fonts** (Jackson, 2026-11-04): Jaro, the logo's first line, for big display text (the countdown, RESULTS, the winner); DynaPuff, the logo's second line, for everything read closely (buttons, names, room codes, prompts, hints). Jaro's V reads as U.
-- **Bots** play one skill level for now; skill levels and personalities come in the later Bot Enhancement phase (Jackson, 2026-11-04).
-- **Phase order** (Jackson, 2026-11-04): Phase 7 arena, Phase 8 feel and juice, Phase 9 playtest build (with replays), then Bot Enhancement and Steam. Phase 7 waits on Jackson's graybox map.
+- **Bot skill and personality** (Jackson, 2026-11-04): four skill levels (Easy, Normal, Hard, Expert; Normal is the Phase 6 bot), set per bot by the host on the room screen; three personalities (Wrecker, Builder, Klutz), rolled at random and never shown to players. Personalities weight choices scored in our own code (`BotChoices`); the Bot SDK's utility AI waits for team modes (Expansion).
+- **Phase order** (Jackson, 2026-11-04): Bot Enhancement now, while Phase 7 waits on Jackson's graybox; then Phase 7 arena, Phase 8 feel and juice, Phase 9 playtest build (with replays), then Steam. Bots on the arena's uneven ground are checked in Phase 7.
 - **Movement input:** a gamepad stick's tilt sets speed from slow walk to full run; the keyboard walks, with Shift to run. The gamepad Start button starts a match; only Escape opens the menu.
 - **Sit replaces crouch** (Jackson, 2026-11-02): no movement while sitting except sliding; a sitting body moving fast plays the slide.
 - **Knockdown:** see Architecture › Knockdown. Numbers live on `PlayerKnockbackConfig` and `PlayerRagdollConfig` and stay open for tuning.
