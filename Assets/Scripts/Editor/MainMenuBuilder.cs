@@ -130,7 +130,7 @@ namespace BlockSauce.Editor
             logo.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/UI/UI_Logo.png");
             logo.preserveAspect = true;
             logo.raycastTarget = false;
-            PlaceInColumn(logo.rectTransform, 342f, new Vector2(636f, 368f));
+            PlaceInColumn(logo.rectTransform, 342f, new Vector2(693f, 368f));
 
             // Main: Jackson's three buttons, plus Quit.
             RectTransform main = Stretch(NewChild("MainPanel", root));
