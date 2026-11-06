@@ -51,7 +51,8 @@ namespace Quantum
                 return;
 
             FP heading = frame.TryGet(character, out PlayerLook look) ? look.Yaw : FP._0;
-            frame.Add(character, new Bot { Heading = heading, Skill = BotSkillLevel.Normal });
+            BotSkillLevel skill = frame.TryGetSingleton(out Match match) ? match.NewBotSkill : BotSkillLevel.Normal;
+            frame.Add(character, new Bot { Heading = heading, Skill = skill });
             if (config.Brain.IsValid)
             {
                 frame.Add<HFSMAgent>(character);
@@ -114,6 +115,39 @@ namespace Quantum
                 {
                     match->LeaveSlotsEmpty = command.Fill == false;
                 }
+
+                foreach (CommandSetBotSkill command in frame.GetPlayerCommands<CommandSetBotSkill>(player))
+                {
+                    SetSkill(frame, match, command.Slot, command.Level);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets the level of the bot in <paramref name="slot"/> (if there is one) and of bots added from now on.
+        /// </summary>
+        private static void SetSkill(Frame frame, Match* match, int slot, BotSkillLevel level)
+        {
+            if (level < BotSkillLevel.Easy || level > BotSkillLevel.Expert)
+                return;
+
+            match->NewBotSkill = level;
+            if (slot >= 0 && slot < frame.MaxPlayerCount && PlayerSystem.TryGetCharacter(frame, slot, out EntityRef character)
+                && frame.Unsafe.TryGetPointer(character, out Bot* bot))
+            {
+                bot->Skill = level;
+            }
+        }
+
+        /// <summary>
+        /// Gives every bot a level at random, from Easy to Expert (the menu's demo match, at each match start).
+        /// </summary>
+        public static void RollSkills(Frame frame)
+        {
+            var bots = frame.Filter<Bot>();
+            while (bots.NextUnsafe(out EntityRef _, out Bot* bot))
+            {
+                bot->Skill = (BotSkillLevel)frame.RNG->Next(0, (int)BotSkillLevel.Expert + 1);
             }
         }
 

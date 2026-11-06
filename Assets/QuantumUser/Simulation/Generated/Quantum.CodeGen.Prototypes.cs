@@ -500,6 +500,8 @@ namespace Quantum.Prototypes {
     public Quantum.Prototypes.SandboxBlockHomePrototype[] SandboxBlocks = {};
     [HideInInspector()]
     public QBoolean LeaveSlotsEmpty;
+    [HideInInspector()]
+    public Quantum.QEnum32<BotSkillLevel> NewBotSkill;
     partial void MaterializeUser(Frame frame, ref Quantum.Match result, in PrototypeMaterializationContext context);
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
       Quantum.Match component = default;
@@ -523,6 +525,7 @@ namespace Quantum.Prototypes {
         }
       }
       result.LeaveSlotsEmpty = this.LeaveSlotsEmpty;
+      result.NewBotSkill = this.NewBotSkill;
       MaterializeUser(frame, ref result, in context);
     }
   }

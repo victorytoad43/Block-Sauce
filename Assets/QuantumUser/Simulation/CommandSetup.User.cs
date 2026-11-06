@@ -11,6 +11,7 @@
             factories.Add(new CommandAddBot());
             factories.Add(new CommandRemoveBot());
             factories.Add(new CommandSetBotFill());
+            factories.Add(new CommandSetBotSkill());
             factories.Add(new CommandDevStackTower());
             factories.Add(new CommandDevKnockdown());
             factories.Add(new CommandDevBuildColumn());

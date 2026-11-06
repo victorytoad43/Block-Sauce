@@ -11,8 +11,9 @@ namespace BlockSauce
 {
     /// <summary>
     /// The room screen (docs/PLAN.md, Phase 6, step 7; a draft until Jackson's room art, A-002): the room code to share,
-    /// every player slot in its color (players, bots, open slots; you and the host marked), and for the host the room's
-    /// controls: start the match, add and remove a bot, and whether bots fill the empty slots at the start. Everyone gets
+    /// every player slot in its color (players, bots, open slots; you and the host marked; each bot's difficulty), and
+    /// for the host the room's controls: start the match, add and remove a bot, each bot's difficulty (the arrows on its
+    /// row; new bots take the last one picked), and whether bots fill the empty slots at the start. Everyone gets
     /// Play in Lobby (close the screen and walk around), Settings and Leave Room, which <see cref="MainMenu"/> wires up.
     /// View only: it reads the predicted frame and sends commands. Built by Block Sauce › Build Main Menu.
     /// </summary>
@@ -25,6 +26,11 @@ namespace BlockSauce
             public Image Swatch;
             public TMP_Text Name;
             public TMP_Text Tag;
+            /// <summary>The bot's difficulty: its level, with arrows to change it for the host.</summary>
+            public GameObject Skill;
+            public TMP_Text SkillText;
+            public Button SkillDown;
+            public Button SkillUp;
         }
 
         [SerializeField] private PlayerPalette _palette;
@@ -98,6 +104,39 @@ namespace BlockSauce
             _addBotButton.onClick.AddListener(() => Send(new CommandAddBot()));
             _removeBotButton.onClick.AddListener(() => Send(new CommandRemoveBot()));
             _fillToggle.onValueChanged.AddListener(fill => Send(new CommandSetBotFill { Fill = fill }));
+            for (int i = 0; i < _rows.Length; i++)
+            {
+                int slot = i;
+                _rows[i].SkillDown.onClick.AddListener(() => StepSkill(slot, -1));
+                _rows[i].SkillUp.onClick.AddListener(() => StepSkill(slot, 1));
+            }
+        }
+
+        /// <summary>
+        /// Asks for the bot in <paramref name="slot"/> to play one level easier or harder (Easy and Expert are the ends).
+        /// </summary>
+        private static void StepSkill(int slot, int step)
+        {
+            Frame frame = QuantumRunner.Default?.Game?.Frames.Verified;
+            if (frame == null || TryGetBotSkill(frame, slot, out BotSkillLevel level) == false)
+                return;
+
+            int next = Mathf.Clamp((int)level + step, (int)BotSkillLevel.Easy, (int)BotSkillLevel.Expert);
+            if (next != (int)level)
+            {
+                Send(new CommandSetBotSkill { Slot = slot, Level = (BotSkillLevel)next });
+            }
+        }
+
+        private static bool TryGetBotSkill(Frame frame, int slot, out BotSkillLevel level)
+        {
+            level = BotSkillLevel.Normal;
+            if (slot >= frame.MaxPlayerCount || PlayerSystem.TryGetCharacter(frame, slot, out EntityRef character) == false
+                || frame.TryGet(character, out Bot bot) == false)
+                return false;
+
+            level = bot.Skill;
+            return true;
         }
 
         private void OnEnable()
@@ -138,6 +177,8 @@ namespace BlockSauce
                 _codeText.text = $"ROOM  {code}";
             }
 
+            bool isHost = IsLocalHost(game);
+            bool lobby = match.State == MatchState.Lobby;
             int humans = 0;
             int bots = 0;
             for (int i = 0; i < _rows.Length; i++)
@@ -148,16 +189,19 @@ namespace BlockSauce
                 bots += kind == SlotKind.Bot ? 1 : 0;
                 bool local = inGame && game.PlayerIsLocal(i);
                 bool host = inGame && IsConnected(frame, i) && IsLowestConnected(frame, i);
+                BotSkillLevel skill = BotSkillLevel.Normal;
+                bool isBot = kind == SlotKind.Bot && TryGetBotSkill(frame, i, out skill);
                 // One number for what the row shows, to skip rebuilding it when nothing changed.
-                int state = (int)kind | (local ? 4 : 0) | (host ? 8 : 0) | (inGame ? 16 : 0);
+                int state = (int)kind | (local ? 4 : 0) | (host ? 8 : 0) | (inGame ? 16 : 0)
+                    | (isHost && lobby ? 32 : 0) | ((int)skill << 6);
                 if (force == false && _shown[i] == state)
                     continue;
 
                 _shown[i] = state;
                 ShowRow(_rows[i], i, kind, local, host, inGame);
+                ShowSkill(_rows[i], isBot, skill, isHost && lobby);
             }
 
-            bool isHost = IsLocalHost(game);
             if (force || isHost != _shownHost)
             {
                 _shownHost = isHost;
@@ -179,7 +223,6 @@ namespace BlockSauce
                 }
             }
 
-            bool lobby = match.State == MatchState.Lobby;
             _startButton.interactable = lobby;
             _addBotButton.interactable = lobby && humans + bots < frame.MaxPlayerCount;
             _removeBotButton.interactable = lobby && bots > 0;
@@ -229,6 +272,24 @@ namespace BlockSauce
             }
 
             row.Tag.text = tag;
+        }
+
+        /// <summary>
+        /// A bot's row shows its level in place of the BOT tag (the name already says it), with arrows for the host in
+        /// the lobby; other rows show none.
+        /// </summary>
+        private static void ShowSkill(Row row, bool isBot, BotSkillLevel level, bool canChange)
+        {
+            row.Skill.SetActive(isBot);
+            if (isBot == false)
+                return;
+
+            row.Tag.text = string.Empty;
+            row.SkillText.text = level.ToString().ToUpperInvariant();
+            row.SkillDown.gameObject.SetActive(canChange);
+            row.SkillUp.gameObject.SetActive(canChange);
+            row.SkillDown.interactable = level > BotSkillLevel.Easy;
+            row.SkillUp.interactable = level < BotSkillLevel.Expert;
         }
     }
 }

@@ -45,7 +45,10 @@ namespace BlockSauce
                 {
                     if (row.Root.activeSelf)
                     {
-                        text.Append($" [{row.Name.text}{(row.Tag.text.Length > 0 ? " " + row.Tag.text : string.Empty)}]");
+                        string skill = row.Skill != null && row.Skill.activeSelf
+                            ? $" {row.SkillText.text}{(row.SkillDown.gameObject.activeSelf ? " with arrows" : string.Empty)}"
+                            : string.Empty;
+                        text.Append($" [{row.Name.text}{(row.Tag.text.Length > 0 ? " " + row.Tag.text : string.Empty)}{skill}]");
                     }
                 }
 

@@ -23,6 +23,8 @@ singleton component Match
     [HideInInspector] list<SandboxBlockHome> SandboxBlocks;
     // The room's setting: when false (the default), bots fill the empty player slots as a match starts.
     [HideInInspector] bool LeaveSlotsEmpty;
+    // The room's setting: the level new bots play at (and fill bots); the last level the host picked, Normal at first.
+    [HideInInspector] BotSkillLevel NewBotSkill;
 }
 
 event MatchStateChanged

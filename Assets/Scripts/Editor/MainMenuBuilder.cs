@@ -61,6 +61,9 @@ namespace BlockSauce.Editor
             _buttonHover = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/UI/UI_MenuButton_Hover.png");
             _buttonPressed = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/UI/UI_MenuButton_Pressed.png");
             _palette = AssetDatabase.LoadAssetAtPath<PlayerPalette>(PalettePath);
+            // The Lobby is opened to set it up; whatever scene was open comes back afterwards, so the next play session
+            // doesn't start in the Lobby by surprise.
+            string previousScene = EditorSceneManager.GetActiveScene().path;
 
             GameObject menu = BuildMenu();
             PrefabUtility.SaveAsPrefabAsset(menu, PrefabPath);
@@ -69,6 +72,11 @@ namespace BlockSauce.Editor
             PrefabUtility.SaveAsPrefabAsset(hud, HudPath);
             Object.DestroyImmediate(hud);
             SetUpLobby();
+            if (string.IsNullOrEmpty(previousScene) == false && previousScene != LobbyPath)
+            {
+                EditorSceneManager.OpenScene(previousScene);
+            }
+
             Debug.Log($"Built {PrefabPath} and {HudPath} and set up the Lobby's menu and HUD.");
         }
 
@@ -187,6 +195,10 @@ namespace BlockSauce.Editor
                 row.FindPropertyRelative("Swatch").objectReferenceValue = roomRows[i].Swatch;
                 row.FindPropertyRelative("Name").objectReferenceValue = roomRows[i].Name;
                 row.FindPropertyRelative("Tag").objectReferenceValue = roomRows[i].Tag;
+                row.FindPropertyRelative("Skill").objectReferenceValue = roomRows[i].Skill;
+                row.FindPropertyRelative("SkillText").objectReferenceValue = roomRows[i].SkillText;
+                row.FindPropertyRelative("SkillDown").objectReferenceValue = roomRows[i].SkillDown;
+                row.FindPropertyRelative("SkillUp").objectReferenceValue = roomRows[i].SkillUp;
             });
             Set(roomSerialized, "_startButton", roomStart);
             Set(roomSerialized, "_addBotButton", addBot);
@@ -295,9 +307,40 @@ namespace BlockSauce.Editor
                     Tag = MakeLeftText(row, "Tag", "", _body, 26f, new Vector2(420f, 0f), 220f, middle: true),
                 };
                 rows[i].Tag.alignment = TextAlignmentOptions.MidlineRight;
+
+                // A bot's difficulty, where the tag goes: < NORMAL > (arrows for the host only).
+                RectTransform skill = NewChild("Skill", row);
+                Place(skill, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(530f, 0f), new Vector2(220f, 56f));
+                rows[i].Skill = skill.gameObject;
+                rows[i].SkillDown = MakeArrow(skill, "SkillDown", "<", -88f);
+                rows[i].SkillUp = MakeArrow(skill, "SkillUp", ">", 88f);
+                rows[i].SkillText = MakeCenterText(skill, "Level", "NORMAL", _body, 26f);
+                Place(rows[i].SkillText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero,
+                    new Vector2(128f, 50f));
+                rows[i].SkillText.raycastTarget = false;
+                skill.gameObject.SetActive(false);
             }
 
             return screen;
+        }
+
+        /// <summary>
+        /// A small square arrow button on a room row, its center <paramref name="x"/> from the parent's center.
+        /// </summary>
+        private static Button MakeArrow(Transform parent, string name, string label, float x)
+        {
+            RectTransform rect = NewChild(name, parent);
+            Place(rect, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(x, 0f), new Vector2(44f, 44f));
+            Image image = rect.gameObject.AddComponent<Image>();
+            Button button = rect.gameObject.AddComponent<Button>();
+            ShowFocus(button, image);
+            ColorBlock colors = button.colors;
+            colors.disabledColor = new Color(Shade.r, Shade.g, Shade.b, 0.35f);
+            button.colors = colors;
+            TMP_Text text = MakeCenterText(rect, "Label", label, _heading, 34f);
+            Stretch(text.rectTransform);
+            text.raycastTarget = false;
+            return button;
         }
 
         /// <summary>

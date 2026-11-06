@@ -1311,24 +1311,27 @@ namespace Quantum {
     public const Int32 ALIGNMENT = 8;
     [FieldOffset(24)]
     public AssetRef<GameModeConfig> Mode;
-    [FieldOffset(0)]
+    [FieldOffset(4)]
     [HideInInspector()]
     public MatchState State;
     [FieldOffset(32)]
     [HideInInspector()]
     public FrameTimer Timer;
-    [FieldOffset(4)]
-    [HideInInspector()]
-    public PlayerRef Winner;
-    [FieldOffset(12)]
-    [HideInInspector()]
-    public QBoolean SandboxRecorded;
-    [FieldOffset(16)]
-    [HideInInspector()]
-    public QListPtr<SandboxBlockHome> SandboxBlocks;
     [FieldOffset(8)]
     [HideInInspector()]
+    public PlayerRef Winner;
+    [FieldOffset(16)]
+    [HideInInspector()]
+    public QBoolean SandboxRecorded;
+    [FieldOffset(20)]
+    [HideInInspector()]
+    public QListPtr<SandboxBlockHome> SandboxBlocks;
+    [FieldOffset(12)]
+    [HideInInspector()]
     public QBoolean LeaveSlotsEmpty;
+    [FieldOffset(0)]
+    [HideInInspector()]
+    public BotSkillLevel NewBotSkill;
     public override readonly Int32 GetHashCode() {
       unchecked { 
         var hash = 13877;
@@ -1339,6 +1342,7 @@ namespace Quantum {
         hash = hash * 31 + SandboxRecorded.GetHashCode();
         hash = hash * 31 + SandboxBlocks.GetHashCode();
         hash = hash * 31 + LeaveSlotsEmpty.GetHashCode();
+        hash = hash * 31 + (Int32)NewBotSkill;
         return hash;
       }
     }
@@ -1351,6 +1355,7 @@ namespace Quantum {
     }
     public static void Serialize(void* ptr, FrameSerializer serializer) {
       var p = (Match*)ptr;
+      serializer.Stream.Serialize((Int32*)&p->NewBotSkill);
       serializer.Stream.Serialize((Int32*)&p->State);
       PlayerRef.Serialize(&p->Winner, serializer);
       QBoolean.Serialize(&p->LeaveSlotsEmpty, serializer);

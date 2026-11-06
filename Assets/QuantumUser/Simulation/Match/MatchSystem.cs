@@ -24,6 +24,8 @@ namespace Quantum
 
             if (match->SandboxRecorded == false)
             {
+                // The map's first tick: the room's settings start at their defaults.
+                match->NewBotSkill = BotSkillLevel.Normal;
                 RecordSandbox(frame, match);
             }
 
@@ -39,6 +41,11 @@ namespace Quantum
 
                         if (CountPlayers(frame) >= mode.MinPlayers)
                         {
+                            if (frame.RuntimeConfig.DemoMatch)
+                            {
+                                BotSystem.RollSkills(frame);
+                            }
+
                             StartMatch(frame, match, mode);
                         }
                     }
