@@ -35,6 +35,21 @@ enum BotPersonalityType
     Klutz
 }
 
+// A bot's mistake on purpose (a Klutz's, BotPersonality's mistake chances).
+enum BotMistakeType
+{
+    // Fell flat while running.
+    Trip,
+    // Slid without looking (into a wall, off a ledge).
+    Slide,
+    // Let go of the block it was carrying.
+    Drop,
+    // Let go well off the tower's center.
+    OffCenter,
+    // Threw well off its aim.
+    WildThrow
+}
+
 enum BotTaskStatus
 {
     Running,
@@ -109,6 +124,13 @@ event BotTackleEnded
     bool Slid;
     bool Hit;
     bool Dropped;
+}
+
+// A bot made a mistake on purpose (see BotMistakeType); for the soak stats.
+event BotMistake
+{
+    EntityRef Bot;
+    BotMistakeType Type;
 }
 
 event BotRemoved

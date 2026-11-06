@@ -200,9 +200,43 @@ namespace Quantum
             bot->AimError = new FPVector2(frame.RNG->Next(-skill.AimError, skill.AimError),
                 frame.RNG->Next(-skill.AimError, skill.AimError));
             // A point in the disc of radius PlaceError.
+            FP placeError = skill.PlaceError;
+            BotPersonality personality = config.GetPersonality(frame, bot);
+            EntityRef self = GetEntity(frame, bot);
+            // A Klutz's planned mistakes for this task: a wild throw, a placing well off center.
+            if (task == BotTaskType.ThrowAt && personality.WildThrowChance > FP._0
+                && frame.RNG->Next() < personality.WildThrowChance)
+            {
+                FP wild = personality.WildThrowError;
+                bot->AimError += new FPVector2(frame.RNG->Next(-wild, wild), frame.RNG->Next(-wild, wild));
+                frame.Events.BotMistake(self, BotMistakeType.WildThrow);
+            }
+
+            if (task == BotTaskType.PlaceOn && personality.OffCenterChance > FP._0
+                && frame.RNG->Next() < personality.OffCenterChance)
+            {
+                placeError = FPMath.Max(placeError, personality.OffCenterError);
+                frame.Events.BotMistake(self, BotMistakeType.OffCenter);
+            }
+
             FP angle = frame.RNG->Next(FP._0, FP.PiTimes2);
-            FP radius = skill.PlaceError * FPMath.Sqrt(frame.RNG->Next());
+            FP radius = placeError * FPMath.Sqrt(frame.RNG->Next());
             bot->PlaceError = new FPVector2(FPMath.Cos(angle) * radius, FPMath.Sin(angle) * radius);
+        }
+
+        /// <summary>
+        /// Returns the entity whose Bot this is.
+        /// </summary>
+        private static EntityRef GetEntity(Frame frame, Bot* bot)
+        {
+            var bots = frame.Filter<Bot>();
+            while (bots.NextUnsafe(out EntityRef entity, out Bot* other))
+            {
+                if (other == bot)
+                    return entity;
+            }
+
+            return EntityRef.None;
         }
 
         /// <summary>
@@ -212,6 +246,9 @@ namespace Quantum
         /// </summary>
         private static void DriveBots(Frame frame, BotConfig config)
         {
+            // Trips knock bots down, which adds components; that waits until the loop is done with its pointers.
+            EntityRef* trips = stackalloc EntityRef[frame.MaxPlayerCount];
+            int tripCount = 0;
             var bots = frame.Filter<Bot, Player>();
             while (bots.NextUnsafe(out EntityRef entity, out Bot* bot, out Player* player))
             {
@@ -251,6 +288,16 @@ namespace Quantum
                 input->Throw.Update(frame.Number, intent.Throw);
                 input->Jump.Update(frame.Number, intent.Jump);
                 input->Crouch.Update(frame.Number, intent.Crouch);
+                if (intent.Trip && tripCount < frame.MaxPlayerCount)
+                {
+                    trips[tripCount++] = entity;
+                }
+            }
+
+            for (int i = 0; i < tripCount; i++)
+            {
+                // Down at the run's speed, as a ragdoll; downed, it drops what it holds.
+                frame.Signals.SetRagdoll(trips[i], true);
             }
         }
 

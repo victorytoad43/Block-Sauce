@@ -54,5 +54,20 @@ namespace Quantum
         public FP GuardRadius = 3;
         public bool GuardEmptyHanded;
         public FP TackleCooldownScale = 1;
+
+        /// <summary>
+        /// Mistakes on purpose (Klutzes), on top of the skill's: chances per second of running to trip (fall flat, a
+        /// knockdown at the run's speed) or slide without looking (into walls, off ledges), per second of carrying to drop
+        /// the block, per placing to let go up to OffCenterError meters off, and per throw to throw up to WildThrowError
+        /// degrees off (yaw and pitch).
+        /// </summary>
+        [Header("Mistakes")]
+        public FP TripChance;
+        public FP WildSlideChance;
+        public FP DropChance;
+        public FP OffCenterChance;
+        public FP OffCenterError = (FP)45 / 100;
+        public FP WildThrowChance;
+        public FP WildThrowError = 12;
     }
 }

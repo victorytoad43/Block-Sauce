@@ -20,6 +20,8 @@ namespace Quantum
         public bool Jump;
         /// <summary>Pressed while running fast, it starts a slide; released, the slide ends standing.</summary>
         public bool Crouch;
+        /// <summary>Falls flat this tick (a Klutz's trip; <see cref="BotSystem"/> knocks it down).</summary>
+        public bool Trip;
     }
 
     /// <summary>
@@ -592,7 +594,43 @@ namespace Quantum
             intent.Jump = linkJump || (frame.Number % 16 < 2 && IsLedgeAhead(ref context, yaw));
             intent.Crouch = intent.Run && intent.Jump == false && distance > config.TravelSlideMinDistance
                 && TryTravelSlide(ref context, yaw, next);
+            MakeMistakes(ref context, ref intent);
             return false;
+        }
+
+        /// <summary>
+        /// A Klutz's mistakes while on the move (the personality's chances per second): running, it now and then trips or
+        /// slides without looking; carrying, it now and then lets go of the block.
+        /// </summary>
+        private static void MakeMistakes(ref Context context, ref BotIntent intent)
+        {
+            Frame frame = context.Frame;
+            BotPersonality personality = context.Config.GetPersonality(frame, context.Bot);
+            FP dt = frame.DeltaTime;
+            bool grounded = frame.TryGet(context.Entity, out GroundedTracker tracker) && tracker.IsGrounded;
+            if (intent.Run && grounded && intent.Jump == false)
+            {
+                if (personality.TripChance > FP._0 && frame.RNG->Next() < personality.TripChance * dt)
+                {
+                    intent.Trip = true;
+                    frame.Events.BotMistake(context.Entity, BotMistakeType.Trip);
+                    return;
+                }
+
+                if (intent.Crouch == false && personality.WildSlideChance > FP._0
+                    && frame.RNG->Next() < personality.WildSlideChance * dt)
+                {
+                    intent.Crouch = true;
+                    frame.Events.BotMistake(context.Entity, BotMistakeType.Slide);
+                }
+            }
+
+            if (context.Grabber.Held != EntityRef.None && intent.Grab == false && personality.DropChance > FP._0
+                && frame.RNG->Next() < personality.DropChance * dt)
+            {
+                intent.Grab = true;
+                frame.Events.BotMistake(context.Entity, BotMistakeType.Drop);
+            }
         }
 
         /// <summary>

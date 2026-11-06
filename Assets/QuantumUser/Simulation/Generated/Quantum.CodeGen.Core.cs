@@ -49,6 +49,13 @@ namespace Quantum {
   using RuntimeInitializeOnLoadMethodAttribute = UnityEngine.RuntimeInitializeOnLoadMethodAttribute;
   #endif //;
   
+  public enum BotMistakeType : int {
+    Trip,
+    Slide,
+    Drop,
+    OffCenter,
+    WildThrow,
+  }
   public enum BotPersonalityType : int {
     Wrecker,
     Builder,
@@ -1768,6 +1775,7 @@ namespace Quantum {
   unsafe partial class FramePrinterPreserve {
     [Preserve()]
     private static void EnsureNotStripped_Core() {
+      FramePrinter.EnsurePrimitiveNotStripped<Quantum.BotMistakeType>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.BotPersonalityType>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.BotSkillLevel>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.BotTaskStatus>();
@@ -1938,6 +1946,7 @@ namespace Quantum {
         registry.Register<Quantum.Block>(Quantum.Block.SIZE);
         registry.Register<Quantum.BlockSpawnPoint>(Quantum.BlockSpawnPoint.SIZE);
         registry.Register<Quantum.Bot>(Quantum.Bot.SIZE);
+        registry.Register<Quantum.BotMistakeType>(4);
         registry.Register<Quantum.BotPersonalityType>(4);
         registry.Register<Quantum.BotSDKData>(Quantum.BotSDKData.SIZE);
         registry.Register<Quantum.BotSDKGlobals>(Quantum.BotSDKGlobals.SIZE);

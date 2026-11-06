@@ -37,3 +37,17 @@ MonoBehaviour:
   GuardEmptyHanded: 0
   TackleCooldownScale:
     RawValue: 65536
+  TripChance:
+    RawValue: 1966
+  WildSlideChance:
+    RawValue: 2621
+  DropChance:
+    RawValue: 1966
+  OffCenterChance:
+    RawValue: 16384
+  OffCenterError:
+    RawValue: 29491
+  WildThrowChance:
+    RawValue: 19661
+  WildThrowError:
+    RawValue: 786432

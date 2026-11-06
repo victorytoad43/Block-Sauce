@@ -59,7 +59,9 @@ namespace BlockSauce.Editor
         /// rival has two), throws at carriers 30% of the time, tackles anyone carrying a block and rivals at their towers
         /// (60% of the chances), dunks less. Builder: raids only a rival about to finish and only with nothing of its own
         /// to fetch, clears its top first, dunks more, guards its tower (anyone within 5 m, 80% of the chances).
-        /// Klutz: the defaults, the bot before personalities.
+        /// Klutz: chooses like the bot before personalities, and makes mistakes: trips about once in 30 s of running,
+        /// slides without looking once in 25 s, drops its block once in 30 s of carrying, lets go well off center on a
+        /// quarter of its placings and throws wild on 30% of its throws.
         /// </summary>
         private static void SetFirstGuess(BotPersonality personality, BotPersonalityType type)
         {
@@ -87,6 +89,11 @@ namespace BlockSauce.Editor
                     personality.TackleChance = (FP)8 / 10;
                     break;
                 case BotPersonalityType.Klutz:
+                    personality.TripChance = (FP)3 / 100;
+                    personality.WildSlideChance = (FP)4 / 100;
+                    personality.DropChance = (FP)3 / 100;
+                    personality.OffCenterChance = FP._0_25;
+                    personality.WildThrowChance = (FP)3 / 10;
                     break;
             }
         }
