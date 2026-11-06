@@ -38,16 +38,16 @@ MonoBehaviour:
   TackleCooldownScale:
     RawValue: 65536
   TripChance:
-    RawValue: 1966
+    RawValue: 4915
   WildSlideChance:
-    RawValue: 2621
+    RawValue: 6554
   DropChance:
-    RawValue: 1966
+    RawValue: 4588
   OffCenterChance:
-    RawValue: 16384
+    RawValue: 26214
   OffCenterError:
     RawValue: 29491
   WildThrowChance:
-    RawValue: 19661
+    RawValue: 32768
   WildThrowError:
     RawValue: 786432

@@ -12,15 +12,15 @@ Guy clips go in the one animated `CH_Guy.fbx` (mesh, deform skeleton, all action
     - For a re-export: keep the object names; `COL_stairs` has collinear (zero-area) triangles that Quantum warns about at every bake (harmless; merge or dissolve them to quiet it); the stairs' top step is about 0.53 m below the pillar top, just over Guy's 0.5 m step, so players hop the last bit (raise the stairs or lower the pillars a little if that feels wrong).
     - Materials: everything uses one default material (`Lit`); separate materials for ground, wall, ring and pillars would let them read apart.
 
-## Touch-ups: core loop (next)
+## Touch-ups: grab and match end
 
-The agent builds these with placeholders; direction from Jackson keeps them from being redone in Phase 8.
+The agent builds these with placeholders until Jackson's designs arrive.
 
-1. **A-025 Grab highlight and place preview** (direction only; the agent builds the shaders).
-    - Grab highlight: shows the one block a Grab press would take right now, for the local player only (an outline, a rim glow or a bounce). It must read on any player color, under a sauce coat and over the settle dither (A-007), and must not look like the ownership highlight A-013 is planning.
-    - Place preview: while holding a block over a tower, a ghost of where it would land (on the top's face, squared) and whether it would count there (yes / off-center / on a rival's block). Placeholder: a transparent copy of the block in white, red when it wouldn't stack.
-    - A reference image or a couple of frames is enough.
-2. **A-006 addition: match timer** (goes with the HUD mock-ups below). A clock for the match (about 4 minutes, if Jackson picks the timer) and a SUDDEN DEATH banner when it runs out. Today's draft will put the clock in the headline bar, top center.
+1. **A-025 Grab highlight and settle/stack highlight** (Jackson is writing the detailed design, 2026-11-06; the agent builds the shaders from it).
+    - Grab highlight: the one block a Grab press would take right now (the block the camera looks at), for the local player only.
+    - Settle/stack highlight: while holding a block, where it would land and whether it would stack and count there.
+    - Things the design should cover, from the build side: reading on any player color, under a sauce coat and over the settle dither (A-007); not looking like the ownership highlight A-013 plans; what shows when no block is in reach.
+2. **A-006 addition: match timer** (goes with the HUD mock-ups below). A 5-minute clock and a SUDDEN DEATH banner when it runs out. Today's draft will put the clock in the headline bar, top center.
 
 ## Phase 6 (front end and bots)
 
