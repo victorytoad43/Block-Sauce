@@ -157,16 +157,80 @@ namespace Quantum
                 return;
             }
 
-            // Close: creep toward the block so the body turns to face it, and press grab once it is ahead.
+            // Close: creep toward the block so the body turns to face it, and press grab once it is ahead. A grab takes
+            // the nearest block in front (at chest height a tower's top is often nearer than a block on the ground), so
+            // if something else would come away, first step round to the target's far side from it.
             FP yaw = YawTo(context.Transform->Position, target);
+            bool facing = FPMath.Abs(AngleDelta(GetBodyYaw(context.Transform), yaw)) < 25;
+            EntityRef wouldGrab = facing ? GrabSystem.PeekGrabTarget(frame, context.Entity, context.Grab) : EntityRef.None;
+            bool grounded = frame.TryGet(context.Entity, out GroundedTracker tracker) && tracker.IsGrounded;
+
+            // A block resting on a tower (a rival's block on the bot's top, or its own block lying off center there): the
+            // block under it is always nearer from the ground, so jump and grab near the top of the jump, once the target
+            // is what a grab would take.
+            if (IsOnTopOfAnother(frame, bot->Target, target))
+            {
+                intent.MoveYaw = yaw;
+                intent.MoveAmount = FlatDistance(context.Transform->Position, target) > FP._1 ? FP._0_20 : FP._0;
+                if (facing == false)
+                    return;
+
+                if (grounded)
+                {
+                    intent.Jump = bot->StepTimer.IsRunning(frame) == false;
+                    if (intent.Jump)
+                    {
+                        bot->Attempts++;
+                        bot->StepTimer = FrameTimer.FromSeconds(frame, FP._0_50);
+                    }
+                }
+                else if (wouldGrab == bot->Target)
+                {
+                    intent.Grab = true;
+                }
+
+                return;
+            }
+
+            if (wouldGrab != EntityRef.None && wouldGrab != bot->Target)
+            {
+                FPVector3 away = target - frame.Get<Transform3D>(wouldGrab).Position;
+                away.Y = FP._0;
+                if (away.SqrMagnitude < FP._0_01)
+                {
+                    away = target - context.Transform->Position;
+                    away.Y = FP._0;
+                }
+
+                FPVector3 stand = target + away.Normalized * (context.Config.GrabDistance - FP._0_20);
+                if (FlatDistance(context.Transform->Position, stand) > FP._0_20)
+                {
+                    intent.MoveYaw = YawTo(context.Transform->Position, stand);
+                    intent.MoveAmount = FP._0_50;
+                    return;
+                }
+            }
+
             intent.MoveYaw = yaw;
             intent.MoveAmount = FP._0_20;
-            if (FPMath.Abs(AngleDelta(GetBodyYaw(context.Transform), yaw)) < 25 && bot->StepTimer.IsRunning(frame) == false)
+            if (facing && bot->StepTimer.IsRunning(frame) == false)
             {
                 intent.Grab = true;
                 bot->Attempts++;
                 bot->StepTimer = FrameTimer.FromSeconds(frame, FP._0_25);
             }
+        }
+
+        /// <summary>
+        /// Whether <paramref name="block"/> (at <paramref name="position"/>) rests on another block, centered within a
+        /// block of it: grabbing it from the ground would take the block underneath instead.
+        /// </summary>
+        private static bool IsOnTopOfAnother(Frame frame, EntityRef block, FPVector3 position)
+        {
+            // From just under the block, so the ray can't hit the block itself.
+            FPVector3 below = position - FPVector3.Up * (GetHalfHeight(frame, block) + FP._0_05);
+            Hit3D? hit = frame.Physics3D.Raycast(below, FPVector3.Down, FP._0_50, -1, QueryOptions.HitDynamics);
+            return hit.HasValue && hit.Value.Entity != block && frame.Has<Block>(hit.Value.Entity);
         }
 
         /// <summary>
@@ -238,8 +302,14 @@ namespace Quantum
             {
                 if (tall == false)
                 {
-                    // Walk up to the tower, stopping before the body would shove it.
+                    // Walk up to the tower, stopping before the body would shove it; back off if too close to reach
+                    // over it (a bot that ends up standing on its target block can't place on it).
                     intent.MoveAmount = distance > config.PlaceStandDistance ? FP._0_33 : FP._0;
+                    if (distance < config.PlaceStandDistance - FP._0_33)
+                    {
+                        intent.MoveYaw = yaw + 180;
+                        intent.MoveAmount = FP._0_25;
+                    }
                 }
                 else if (distance > config.PlaceLineUpDistance + FP._0_05)
                 {

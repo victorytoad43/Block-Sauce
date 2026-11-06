@@ -43,7 +43,7 @@ namespace Quantum
                         {
                             if (frame.RuntimeConfig.DemoMatch)
                             {
-                                BotSystem.RollSkills(frame);
+                                BotSystem.RollBots(frame);
                             }
 
                             StartMatch(frame, match, mode);

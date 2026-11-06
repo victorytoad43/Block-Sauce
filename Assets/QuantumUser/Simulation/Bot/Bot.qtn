@@ -126,6 +126,15 @@ event BotTackleEnded
     bool Dropped;
 }
 
+// A bot's task ended (Done or Failed) while it was carrying it out; for the soak stats.
+event BotTaskEnded
+{
+    EntityRef Bot;
+    BotTaskType Task;
+    BotTaskStatus Status;
+    EntityRef Target;
+}
+
 // A bot made a mistake on purpose (see BotMistakeType); for the soak stats.
 event BotMistake
 {

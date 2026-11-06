@@ -81,10 +81,31 @@ namespace Quantum
         /// </summary>
         public static void FillEmptySlots(Frame frame, BotConfig config)
         {
+            if (TestBotCount >= 0)
+            {
+                // Test only: exactly this many bots (head-to-head soaks).
+                while (frame.ComponentCount<Bot>() > TestBotCount)
+                {
+                    RemoveBot(frame);
+                }
+
+                while (frame.ComponentCount<Bot>() < TestBotCount && AddBot(frame, config))
+                {
+                }
+
+                return;
+            }
+
             while (AddBot(frame, config))
             {
             }
         }
+
+        /// <summary>
+        /// Test only (editor soaks): when 0 or more, filling the slots at a match start leaves exactly this many bots
+        /// (removing the highest ones). Never set in a match that's online.
+        /// </summary>
+        public static int TestBotCount = -1;
 
         /// <summary>
         /// Returns the bot config of the match's mode, or null.
@@ -141,14 +162,16 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Gives every bot a level at random, from Easy to Expert (the menu's demo match, at each match start).
+        /// Gives every bot a level (Easy to Expert) and a personality at random: the menu's demo match, at each match
+        /// start, so the same bots play differently from match to match.
         /// </summary>
-        public static void RollSkills(Frame frame)
+        public static void RollBots(Frame frame)
         {
             var bots = frame.Filter<Bot>();
             while (bots.NextUnsafe(out EntityRef _, out Bot* bot))
             {
                 bot->Skill = (BotSkillLevel)frame.RNG->Next(0, (int)BotSkillLevel.Expert + 1);
+                bot->Personality = (BotPersonalityType)frame.RNG->Next(0, (int)BotPersonalityType.Klutz + 1);
             }
         }
 
@@ -267,6 +290,8 @@ namespace Quantum
                     HFSMManager.Update(frame, frame.DeltaTime, entity);
                 }
 
+                BotTaskType task = bot->Task;
+                bool running = bot->Status == BotTaskStatus.Running && task != BotTaskType.None;
                 BotIntent intent;
                 if (frame.Has<RagdollOwner>(entity))
                 {
@@ -275,6 +300,11 @@ namespace Quantum
                 else
                 {
                     intent = BotActions.Tick(frame, entity, bot, config);
+                }
+
+                if (running && bot->Task == task && bot->Status != BotTaskStatus.Running)
+                {
+                    frame.Events.BotTaskEnded(entity, task, bot->Status, bot->Target);
                 }
 
                 Input* input = &player->Input;

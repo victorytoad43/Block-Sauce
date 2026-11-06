@@ -75,7 +75,9 @@ namespace BlockSauce
                 _director.FollowNext(-1);
             }
 
-            GUI.Label(new Rect(x + 50f, y, 300f, 36f), _director.Describe(), _label);
+            // Dev builds add what the shown bot is (personality, skill); players never see it.
+            GUI.Label(new Rect(x + 50f, y, 300f, 36f), _director.Describe() + BotDevInfo.Describe(_director.ShownPlayer),
+                _label);
 
             if (GUI.Button(new Rect(x + 356f, y, 44f, 36f), "▶", _button))
             {

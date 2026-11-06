@@ -193,7 +193,7 @@ namespace BlockSauce
                 bool isBot = kind == SlotKind.Bot && TryGetBotSkill(frame, i, out skill);
                 // One number for what the row shows, to skip rebuilding it when nothing changed.
                 int state = (int)kind | (local ? 4 : 0) | (host ? 8 : 0) | (inGame ? 16 : 0)
-                    | (isHost && lobby ? 32 : 0) | ((int)skill << 6);
+                    | (isHost && lobby ? 32 : 0) | ((int)skill << 6) | ((BotDevInfo.PersonalityKey(frame, i) + 1) << 9);
                 if (force == false && _shown[i] == state)
                     continue;
 
@@ -258,7 +258,10 @@ namespace BlockSauce
             Color color = _palette != null ? _palette.GetColor(slot) : Color.white;
             bool open = kind == SlotKind.Open;
             row.Swatch.color = open ? new Color(color.r, color.g, color.b, 0.25f) : color;
-            row.Name.text = open ? "OPEN" : kind == SlotKind.Bot ? $"BOT {slot + 1}" : $"PLAYER {slot + 1}";
+            // Dev builds add a bot's personality; players never see it.
+            row.Name.text = open ? "OPEN"
+                : kind == SlotKind.Bot ? $"BOT {slot + 1}<size=55%>{BotDevInfo.Describe(slot, withSkill: false).ToUpperInvariant()}</size>"
+                : $"PLAYER {slot + 1}";
             row.Name.alpha = open ? 0.45f : 1f;
 
             string tag = kind == SlotKind.Bot ? "BOT" : string.Empty;

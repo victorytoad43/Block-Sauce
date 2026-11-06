@@ -140,6 +140,11 @@ namespace BlockSauce
         public PlayerRef FollowedPlayer => _mode == ViewMode.Follow ? _followed : PlayerRef.None;
 
         /// <summary>
+        /// The player the camera is about right now (followed, or the auto shot's), or none.
+        /// </summary>
+        public PlayerRef ShownPlayer => _mode == ViewMode.Follow ? _followed : _hasShot ? _shot.Player : PlayerRef.None;
+
+        /// <summary>
         /// What the camera shows, in a few words for the spectator controls: the mode and, where there is one, whose.
         /// </summary>
         public string Describe() => _description;

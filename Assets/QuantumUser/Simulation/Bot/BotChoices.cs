@@ -17,6 +17,11 @@ namespace Quantum
         /// </summary>
         private static readonly FP MaxFetchHeight = (FP)7 / 5;
         /// <summary>
+        /// The highest a block's center may be above the ground for a jump-grab to reach it (a block on a two-block tower
+        /// is about 2 m up; Guy's jump lifts his grab pivot to about 2 m).
+        /// </summary>
+        private static readonly FP MaxJumpFetchHeight = (FP)12 / 5;
+        /// <summary>
         /// The highest a block's center may be above the ground under it to count as on the ground (half a block, plus
         /// slack for a tilt on uneven ground).
         /// </summary>
@@ -46,6 +51,14 @@ namespace Quantum
             EntityRef skip = bot->UnreachableTimer.IsRunning(frame) ? bot->Unreachable : EntityRef.None;
             BotPersonality personality = config.GetPersonality(frame, bot);
 
+            // A tower of two or more is home, whichever block the bot first meant to build on: the old home block may
+            // now be a loose block it needs (it is left out of the blocks to fetch below).
+            EntityRef towerBase = BlockTower.GetBestBase(frame, self);
+            if (towerBase != EntityRef.None && BlockTower.GetTop(frame, towerBase) != towerBase)
+            {
+                bot->Home = towerBase;
+            }
+
             EntityRef best = EntityRef.None;
             FP bestScore = FP._0;
 
@@ -68,39 +81,49 @@ namespace Quantum
                 }
             }
 
-            EntityRef foreign = FindForeignTop(frame, self);
-            score = personality.ClearTopWeight * 3 / 2 + Jitter(frame);
-            if (foreign != EntityRef.None && foreign != skip && score > bestScore)
+            // A block lying on its top: a rival's (in the way of its next block) or one of its own that landed off center
+            // or tilted (it doesn't count there, and the bot can't fetch it from the ground).
+            EntityRef onTop = FindBlockOnTop(frame, self, out bool rivals);
+            score = (rivals ? personality.ClearTopWeight * 3 / 2 : personality.BuildWeight * 2) + Jitter(frame);
+            if (onTop != EntityRef.None && onTop != skip && score > bestScore)
             {
-                best = foreign;
+                best = onTop;
             }
 
             return best;
         }
 
         /// <summary>
-        /// Returns a rival's block resting on top of the bot's tower (it blocks building there), when it is low enough to
-        /// grab from the ground and nobody holds it or is fetching it; otherwise none.
+        /// Returns a block resting on top of one of the bot's blocks (its tower's top, or a lone block it may build on)
+        /// that is in the way there: a rival's block (<paramref name="rivals"/>), or one of its own that isn't stacked
+        /// (off center or tilted). Only one within a jump-grab's reach that nobody holds or is fetching; otherwise none.
         /// </summary>
-        public static EntityRef FindForeignTop(Frame frame, PlayerRef self)
+        public static EntityRef FindBlockOnTop(Frame frame, PlayerRef self, out bool rivals)
         {
-            EntityRef towerBase = BlockTower.GetBestBase(frame, self);
-            if (towerBase == EntityRef.None)
-                return EntityRef.None;
-
-            EntityRef top = BlockTower.GetTop(frame, towerBase);
-            FPVector3 topPosition = frame.Get<Transform3D>(top).Position;
+            rivals = false;
             FP size = frame.TryGetSingleton(out Match match) ? frame.FindAsset(match.Mode).BlockSize : (FP)8 / 10;
-            var blocks = frame.Filter<Block, Transform3D, Grabbable>();
-            while (blocks.NextUnsafe(out EntityRef entity, out Block* block, out Transform3D* transform, out Grabbable* grabbable))
+            // Any of its own blocks with nothing of its own on top (a tower's top, or a lone block it may build on).
+            var tops = frame.Filter<Block, Transform3D>();
+            while (tops.NextUnsafe(out EntityRef _, out Block* top, out Transform3D* topTransform))
             {
-                if (block->Owner == self || grabbable->Holder != EntityRef.None || IsBeingFetched(frame, entity))
+                if (top->Owner != self || top->StackLevel == BlockStackSystem.NotStacked || top->HasAbove)
                     continue;
 
-                FPVector3 offset = transform->Position - topPosition;
-                if (offset.Y > size / 2 && offset.Y < size * 3 / 2 && offset.X * offset.X + offset.Z * offset.Z < size * size
-                    && HeightAboveGround(frame, transform->Position) <= MaxFetchHeight)
-                    return entity;
+                var blocks = frame.Filter<Block, Transform3D, Grabbable>();
+                while (blocks.NextUnsafe(out EntityRef entity, out Block* block, out Transform3D* transform, out Grabbable* grabbable))
+                {
+                    if ((block->Owner == self && block->StackLevel != BlockStackSystem.NotStacked)
+                        || grabbable->Holder != EntityRef.None || IsBeingFetched(frame, entity))
+                        continue;
+
+                    FPVector3 offset = transform->Position - topTransform->Position;
+                    if (offset.Y > size / 2 && offset.Y < size * 3 / 2 && offset.X * offset.X + offset.Z * offset.Z < size * size
+                        && HeightAboveGround(frame, transform->Position) <= MaxJumpFetchHeight)
+                    {
+                        rivals = block->Owner != self;
+                        return entity;
+                    }
+                }
             }
 
             return EntityRef.None;

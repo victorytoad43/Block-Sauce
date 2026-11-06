@@ -1,6 +1,6 @@
 # Block Sauce: plan
 
-Source of truth for design, architecture, decisions and phases. Older plan versions live in git history.
+Source of truth for design, architecture, decisions and phases. Older plan versions, finished phase checklists and how decisions were reached live in git history.
 
 ## Overview
 
@@ -8,7 +8,7 @@ Block Sauce is a third-person online physics party game for 2–6 players: build
 
 **Player verbs:** walk/run, jump, sit, slide (sit while moving fast), grab, carry, hold and swing, place, throw, jumpshot (throw while airborne). A held block is available in every movement state.
 
-**Stack:** Unity 6000.3.14f1 + URP 17.3 (view, animation, VFX); Photon Quantum 3.1.0 Preview build 2189 (deterministic simulation and networking), pinned; Blender 5.1 (Guy's model, rig and animation).
+**Stack:** Unity 6000.3.14f1 + URP 17.3 (view, animation, VFX); Photon Quantum 3.1.0 Preview build 2189 (deterministic simulation and networking), pinned; Quantum Bot SDK 3.10.6, pinned; Blender 5.1 (Guy's model, rig and animation).
 
 ## Architecture
 
@@ -19,32 +19,30 @@ Anything that decides who wins lives in the Quantum simulation; anything that on
 | Player: force-driven capsule, control tiers, grab, swing, throw, knockback | Animation: locomotion blends, upper-body hold layer, IK |
 | Blocks: bodies, ownership, stack detection, settle progress, counting | Ragdoll pose on Guy's bones, get-up blends, dazed indicator |
 | Game mode: match flow, rules, win check, team IDs | Shaders and VFX: settle dither, sauce coat |
-| Knockdown: 11-limb `QuantumRagdoll`, timers, get-up placement | Camera, HUD, audio driven by simulation events |
-| Sauces (Phase 5): dip planes, sauce type, effect hooks | |
+| Knockdown: 11-limb `QuantumRagdoll`, timers, get-up placement | Camera (orbit, spectator director), HUD, menus, audio from simulation events |
+| Sauces: dip planes, sauce type, friction and glue | Dev only: bot labels, `BotSoakLog` |
+| Bots: navmesh paths, actions, Bot SDK state machine, skill and personality | |
 
 Reference implementation: Photon's Friendslop sample (grab, carry, throw, force-driven movement, ragdolls, stacked props). Port systems from it; never its first-person camera or input layout.
 
 ### Character
 
-- **Sit and slide:** the crouch button sits. A sitting character is stationary: no steering, turning or jumping, it only brakes (a shove still slides it). Pressing it while moving 4 m/s or faster slides instead (7.5 m/s for 0.75 s), ending in a sit while the button is held. The capsule is 1.30 m tall while sitting or sliding. The view plays the sit-down, blending into the slide clip while a sitting body moves faster than 2 m/s.
+- **Sit and slide:** the crouch button sits. A sitting character is stationary: no steering, turning or jumping, it only brakes (a shove still slides it). Pressing it while moving 4 m/s or faster slides instead (7.5 m/s for 0.75 s), ending in a sit while the button is held. The capsule is 1.30 m tall while sitting or sliding.
 - **Control tiers:** in control (forces chase the stick's target velocity), staggered (no steering, light braking, drops the held block), knocked down (capsule off, ragdoll limbs take over and topple towers).
-- The view reads speed, direction, grounded and state, and plays Blender clips on top. Root motion stays off; animation follows the body.
-- Timed moves (slide length, throw release, get-up offset) are simulation numbers sized to the authored clips.
+- The view reads speed, direction, grounded and state, and plays Blender clips on top. Root motion stays off; animation follows the body. Timed moves (slide length, throw release, get-up offset) are simulation numbers sized to the authored clips.
 - Foot IK (feet planted per foot on statics and blocks, hips dropping up to 0.35 m) and hand IK live entirely in the view. A stagger plays a full-body flinch for the side that was hit.
 
 ### Holding a block
 
-- While holding, look input (right stick or mouse) swings the block instead of turning the camera. The block orbits a pivot inside Guy at the `GrabBlock` clip's hold point (0.77 m up, 0.95 m out), level and square to him. Left/right on the left stick strafe.
-- The block chases its hand point by velocity each tick, so a swing physically hits players and towers. A carrier never collides with, or is knocked by, the block it holds.
-- The camera always moves with look input while holding, on a gradient: 35% of the input with the block in the middle of its swing, rising smoothly to all of it at the edges. Sideways, a swing past 45° turns the body and the camera turns with it. Vertically, past the top (60°) or bottom (−25°) of the swing, input only tilts the camera. Aiming tilts the same way with the throw angle.
-- Holding Throw aims: the block rises to 30°, horizontal input turns the body, vertical input sets the throw angle, and a trajectory line and landing circle show the throw. Releasing throws (12 m/s; a jumpshot in the air is 1.3×). Grab while holding places.
-- Aim and throw in the view: aiming holds frame 4 of `Throw` (the wind-up, block overhead) on the upper body, and the block's model rides in Guy's hands while the real block stays at the 30° aim point in front, colliding with nothing (it sits on the `AimedBlock` physics layer). The model moves between the two on an arc over Guy's head, both when aiming starts and on release. Releasing plays `Throw` on from frame 4, and the model catches up with the flying block within 0.08 s. For 0.15 s after a throw the block passes through its thrower and anything it was released inside. In the air it is the same over `JumpLoop`. The camera moves over the right shoulder while aiming so the raised block doesn't hide the aim line.
+- **Grab** takes the nearest free block within 2 m of a pivot inside Guy (0.77 m up), in a 60° cone in front (flat). It turns the least it can to sit level and square to Guy. Because the nearest block wins, the block under a tower's top is always nearer from the ground than anything resting on it: lifting a block off a tower needs a jump-grab today (see the Touch-ups phase).
+- While holding, look input swings the block instead of turning the camera. The block orbits the pivot at the `GrabBlock` clip's hold point (0.95 m out), level and square to him. Left/right on the left stick strafe. The block chases its hand point by velocity each tick, so a swing physically hits players and towers. A carrier never collides with, or is knocked by, the block it holds.
+- The camera always moves with look input while holding, on a gradient: 35% of the input with the block in the middle of its swing, rising to all of it at the edges. Past 45° sideways the body turns; past the top (60°) or bottom (−25°) of the swing, input only tilts the camera.
+- Holding Throw aims: the block rises to 30°, horizontal input turns the body, vertical input sets the throw angle, and a trajectory line and landing circle show the throw. Releasing throws (12 m/s; a jumpshot is 1.3×). Grab while holding places. While aiming the real block collides with nothing (`AimedBlock` layer) and its model rides in Guy's hands (`Throw` frame 4), arcing back to the block on release.
 
 ### Knockdown
 
-- One knockback path (`KnockbackSystem`). A speed change of 2.5 m/s staggers; 6 m/s knocks down (a full throw or jumpshot, a hard swing, any fast block). A running body check on someone already staggered knocks them down.
-- Down for 2.5 s; each Jump press takes 0.3 s off. Bodies can be carried (toggle on `PlayerRagdollConfig`) and break free after 2.5 s, shortened the same way; a body that broke free can't be grabbed again until it gets up.
-- Get-up stands Guy at the hips (0.37 m ahead, to match the clips), on the nearest clear spot, with no grace period.
+- One knockback path (`KnockbackSystem`). A speed change of 2.5 m/s staggers; 6 m/s knocks down (a full throw or jumpshot, a hard swing, any fast block). A running body check (4.5 m/s) on someone staggers them; on someone already staggered it knocks them down.
+- Down for 2.5 s; each Jump press takes 0.3 s off. Bodies can be carried and break free after 2.5 s. Get-up stands Guy at the hips, on the nearest clear spot.
 
 ## Base game mode: Stack & Lock
 
@@ -52,130 +50,68 @@ A player wins the round when all three of their blocks stand stacked, and counte
 
 1. Each player owns 3 blocks in their color. Towers can be built anywhere.
 2. Blocks are always ordinary physics bodies: nothing is frozen or locked, and any block can be grabbed at any time.
-3. A block is stacked when it rests level and squarely on another block of its owner, or is a ground block with one of its owner's blocks on top. A lone block on the ground isn't stacked.
+3. A block is stacked when it rests level and squarely on another block of its owner (within half a block of center and 12° of level), or is a ground block with one of its owner's blocks on top. A lone block on the ground isn't stacked.
 4. A stacked block at rest settles: a dither in the owner's darker shade climbs it over 3 s, and any touch at 1 m/s or more restarts it. At the top it counts, for as long as it stays stacked.
 5. A block that stops being stacked stops counting, and so does any block that was only stacked because of it.
-6. The first player whose tower holds 3 counted blocks wins.
+6. The first player whose tower holds 3 counted blocks wins. There is no time limit yet (see the Touch-ups phase).
 
 **Interference:** anyone can grab and throw any block and place blocks on a rival's tower. A foreign block on top is an obstacle the owner's next block can't count on until it is knocked off.
 
+**Arena start layout:** each player starts on their pillar with one block in front of them (their home block); their second block sits on the inner ring across the middle; the third is in a pile of six in the middle. Map markers (`BlockSpawnPoint`) set it; a map without markers gives each player a row of blocks.
+
 **Built as a baseplate for future modes:** match flow is a state machine (Lobby → Countdown → Playing → Round end → Results → Lobby); the lobby is a sandbox with the win rule off; a mode is a config asset (`GameModeConfig`) with rule hooks (`OnMatchStarted`, `OnBlockCounted`, `OnBlockUncounted`, `CanCount`, `CheckWinner`); every player and block carries a team ID (free-for-all is teams of one).
 
-## Sauce system (Phase 5)
+## Sauce system
 
-Each dip stores a plane in the block's local space; the shader turns those planes into a thick, lumpy, ragged coat that changes the block's silhouette as much as its color. The two sauces are opposites, both about grip: Stack is sticky, Slip is slippery. That leaves room for other kinds of sauce later.
+Each dip stores a plane in the block's local space; the shader turns those planes into a thick, lumpy coat that changes the block's silhouette as much as its color. The two sauces are opposites, both about grip: Stack is sticky, Slip is slippery. Sauces live in the Lobby test scene for now (the arena has no cups, Jackson 2026-11-05).
 
-**Vats:** Jackson's cup (`EN_SauceVat`) at 1.3× (1.94 m across, rim 0.61 m, above Guy's 0.5 m step), two at the middle of the Lobby (Stack at x −2.1, Slip at x +2.1). Collision follows the cup's shape, a flared paper sauce cup: 24 wall boxes leaning out 14° along the inner wall (0.71 m radius at the floor to 0.86 m at the rim) and a floor at the cup's inner bottom (0.05 m), all on the `Vat` layer. The hold's line-of-sight check ignores that layer, so a held block can be lifted over the rim and pushed down in. Sauce fills to 0.55 m; a block on the floor is about 60–70% dipped.
+- **Vats:** Jackson's cup (`EN_SauceVat`) at 1.3× (1.94 m across, rim 0.61 m, above Guy's 0.5 m step). Collision follows the cup (24 leaning wall boxes and a floor on the `Vat` layer, which the hold's line-of-sight ignores, so a held block can be pushed in). Sauce fills to 0.55 m.
+- **Simulation (`SauceSystem`, tuning on `SauceConfig`):** a block reaching into the sauce records the surface as a plane in block-local space with the sauce type (up to 3 dips; a fourth replaces the shallowest; under 5% leaves nothing). Strength = deepest dip's fraction ÷ 0.5, capped at 1.
+- **Stack sauce:** high friction in four steps by strength (1.5 to 4; plain 0.8, ground 0.6), and it glues to whatever it touches while nearly at rest (a stiff joint bending at most 2°). Glue tears when hit at 3 m/s (lowest strength) to 7 m/s (full) into the contact, when either block is grabbed, or when pulled 10 cm apart; torn blocks glue again where they rest. A glued tower stands up to shoves and ragdolls; a throw breaks it.
+- **Slip sauce:** low friction in four steps (0.6 to 0.03), so the block slides and what is stacked on it slides off.
+- **View:** coverage below each dip plane with a ragged noise edge seeded by the entity ID; the coat is its own rounded-box shell pushed out 1.9 cm plus lumps up to 3 cm. Stack is dark and warm with bubbles, Slip pale and glossy with glints (`PH_SauceLooks`). Drips off for now.
 
-**Simulation (`SauceSystem`, tuning on `SauceConfig`, referenced by the game mode):**
-- A block reaching into a vat's sauce volume is dipped, held or loose: the surface is recorded as a plane in block-local space (normal + offset) with the sauce type, keeping the deepest the block went. A dip ends 0.25 s after the block leaves (so an edge bobbing across the surface stays one dip). Up to 3 dips per block; a fourth replaces the shallowest. Dips under 5% leave nothing.
-- Strength per sauce = its deepest dip's fraction ÷ 0.5, capped at 1. Fraction = the share of the block's height, along the plane normal, below the plane.
-- **Stack sauce:** the block takes a high-friction physics material in four steps by strength (friction 1.5, 2.25, 3, 4, combined by multiplying; plain blocks 0.8, the ground 0.6), and it glues itself to whatever it touches while nearly at rest (under 0.5 m/s against it): to each touching block, and to the ground or any static surface. Glue is a stiff joint (a character joint bending at most 2°) at the shared face, or at the block's center for the ground. It tears when either glued block is hit at 3 m/s into the contact at the lowest strength to 7 m/s at full (a throw is 12, a jumpshot 15.6; walking, running and a flying ragdoll stay under it), when either block is grabbed, or when it is pulled more than 10 cm apart. Torn blocks glue again wherever they come to rest. A glued Stack tower stands up to shoves and ragdoll slams; a throw breaks it. Where a block has both sauces, the stronger wins by the difference.
-- **Slip sauce:** the block takes a low-friction physics material in four steps by strength (friction 0.6, 0.4, 0.2, 0.03; plain blocks 0.8), so it slides, and what is stacked on it slides off.
-- New blocks every match, so sauce never carries over.
+## Bots
 
-**View:**
-- Coverage mask below each dip plane, with a ragged edge from 3D object-space noise seeded by the block's entity ID (identical on every client).
-- The coat is drawn on its own evenly divided rounded-box shell the block's size (28 quads per face edge, edges rounded 4 cm), not the block's mesh, so it has the vertices for volume however the block is modelled. Under the sauce the shell is pushed out along its smooth normals by 1.9 cm plus soft lumps of up to 3 cm, ramping up over 6 cm from the edge to a rounded bead; lighting uses the pushed-out surface's normals. URP has no tessellation.
-- Drips are off for now (`_DripLength` 0 on `PH_SauceCoat`), to be reconsidered once the coat's volume is settled (Jackson, 2026-11-03).
-- Player colors own hue, so the sauces differ in value and cue: Stack is dark and warm with rising bubbles, Slip pale and glossy with glints (`PH_SauceLooks`). A dip splashes the vat's sauce.
+A bot takes a free player slot and its brain writes that slot's input, so every system treats it as a player. The host adds and removes bots on the room screen; bots fill empty slots at a match start (on by default). The menu's demo match is all bots.
+
+- **Navigation:** a navmesh baked into each map (Unity bakes for Guy's size, Quantum imports it at map bake), with jump links onto ledges (ring edges, pillar rims, stairs). Bots look up a path a few times a second, head for the next corner, jump at links, and dodge players and blocks with probes. No navmesh (the Lobby): straight-line steering. **Block Sauce › Bake Arena NavMesh** rebakes it.
+- **Actions** (`BotActions`, our code): go to, fetch (including a jump-grab for a block lying on a tower), carry, place on a tower (a jump for tall ones), throw at a target, dunk, slide tackle, get up. **Decisions:** a Bot SDK state machine (`BotBrainBuilder`: fetching, building, raiding, dunking, tackling, recovering) around scored choices in `BotChoices` (build, raid, clear its top, what to throw at, whom to tackle).
+- **Skill** (host sets it per bot on the room screen; new and fill bots take the last level set; the demo rolls it every match): `BotSkill_Easy`, `_Normal`, `_Hard`, `_Expert` assets: hesitation, raid count, running with a block, grab and place attempts, placement error, aim tolerance and error, tackle distance, line-up and lead.
+- **Personality** (rolled when a bot is added, and every match in the demo; hidden from players, shown in dev builds): `BotPersonality_Wrecker` (raids early, throws at carriers, tackles anyone carrying and rivals at their towers), `_Builder` (raids only a rival about to win, clears its top, guards its tower, dunks in Stack more), `_Klutz` (plays like the default bot and makes mistakes: trips, wild slides, drops, off-center placings, wild throws).
+- **Dev tools:** the spectator label and the room screen add a bot's personality and skill (editor and development builds only); `BotSoakLog` writes a `[BotSoak]` line per match with per-player stats; test switches (`BotSystem.TestBotCount`, `BotConfig.TestSkillBySlot`, `TestPersonalityBySlot`, `BotChoices.TestDisableTackles`, `BotNavigation.TestDisable`) drive soaks from editor scripts.
 
 ## Phases
 
-### Phases 0–3: done
-- [x] **Phase 0, Foundations:** Quantum 3.1 upgrade, git + LFS, project hygiene, Guy import test, input scheme, Lobby and Arena_Graybox scenes.
-- [x] **Phase 1, Sandbox lobby:** movement tiers, orbit camera, knockback, grab/hold/swing/place/throw/jumpshot, hold-to-aim, 8-player rooms. Approved after Jackson's play-test.
-- [x] **Phase 2, Stack & Lock:** owned blocks, stack detection, settling and counting, match flow, HUD placeholder, win check.
-- [x] **Phase 3, Knockdown:** knockdown tier, Guy's 11-limb ragdoll, get-up, carrying bodies, falling out, 8 players down at once profiled online (sim held 64 Hz).
+Done and reviewed: **0** Foundations, **1** Sandbox lobby, **2** Stack & Lock, **3** Knockdown, **4** Character, **5** Sauces, **6** Front end and bots, the plan review (optimization pass, frame rate pinned: judge performance in builds), **7** Arena. Their checklists and reports are in git history.
 
-### Phase 4: Character (done 2026-11-02, reviewed)
-In: Idle; walk and run as 2D blends (forward, back, strafe); jump start/loop/land; sit and slide; stagger flinches by hit side; `GrabBlock` hold layer with spine turn and two-bone hand IK on the block; aim pose and `Throw` follow-through, grounded and airborne; foot IK on uneven ground and blocks; ragdoll pose on Guy's bones; get-up blends; the grabbed block squaring to Guy's facing; capsule at Guy's 0.40 m radius.
-- [x] Strafe, stagger, sit and slide clips integrated (2026-11-02)
-- [x] Crouch replaced by sit (stationary, slides above 4 m/s)
-- [x] Capsule widened to 0.40 m; grab reach and flush placing retested
-- [x] Foot IK on uneven terrain
-- [x] Hold visuals: hands on the block's faces, no chest clipping from 0° to 60° (checked 2026-11-02)
-- [x] Two-handed aim pose and jumpshot from `Throw` frame 4 (2026-11-02)
-- [x] Place: no clip; letting go blends the upper body back out of the hold
-- [x] Camera keeps moving with look input while holding (gradient instead of a locked middle)
-- [x] Done-when verified: a full match with 2 clients (MPPM `TwoClients` scenario), every state cycled; win and lose play `Idle` until A-023
-- **Done when:** Guy plays a full match on uneven terrain with no state left unanimated.
+### Bot Enhancement (done 2026-11-06, waiting for Jackson's review)
+Navmesh pathfinding, slide tackles, four skill levels set per bot on the room screen, three hidden personalities with Klutz mistakes, dev labels and soak stats; then a wide review of the game from bot soaks (`docs/PROGRESS.md` › Review).
+- [x] Navigation, slides, skill levels, room screen difficulty, personalities, Klutz mistakes (2026-11-05)
+- [x] Dev view of skill and personality; `BotSoakLog` (2026-11-06)
+- [x] Fixes found by the soaks: a bot whose old home block was loose never fetched it; bots grabbed their own tower's top while fetching; a bot standing on its target block never placed; a bot's own block lying off center on its tower was never picked up; Builders never cleared a rival block off their top (all need a jump-grab or are fixed)
+- [x] Done-when checked (2026-11-06): met except the head-to-head order (see the report)
+- **Done when:** in arena soaks bots reach pillar tops and the ring by path, and slide tackles make carriers drop their blocks; the host sets each bot's difficulty on the room screen; in all-bot soaks Expert beats Easy in at least 8 of 10 head-to-head matches and each level beats the one below more often than not; the personalities show in the soak stats; Jackson plays a room of mixed bots and can tell them apart.
 
-### Phase 5: Sauces (done 2026-11-03, reviewed)
-- [x] Dip vats (Jackson's cup); dip planes and depth-based strength in the simulation (2026-11-02)
-- [x] Stack sauce and Slip sauce gameplay; Stack reworked from a shove to sticky friction and glue (2026-11-03)
-- [x] Sauce coat shader: noise edge, lumpy volume on its own shell, wet shading (drips off for now, 2026-11-03)
-- [x] Subdivided block mesh (A-005) in; owner readability (A-013) moved to the visual polish after the plan review
-- [x] Aimed block collides with nothing; its model arcs over the head
-- [x] Done-when verified with two clients (2026-11-02): Slip tower comes apart when pushed (the Stack shove it also checked is gone)
-- **Done when:** dipping changes how a round plays and reads at a glance.
-
-### Phase 6: Front end and bots (done 2026-11-04)
-A rough draft of the menu and UI, the spectator camera and bots, so the game can be seen whole before a plan review (Jackson, 2026-11-03). Art for the UI is Jackson's mock-up and pieces (A-002); everything without art is a rough draft in his style, not final.
-- [x] Bots: a bot takes a free player slot and its brain writes that slot's input, so every system treats it as a player (owner, team, color, score). Actions in our code (go to, grab, carry, place on a tower, throw at a target, dunk, get up); decisions in a Bot SDK state machine (fetch, build, raid, dunk, recover). The host adds and removes bots in the room; bots fill empty slots when a match starts, a room-screen setting that is on by default. One skill level, a bit clumsy (Jackson, 2026-11-03).
-- [x] Spectator camera: a director that follows the action (who is building, who is fighting), cutting and easing between players; non-interactive behind the menu. In a room, a viewer can take over: follow the previous or next player, hold the overview (wide shot of everyone), or hand back to the director (Jackson, 2026-11-03). Free flight comes later.
-- [x] Menu: Jackson's main menu (logo and Start Game, Join Game, Settings on the right) over a live bot match seen from the spectator camera, running offline on this machine. Start Game hosts an online room and Join Game joins one by room code or any open room; both land in the sandbox room. No offline solo mode: a room can be all bots. Settings: volume, look sensitivity, invert Y, fullscreen and resolution. Controller and mouse both drive it. Replaces the stock Quantum start UI.
-- [x] In-room UI and HUD, rough draft in the Jaro font and Jackson's style: room code, player list in colors with bots marked, add/remove bots, start match; match HUD (countdown, each player's tower slots) and results. Replaces the IMGUI `MatchHud`.
-- [x] All-bot test match: set up in a live room (add bots or fill at start), 6 bots play Stack & Lock to a win, watched with the spectator camera. Testing only, not a player feature.
-- [x] Done-when verified with 2 clients (MPPM `TwoClients`): menu over the demo match, host, guest by code, bots added, a full match, back to the menu; the demo's 6 bots finish matches alone
-- **Done when:** the game opens on the menu over a bot match; a player can start a room, add bots, play a full match against them and return to the menu; a second player joins that room by code; 6 bots finish a match on their own.
-
-### Plan review (in progress)
-After Phase 6, Jackson and the agent replan what follows from playing the whole game. It includes an optimization pass (Jackson): profile the full game with 6 players and bots, CPU and GPU, then fix the top costs.
-- [x] Optimization pass (2026-11-04): the one big cost was a bug, an exception thrown every tick after a knockdown from a collision (about 53 ms a frame; it also left the demo stuck on its results). Fixed. With 6 bots playing, a frame costs about 5 ms on the main thread offline and about 8 ms online (7 simulation steps a frame with rollbacks), and 1.5 ms on the GPU, measured in the agent's unfocused editor.
-- [x] Jackson's 30 fps in the editor and drops to about 9 fps (2026-11-04): not the game. On this PC, frames wait on the display: in the editor about 28 ms of each 33 ms frame is the wait for the last presentation, and a development build (about 1 ms of work a frame, 165 fps with vsync) stalls now and then for 100 or 200 ms, every one of them spent waiting on presentation. Vsync is now on by default (it was off, so the game ran at about 900 fps). Jackson's retest: the standalone build runs far faster than his editor (20–33 fps there, with the main and render threads both at 30–50 ms: waiting, not working; the simulation 2.75 ms). Closing the Meta Virtual Monitor made no clear difference. Pinned (Jackson, 2026-11-04): judge performance in builds; the small hiccup on knockdowns goes to Phase 9's profiling.
-- [x] Replan agreed (Jackson, 2026-11-04): the phases below.
-
-The candidates, from the old Phase 6:
-- Final arena with uneven terrain and room for towers; the match runs there (today it runs in the Lobby scene)
-- Camera collision with walls; audio
-- Juice: shake, particles, squash and stretch, count pop; block owner readability (A-013); settle look (A-007); sauce looks (A-009)
-- Feel tuning pass (aim, sensitivity, throw speed, settle, knockdown and glue numbers), now with bots to test against
-- Spectator: join any live room without a player and fly freely; Quantum replays through the same camera for promo capture
-- **Done when** (old Phase 6): a new player finishes a round without explanation.
-
-### Bot Enhancement (next; planned 2026-11-04, navigation and slides added 2026-11-05)
-Bots get pathfinding on a navmesh, slide tackles, four skill levels the host sets per bot, and three hidden personalities, so rooms of bots feel like different people (Jackson, 2026-11-04 and 2026-11-05).
-- **Navigation (first, everything else builds on it):** a deterministic Quantum navmesh baked into each map. Unity's AI Navigation (already installed, 2.0.12) bakes a `NavMeshSurface` over the arena for Guy's size (radius 0.4 m, height 1.8 m, step 0.5 m, slope about 35°); Quantum's map baker imports it into the map asset, so pathfinding runs in the simulation and stays in sync online. Pillar tops and the inner ring are separate walkable areas joined by navmesh links: walk links where stairs or ramps connect, jump links where a bot has to hop a ledge (the builder places these around the ring's edge and the pillar rims, and on the stairs while their top step is over 0.5 m). Bots ask for a path when their target changes (and every half second while it moves), walk waypoint to waypoint, and jump on a jump link; the probes they use today stay for dodging what the navmesh doesn't know about (players, blocks). A map with no navmesh (the Lobby) falls back to today's straight-line steering.
-- **Rebaking:** **Block Sauce › Build Arena** bakes the navmesh along with everything else, and **Block Sauce › Bake Arena NavMesh** rebakes just the navmesh and the map after a hand change. The baked navmesh is part of the map asset, so it's committed with it. A gizmo toggle shows the navmesh and links in the Scene view.
-- **Slides:** bots use the slide as a move. A slide tackle: run at a rival carrying a block (or standing at their tower), slide from about 3 to 4 m out along where the rival will be, and the hit (7.5 m/s, over the 4.5 m/s body-check speed) staggers them so they drop what they hold. Bots also slide now and then to cover ground when nothing is in the way. Skill sets how well the tackle is timed and aimed (Easy slides early and wide, Expert leads the target); personality sets how often (Wreckers tackle most, Builders tackle rivals near their tower, Klutzes slide into walls and off ledges).
-- **Skill: Easy, Normal, Hard, Expert.** Normal is today's bot. Each level is a `BotSkill` asset: hesitation before each task, aim error and tolerance on throws, placement error (how far off center it lets go), speed while carrying, how soon it reacts to a raid, attempts before giving up. Easy is slow and sloppy; Expert is close to a good player (fast, tight aim, runs with a block) but still beatable.
-- **Per bot:** each bot's row on the room screen has a difficulty control (host only, `CommandSetBotSkill`). New bots, including those that fill empty slots at a match start, take the difficulty the host set last (Normal until then). The demo match behind the menu mixes all four.
-- **Personalities, random and hidden:** each bot rolls one when it is added (the simulation's RNG). Nothing in the game shows it; players read it from how the bot plays. Dev builds show it in the spectator label.
-  - **Wrecker** (aggressive): raids from a rival's first counted block, even before its own tower is done; throws at players carrying blocks as well as at towers; runs into rivals standing at their towers.
-  - **Builder** (defensive): raids only a rival one block from winning; dunks in Stack more; guards its tower: runs at a rival who comes near it, and takes a foreign block off its top.
-  - **Klutz** (clumsy): on top of its skill level, now and then trips while running (falls flat, a knockdown), drops the block it carries, lets go well off center, or throws wild. A Hard Klutz is still a good bot with funny mistakes.
-- Each personality is a `BotPersonality` asset of weights and chances that `BotChoices` scores the bot's options with (build, raid, guard, dunk, tackle); the Bot SDK state machine stays as the frame around them.
-- [x] Navigation (2026-11-05): arena navmesh (Unity bake of the arena's collision, Quantum import into the map), 70 jump links (ring edges every 20°, pillar rims every 45° away from the stair and the tower side, one per stair), path following and link jumps in `BotNavigation`, **Block Sauce › Bake Arena NavMesh**; straight-line fallback without a navmesh. In this open arena it roughly matches straight walking (see the log); it's the base for busier maps.
-- [x] Slides (2026-11-05): a crouch intent for bots; the `SlideTackle` task and a Tackling state in the brain (a rival within 12 m carrying one of the bot's blocks, or carrying anything within 3 m of its tower; lead the rival, slide from 3.5 m once the run lines up; 5 s between tackles); travel slides (about one in seven seconds of a long clear run). Numbers on `BotConfig` (Tackling, Travel slides) until skill and personality take them over.
-- [x] Skill levels (2026-11-05): `BotSkill` assets (`Resources/Configs/Bots/BotSkill_Easy`, `_Normal`, `_Hard`, `_Expert`, made by **Block Sauce › Build Bot Skills**, which only creates missing ones), listed on `BotConfig.Skills`; `Bot.Skill` (Normal for every bot until the room screen sets it). On the skill: hesitation, raid count, running with a block, grab and place attempts, placement error, aim tolerance, shortest aim and aim error, tackle slide distance, line-up and lead.
-- [x] Room screen difficulty per bot (2026-11-05): `< NORMAL >` on each bot's row (arrows for the host in the lobby; everyone sees the level), `CommandSetBotSkill`; new and fill bots take the last level picked (`Match.NewBotSkill`, Normal at first); the demo rolls each bot's level at every match start.
-- [x] Personalities (2026-11-05): `BotPersonality` assets (`Resources/Configs/Bots/BotPersonality_Wrecker`, `_Builder`, `_Klutz`, made by **Block Sauce › Build Bot Personalities**, which only creates missing ones), listed on `BotConfig.Personalities`; `Bot.Personality` rolled when a bot is added. Empty-handed choices are scored (build, raid, clear its top) with the personality's weights plus a little randomness; who it tackles (carriers of its blocks, any carrier, rivals at their towers, anyone near its own tower), how often, what it throws at (Wreckers sometimes at carriers), how much it dunks. Guarding uses the existing Tackling state.
-- [x] Klutz mistakes (2026-11-05): chances on `BotPersonality` (Mistakes): trip while running (knocked down at the run's speed), slide without looking, drop the carried block, let go well off center, throw wild; event `BotMistake`.
-- [ ] Dev view of skill and personality; soak stats per bot
-- [ ] Done-when verified
-- **Done when:** in arena soaks bots reach pillar tops and the ring by path (fewer detours than the Phase 7 soak's 4 to 31 a match, and no bot stuck over 10 s), and slide tackles make carriers drop their blocks; the host sets each bot's difficulty on the room screen; in all-bot soaks Expert beats Easy in at least 8 of 10 head-to-head matches and each level beats the one below more often than not; the personalities show in the soak stats (Wreckers throw and tackle most, Builders guard and clear their tops, Klutzes make the most mistakes); Jackson plays a room of mixed bots and can tell them apart.
-
-### Phase 7: Arena (done 2026-11-05, reviewed)
-The arena is Jackson's graybox (`EN_Arena`, delivered 2026-11-05): a round walled bowl about 40 m across with noise-displaced ground (about ±0.5 m), six round spawn pillars (4 m across, tops 0.85 m up, each with stairs) about 15.5 m out, and a raised inner ring (7 to 11 m out, 0.6 m up) round a shallow dip in the middle. No sauce cups for now (Jackson). **Block Sauce › Build Arena** builds the `Arena` scene from it; rerun it after a re-export.
-- **Start layout** (Jackson): each player starts on their pillar facing the middle, with one block in front of them on the pillar (their home block); their second block sits on the inner ring across the middle from them; the third is in a jumbled pile of six in the middle. So everyone crosses the ring and comes back through the middle. The layout is map markers (`BlockSpawnPoint`: the player's spawn slot, and whether it is the home block); a map without markers still gives each player a row of blocks in front of them.
-- [x] Graybox imported: Quantum static mesh colliders on the ground (smooth), wall, inner ring and pillars; the stair collider (`COL_stairs` from `EN_ArenaPieces`) fitted onto each of the six stairs; spawns and block markers measured from the meshes
-- [x] Matches run in the arena: it is the game's first scene (menu, rooms, HUD, dev keys, bots, spectator director, the demo match); the Lobby stays as a test scene with the vats; its own map (`ArenaMap`) and mode (`StackAndLockMode_Arena`, spawns as placed)
-- [x] Bots on uneven ground: "on the ground" is measured from the ground under a block rather than from height 0; a bot jumps onto a ledge too high to step onto (pillars, the inner ring) and walks round only what is chest high
-- [x] Camera collision: a sphere sweep from the pivot against Unity colliders on the arena (layer `CameraBlock`, which only the camera uses); pulled in at once, eased back out
-- [x] Placeholder audio from Jackson's CC0 pack (picked by name, unheard): jump, grab, place, drop, throw, impacts by speed, knockdown, fall reset, settle start, count, uncount, countdown, round start, round end, results, button clicks, menu and room music (`GameAudio`, `PH_SoundBank`)
-- **Done when:** a full 6-player match plays in the arena, and the camera never looks through a wall. Verified 2026-11-05 (see the Phase 7 report in `docs/PROGRESS.md`).
+### Touch-ups: core loop (next)
+"Minor changes and touch-ups until the base demonstration is solid" (Jackson, 2026-11-05), now aimed by the review. Each item changes how the base game plays for players as well as bots; the ones marked **(Jackson)** are feel calls to settle before building.
+1. **Grab targeting (Jackson).** The nearest-block rule takes the wrong block where blocks are stacked: lifting anything off a tower needs a jump-grab, grabbing at a rival's two-block tower yanks its base out, and a tower top at chest height beats the block at your feet. Options: (a) prefer blocks with nothing resting on them; (b) take the block nearest the camera's aim within reach; (c) either, plus (always) a highlight on the block Grab would take. Bots use the same rule (they peek it today).
+2. **Placing that holds (bots, and a preview for players).** About half of all placings land, at every skill level, and most towers that fall are knocked by their own builder (placing, or walking past right after). Bots: walk round their own tower rather than through it, back off after letting go, let go only when the held block is steady; higher skill places more carefully, so skill decides head-to-heads (the unmet done-when). Players: a ghost of where the block will land and whether it would count (ties in with owner readability, A-013).
+3. **Match end (Jackson).** No time limit, so a match can stall (one ran over 10 minutes before this phase's fixes; long ones still happen). Proposal: a match timer (about 4 minutes, on the mode config), then sudden death: the next block to count wins, or most counted blocks when time runs out again; the HUD shows it.
+4. **Bots, smaller:** use the stairs instead of hopping; raid in 1-v-1 (head-to-heads are pure building races today); Builders guard visibly more; the demo's own soak each phase.
+5. **Arena layout check:** home blocks get knocked off the pillars and most winning towers stand on the ground beside a pillar (see the review); decide with Jackson whether the pillar start is doing what he wanted.
+- **Done when:** a player can lift a block off any tower they can reach with one press (or the rule Jackson picks); bots' placings land at least 70% of the time at Normal and the head-to-head order holds (Expert beats Easy 8 of 10, each level beats the one below); no match runs past the timer's sudden death by more than a minute; Jackson plays a mixed room and the bots read as people.
 
 ### Phase 8: Feel and juice
 - [ ] Tuning pass with bots: aim, sensitivity, throw speed, settle, knockdown and glue numbers, and the open questions below
-- [ ] Juice: shake, particles, squash and stretch, count pop
+- [ ] Juice: shake, particles, squash and stretch, count pop; grab highlight and place preview art
 - [ ] Owner readability (A-013), settle look (A-007), sauce looks (A-009)
-- [ ] Audio from a temporary CC0 pack (Jackson picks it, A-014)
+- [ ] Audio: listen to the placeholder picks; Jackson's sounds as they arrive (A-014)
 - **Done when:** a new player finishes a round without explanation.
 
 ### Phase 9: Playtest build
 - [ ] A Windows standalone build, profiled on its own (`-logframes`); the distributable later goes to Steam for private playtests
-- [ ] The small hiccup when someone is knocked down (most likely creating the ragdoll's entities and view; pool them if so). Blocks are 3,168 triangles each, and with 4 shadow cascades a match draws about 520k triangles: fine on Jackson's GPU, worth a lighter block mesh or fewer cascades if lower-end PCs struggle
+- [ ] The small hiccup when someone is knocked down (most likely creating the ragdoll's entities and view; pool them if so); a lighter block mesh or fewer shadow cascades if lower-end PCs struggle
 - [ ] Every match saves a replay (Quantum's replay file), viewable later through the spectator camera; spectator free flight if it fits
 - [ ] Mouse and controller checked by hand; Quantum's stats overlay off
 - **Done when:** people outside the project play a round from the build, and their matches can be replayed.
@@ -183,49 +119,48 @@ The arena is Jackson's graybox (`EN_Arena`, delivered 2026-11-05): a round walle
 ### Later: Steam
 - [ ] Steam integration (store page, Steamworks), once the build has been playtested
 
-### Later: Expansion (ongoing)
-- [ ] Team modes and roles, new win rules, more sauces; bot tactics for them (Bot SDK utility AI)
-- [ ] Matchmaking polish
-- Each new mode is a config plus rule hooks.
+### Later: Expansion (candidates from the review; Jackson picks)
+- **Wrecking that pays.** Wreckers win about half as often as an even share: in free-for-all, knocking a leader down helps everyone else as much as you. Ideas: a block you knock off a counted tower becomes yours to place (a capture); or knocking blocks fills a meter for a sauce or a power throw; or a round score across several rounds (towers built plus towers wrecked).
+- **Sauce in the arena:** cups back in the middle as a contested spot (the plan's original idea), or sauce pickups; sauces are the game's build-or-wreck choice and the arena doesn't have them.
+- **Two-player rooms:** head-to-heads hardly interact; fewer blocks, one shared pile, or a smaller map for 2–3 players.
+- **Team modes and roles, new win rules, more sauces;** bot tactics for them (Bot SDK utility AI); matchmaking polish. Each new mode is a config plus rule hooks.
 
 ## Decisions
 
 Current decisions only; how they were reached is in git history.
 
 - **Engine:** Quantum 3.1.0 Preview build 2189, pinned; URP; Generic rigs (keeps bone scale for squash and stretch). 3.1 is a preview SDK; revisit when it goes stable.
-- **Bots** use Photon's Quantum Bot SDK 3.10.6 (`Assets/Photon/QuantumAddons/QuantumBotSDK`, pinned like Quantum): its decision layer (state machine first, utility AI once there are real tactical choices) drives our own action code, and bots send the same input a player does (Jackson, 2026-11-03). Its compiled AI assets go to `Assets/QuantumUser/Resources/DB`.
-- **Scale:** every FBX imports at scale factor 0.4 (Guy about 1.62 m, block 0.8 m); Jackson keeps authoring at the current Blender scale.
-- **Guy's clips** arrive as one animated FBX (mesh, skeleton, all actions).
+- **Bots** use Photon's Quantum Bot SDK 3.10.6 (`Assets/Photon/QuantumAddons/QuantumBotSDK`, pinned): its decision layer drives our own action code, and bots send the same input a player does (Jackson, 2026-11-03). Its compiled AI assets go to `Assets/QuantumUser/Resources/DB`.
+- **Bot skill and personality** (Jackson, 2026-11-04): four skill levels (Normal is the Phase 6 bot), set per bot by the host; three personalities, rolled at random and never shown to players. Personalities weight choices scored in our own code (`BotChoices`); the Bot SDK's utility AI waits for team modes.
+- **Bot navigation** (Jackson, 2026-11-05): a navmesh baked into the map, rebaked from a menu when the map changes. **Bot slides** (Jackson, 2026-11-05): slide tackles to make a carrier drop their block are a key move.
+- **Scale:** every FBX imports at scale factor 0.4 (Guy about 1.62 m, block 0.8 m); Jackson keeps authoring at the current Blender scale. **Guy's clips** arrive as one animated FBX.
 - **Towers** can be built anywhere; any hit during settling restarts it; rivals' blocks can be grabbed, thrown and placed on your tower.
-- **Stacking:** no locking. Blocks stay physical and grabbable and only count for the score. Counted blocks at rest are put to sleep (performance only). Blocks keep a plain box collider with restitution 0. Placing over another block squares it to that block and lifts it out of any overlap (toggle: Settle Placed On Block Below on `PlayerGrabConfig`). Placement is otherwise free: no snapping.
-- **Grab:** the nearest free block within 2 m in a 60° cone in front of the character. It turns the least it can to sit level and square to Guy: the face nearest facing up stays on top, and of the faces beside it, the one nearest Guy faces him (one of a cube's 24 square orientations). Placing levels it the same way, onto whichever face is down, so you choose the top face by how the block lies when you pick it up (Jackson, 2026-11-03). A rotate button waits until this has been played.
-- **Holding and camera:** see Architecture › Holding a block. The camera never locks while holding: it follows the swing on a gradient (Jackson, 2026-11-02).
-- **Throwing** is hold-to-aim with a trajectory line and landing circle; a jumpshot aims the same way at 1.3× speed. One clip, `Throw`, covers both: frame 4 is the aim pose, the rest is the follow-through (Jackson, 2026-11-02). No place clip. While aiming, the real block collides with nothing and its model arcs over the head (Jackson, 2026-11-02).
-- **Win and lose:** after a round the winner plays `Win.Jump` and everyone else `Sitdown`, through round end and results (Jackson's placeholders, 2026-11-02).
-- **Block ownership readability** is rethought at the top level in the visual polish after the plan review, likely a personal UI that highlights your own blocks (Jackson, 2026-11-02).
-- **Menu and rooms** (2026-11-03): the menu is an overlay in the scene the match runs in (the Arena since 2026-11-05), over an offline demo match (`RuntimeConfig.DemoMatch`: bots in every slot, matches start by themselves) watched by the spectator director. Start Game hosts a public room under a 5-letter consonant code; Join Game by code only joins (never creates); Join Any Room joins a random open room. In a room, the room screen is the menu between matches: it opens on entering and after each match's results, and closes as a match starts; Escape or the gamepad's Select opens it in the lobby, or Pause during a match (Start stays the match start). The host is the connected player in the lowest slot; only the host sees the room's controls (start, bots, fill). Bots that filled empty slots stay in the room after the match.
-- **Players: 2–6** (Jackson, 2026-11-03; kept 2026-11-04): cut from 8 when 8 ran at about 40 fps, most likely because of the per-tick exception fixed on 2026-11-04, so 8 is technically possible again; the two blues left the palette. `max_players` in `Input.qtn` sets the session and room size. The Lobby's ring of 8 spawn points is shared out evenly among the 6 slots.
-- **Optimization** (Jackson, 2026-11-03): a profiling and optimization pass is part of the plan review that follows the menu build.
-- **UI fonts** (Jackson, 2026-11-04): Jaro, the logo's first line, for big display text (the countdown, RESULTS, the winner); DynaPuff, the logo's second line, for everything read closely (buttons, names, room codes, prompts, hints). Jaro's V reads as U.
-- **Bot skill and personality** (Jackson, 2026-11-04): four skill levels (Easy, Normal, Hard, Expert; Normal is the Phase 6 bot), set per bot by the host on the room screen; three personalities (Wrecker, Builder, Klutz), rolled at random and never shown to players. Personalities weight choices scored in our own code (`BotChoices`); the Bot SDK's utility AI waits for team modes (Expansion).
-- **Phase order** (Jackson, 2026-11-05): Phase 7 arena (done), then Bot Enhancement, then minor changes and touch-ups until the base demonstration is solid; Phase 8 feel and juice, Phase 9 playtest build (with replays), then Steam.
-- **Bot navigation** (Jackson, 2026-11-05): bots pathfind on a navmesh baked into the map, rebaked from a menu when the map changes; part of Bot Enhancement, first.
-- **Bot slides** (Jackson, 2026-11-05): sliding into a rival to make them drop their block is a key move; bots use it (slide tackles) as part of Bot Enhancement.
-- **Arena** (Jackson, 2026-11-05): Jackson's graybox as delivered, with the start layout in Phase 7 (pillar, ring across, center pile); no sauce cups for now (sauces stay in the Lobby test scene and on the dev keys). The goal is to see how the layout plays, with bots on repeat.
-- **Audio** (Jackson, 2026-11-05): placeholder sounds from a CC0 pack (FreeSFX from itch), picked by file name and not yet listened to; real sounds replace them in the sound bank.
+- **Stacking:** no locking. Blocks stay physical and grabbable and only count for the score. Counted blocks at rest are put to sleep (performance only). Blocks keep a plain box collider with restitution 0. Placing over another block squares it to that block and lifts it out of any overlap (toggle on `PlayerGrabConfig`). No snapping.
+- **Grab:** nearest free block in range and cone; the face nearest up stays on top, so you choose the top face by how the block lies when you pick it up (Jackson, 2026-11-03). A rotate button waits until this has been played. Under review in the Touch-ups phase.
+- **Holding and camera:** the camera never locks while holding; it follows the swing on a gradient (Jackson, 2026-11-02).
+- **Throwing** is hold-to-aim with a trajectory line and landing circle; a jumpshot aims the same way at 1.3×. One clip, `Throw`: frame 4 is the aim pose. No place clip. While aiming, the real block collides with nothing (Jackson, 2026-11-02).
+- **Win and lose:** after a round the winner plays `Win.Jump` and everyone else `Sitdown`, through round end and results (Jackson's placeholders).
+- **Block ownership readability** is rethought at the top level in the visual polish, likely a personal UI that highlights your own blocks (Jackson, 2026-11-02).
+- **Menu and rooms** (2026-11-03): the menu is an overlay in the scene the match runs in (the Arena), over an offline demo match watched by the spectator director. Start Game hosts a public room under a 5-letter consonant code; Join Game by code only joins; Join Any Room joins a random open room. The room screen is the menu between matches. The host is the connected player in the lowest slot; only the host sees the room's controls. Bots that filled empty slots stay in the room after the match.
+- **Players: 2–6** (Jackson, 2026-11-03; kept 2026-11-04). `max_players` in `Input.qtn` sets the session and room size.
+- **UI fonts** (Jackson, 2026-11-04): Jaro for big display text; DynaPuff for everything read closely. Jaro's V reads as U.
+- **Phase order** (Jackson, 2026-11-05): Bot Enhancement, then touch-ups until the base demonstration is solid, then Phase 8 feel and juice, Phase 9 playtest build (with replays), then Steam.
+- **Arena** (Jackson, 2026-11-05): Jackson's graybox as delivered, with the pillar / ring / center-pile start layout; no sauce cups for now (sauces stay in the Lobby test scene and on the dev keys).
+- **Audio** (Jackson, 2026-11-05): placeholder sounds from a CC0 pack (FreeSFX), picked by file name; real sounds replace them in the sound bank.
 - **Movement input:** a gamepad stick's tilt sets speed from slow walk to full run; the keyboard walks, with Shift to run. The gamepad Start button starts a match; only Escape opens the menu.
-- **Sit replaces crouch** (Jackson, 2026-11-02): no movement while sitting except sliding; a sitting body moving fast plays the slide.
-- **Knockdown:** see Architecture › Knockdown. Numbers live on `PlayerKnockbackConfig` and `PlayerRagdollConfig` and stay open for tuning.
-- **Feel numbers** (aim angle, sensitivity, throw speed) stay as built until the tuning pass after the plan review.
-- **Sauce strength:** 0–50% dipped maps to 0–100% of the effect. Sauce visuals beyond readability wait for the visual polish after the plan review (Jackson, 2026-11-02).
-- **Vats** sit in the middle of the arena, contested by everyone.
+- **Sit replaces crouch** (Jackson, 2026-11-02): no movement while sitting except sliding.
+- **Knockdown, feel and sauce numbers** live on their config assets (`PlayerKnockbackConfig`, `PlayerRagdollConfig`, `PlayerGrabConfig`, `SauceConfig`) and stay open for the Phase 8 tuning pass. Sauce strength: 0–50% dipped maps to 0–100% of the effect.
+- **Performance** is judged in builds, not Jackson's editor (2026-11-04).
 - **Workflow:** the agent commits; Jackson pushes `main` to GitHub. `Assets/Art/_Incoming/` is Jackson's only drop-off, under any file name. Work pauses between phases while art catches up.
 
 ## Open questions
 
+- Grab targeting: which rule (Touch-ups item 1)?
+- Match end: timer and sudden death, and how long (Touch-ups item 3)?
+- Wreckers win about half their share: fine (they make the room harder for everyone), or should wrecking pay (Expansion)?
 - Settle feel: 3 s to count; a 1 m/s touch restarts settling; stacked means within half a block of center and 12° of level. Right numbers? (Play-test.)
 - Should a pickup swing that passes through your own tower be able to knock it over, or should the grab ignore your own blocks? (Play-test.)
-- Stack glue: how strong? Built so walking, running and ragdolls can't break a full-strength Stack tower and a throw can (`SauceConfig` glue speeds). Should Stack blocks also glue to the ground, as built, or only to other blocks?
+- Stack glue: how strong, and should Stack blocks glue to the ground or only to other blocks?
 
 ## Art pipeline
 
@@ -240,7 +175,7 @@ Current decisions only; how they were reached is in git history.
 **Guy:**
 - Generic rig with a `root` bone at the origin; 31 deform bones, which map onto the ragdoll (`hips`, `chest`, `head`, arm and leg segments). The `prop` bone marks the hold point. **Block Sauce › Build Guy Ragdoll** rebuilds `CH_Guy_Ragdoll` when his proportions change.
 - Export with the collection exporter in `guy.blend`: `armature_guy` + `mesh_guy` only; Only Deform Bones on; Add Leaf Bones off; Apply Modifiers on; Bake Animation with All Actions, NLA Strips off, Force Start/End Keying on.
-- Clips: in place (no root motion), clean loops (last frame matches the first), 24 fps is fine, at least two keyframes per action (a one-key action imports empty), a fake user on every action worth keeping. Leave the scene on idle or rest when exporting.
+- Clips: in place (no root motion), clean loops, 24 fps is fine, at least two keyframes per action, a fake user on every action worth keeping. Leave the scene on idle or rest when exporting.
 
 **Textures:** PNG, power-of-two. Color maps sRGB; masks, roughness and normals linear.
 

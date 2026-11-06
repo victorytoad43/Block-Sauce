@@ -162,10 +162,20 @@ namespace Quantum
         }
 
         /// <summary>
+        /// Returns what a Grab press would take right now for <paramref name="grabber"/> (see <see cref="FindGrabTarget"/>),
+        /// without taking it; bots use it to make sure they grab the block they came for.
+        /// </summary>
+        public static EntityRef PeekGrabTarget(Frame frame, EntityRef grabber, GrabConfig config)
+        {
+            Transform3D* transform = frame.Unsafe.GetPointer<Transform3D>(grabber);
+            return FindGrabTarget(frame, grabber, GetPivot(transform, config), GetBodyYaw(transform), config);
+        }
+
+        /// <summary>
         /// Returns the nearest grabbable block nobody holds within grab range of the pivot and inside the cone
         /// in front of the character, or none.
         /// </summary>
-        private EntityRef FindGrabTarget(Frame frame, EntityRef grabber, FPVector3 pivot, FPQuaternion bodyYaw, GrabConfig config)
+        private static EntityRef FindGrabTarget(Frame frame, EntityRef grabber, FPVector3 pivot, FPQuaternion bodyYaw, GrabConfig config)
         {
             FPVector3 forward = bodyYaw * FPVector3.Forward;
             FP minCos = FPMath.Cos(config.GrabConeHalfAngle * FP.Deg2Rad);
