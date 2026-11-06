@@ -299,6 +299,10 @@ namespace Quantum
             FPQuaternion swingRotation = GetSwingRotation(filter.Transform, filter.Grabber);
             FPVector3 handPosition = pivot + swingRotation * FPVector3.Forward * config.HoldRadius;
             FPVector3 targetPosition = GetSwingLimitedTarget(frame, config, pivot, pivotToHeld, handPosition);
+            if (config.HoldRestsOnBlockBelow)
+            {
+                targetPosition = LimitToRestOnBlockBelow(frame, held, targetPosition);
+            }
 
             PhysicsBody3D* heldBody = frame.Unsafe.GetPointer<PhysicsBody3D>(held);
             FPVector3 carrierVelocity = filter.PhysicsBody->Velocity;
@@ -344,13 +348,26 @@ namespace Quantum
         private void Place(Frame frame, ref Filter filter, GrabConfig config)
         {
             EntityRef held = filter.Grabber->Held;
+            SetDown(frame, held, config.SettlePlacedOnBlockBelow);
+
+            Release(frame, filter.Entity, filter.Grabber);
+            frame.Events.Placed(filter.Entity, held);
+        }
+
+        /// <summary>
+        /// The first half of a place, before the block leaves the hands: stops it, levels it and, with
+        /// <paramref name="square"/> over another block, squares and lifts it onto that block. Public for the block
+        /// bench, which places the same way.
+        /// </summary>
+        public static void SetDown(Frame frame, EntityRef held, bool square)
+        {
             PhysicsBody3D* body = frame.Unsafe.GetPointer<PhysicsBody3D>(held);
             body->Velocity = FPVector3.Zero;
             body->AngularVelocity = FPVector3.Zero;
 
             Transform3D* transform = frame.Unsafe.GetPointer<Transform3D>(held);
             transform->Rotation = GetLevelRotation(transform->Rotation);
-            if (config.SettlePlacedOnBlockBelow && TryGetBlockBelow(frame, held, transform->Position, out EntityRef below))
+            if (square && TryGetBlockBelow(frame, held, transform->Position, out EntityRef below))
             {
                 Transform3D belowTransform = frame.Get<Transform3D>(below);
                 FPQuaternion belowYaw = GetLevelYaw(belowTransform.Rotation);
@@ -362,9 +379,26 @@ namespace Quantum
                     transform->Position.Y = restingY;
                 }
             }
+        }
 
-            Release(frame, filter.Entity, filter.Grabber);
-            frame.Events.Placed(filter.Entity, held);
+        /// <summary>
+        /// Keeps a held block's hand point from going below where it would rest on a block under it, so holding a block
+        /// too low over a tower sets it on top instead of driving it into the tower (the chase would shove the tower at
+        /// up to the hold's follow speed). Public for the block bench, whose carried blocks follow the same rule.
+        /// </summary>
+        public static FPVector3 LimitToRestOnBlockBelow(Frame frame, EntityRef held, FPVector3 target)
+        {
+            FPVector3 position = frame.Get<Transform3D>(held).Position;
+            if (TryGetBlockBelow(frame, held, position, out EntityRef below) == false)
+                return target;
+
+            FP restingY = frame.Get<Transform3D>(below).Position.Y + GetHalfHeight(frame, below) + GetHalfHeight(frame, held);
+            if (target.Y < restingY)
+            {
+                target.Y = restingY;
+            }
+
+            return target;
         }
 
         /// <summary>
@@ -657,9 +691,9 @@ namespace Quantum
         }
 
         /// <summary>
-        /// Clears the block's holder, disables its leash and hands it back to gravity.
+        /// Clears the block's holder, disables its leash and hands it back to gravity (public for the block bench).
         /// </summary>
-        private void DetachHeld(Frame frame, EntityRef held)
+        public static void DetachHeld(Frame frame, EntityRef held)
         {
             Grabbable* grabbable = frame.Unsafe.GetPointer<Grabbable>(held);
             grabbable->Holder = EntityRef.None;
@@ -676,7 +710,7 @@ namespace Quantum
         /// <summary>
         /// Disables the block's leash, if it has one; safe inside physics callbacks.
         /// </summary>
-        private void DisableLeash(Frame frame, EntityRef held)
+        private static void DisableLeash(Frame frame, EntityRef held)
         {
             if (frame.Unsafe.TryGetPointer(held, out PhysicsJoints3D* joints) == false)
                 return;

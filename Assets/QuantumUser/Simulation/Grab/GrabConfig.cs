@@ -94,6 +94,11 @@ namespace Quantum
         /// </summary>
         [Header("Place")]
         public bool SettlePlacedOnBlockBelow = true;
+        /// <summary>
+        /// Held over a block, the held block's hand point stops at the height it would rest on that block, so it sits
+        /// on a tower instead of being driven into it.
+        /// </summary>
+        public bool HoldRestsOnBlockBelow = true;
 
         /// <summary>
         /// The throw speed, in m/s, added to the carrier's velocity.

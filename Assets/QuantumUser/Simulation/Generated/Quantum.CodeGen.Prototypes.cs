@@ -182,6 +182,72 @@ namespace Quantum.Prototypes {
     }
   }
   [System.SerializableAttribute()]
+  [Quantum.Prototypes.Prototype(typeof(Quantum.BlockBench))]
+  public unsafe class BlockBenchPrototype : ComponentPrototype<Quantum.BlockBench> {
+    public AssetRef<EntityPrototype> Block;
+    public AssetRef<GrabConfig> Grab;
+    [HideInInspector()]
+    public Int32 Trial;
+    [HideInInspector()]
+    public Int32 Step;
+    [HideInInspector()]
+    public FP StepTime;
+    [HideInInspector()]
+    public Int32 Placed;
+    [HideInInspector()]
+    public FP GroundY;
+    [HideInInspector()]
+    [ArrayLengthAttribute(6)]
+    public MapEntityId[] Blocks = new MapEntityId[6];
+    [HideInInspector()]
+    [ArrayLengthAttribute(6)]
+    public FPVector3[] Start = new FPVector3[6];
+    [HideInInspector()]
+    public FPVector3 CarryFrom;
+    [HideInInspector()]
+    public FPVector3 CarryTo;
+    [HideInInspector()]
+    public FP Pushed;
+    [HideInInspector()]
+    public FP BaseSlide;
+    [HideInInspector()]
+    public FP TopSlide;
+    [HideInInspector()]
+    public FP MaxTilt;
+    [HideInInspector()]
+    public FP TopSpeed;
+    [HideInInspector()]
+    public Int32 FallenBeforeHit;
+    public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
+      Quantum.BlockBench component = default;
+      Materialize((Frame)f, ref component, in context);
+      return f.Set(entity, component) == SetResult.ComponentAdded;
+    }
+    public void Materialize(Frame frame, ref Quantum.BlockBench result, in PrototypeMaterializationContext context = default) {
+      result.Block = this.Block;
+      result.Grab = this.Grab;
+      result.Trial = this.Trial;
+      result.Step = this.Step;
+      result.StepTime = this.StepTime;
+      result.Placed = this.Placed;
+      result.GroundY = this.GroundY;
+      for (int i = 0, count = PrototypeValidator.CheckLength(Blocks, 6, in context); i < count; ++i) {
+        PrototypeValidator.FindMapEntity(this.Blocks[i], in context, out *result.Blocks.GetPointer(i));
+      }
+      for (int i = 0, count = PrototypeValidator.CheckLength(Start, 6, in context); i < count; ++i) {
+        *result.Start.GetPointer(i) = this.Start[i];
+      }
+      result.CarryFrom = this.CarryFrom;
+      result.CarryTo = this.CarryTo;
+      result.Pushed = this.Pushed;
+      result.BaseSlide = this.BaseSlide;
+      result.TopSlide = this.TopSlide;
+      result.MaxTilt = this.MaxTilt;
+      result.TopSpeed = this.TopSpeed;
+      result.FallenBeforeHit = this.FallenBeforeHit;
+    }
+  }
+  [System.SerializableAttribute()]
   [Quantum.Prototypes.Prototype(typeof(Quantum.BlockSpawnPoint))]
   public unsafe partial class BlockSpawnPointPrototype : ComponentPrototype<Quantum.BlockSpawnPoint> {
     public Int32 Slot;

@@ -136,6 +136,66 @@ namespace Quantum.Prototypes.Unity {
     }
   }
   [System.SerializableAttribute()]
+  public unsafe partial class BlockBenchPrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.BlockBenchPrototype> {
+    public AssetRef<EntityPrototype> Block;
+    public AssetRef<GrabConfig> Grab;
+    [HideInInspector()]
+    public Int32 Trial;
+    [HideInInspector()]
+    public Int32 Step;
+    [HideInInspector()]
+    public FP StepTime;
+    [HideInInspector()]
+    public Int32 Placed;
+    [HideInInspector()]
+    public FP GroundY;
+    [HideInInspector()]
+    [ArrayLengthAttribute(6)]
+    public Quantum.QuantumEntityPrototype[] Blocks = new Quantum.QuantumEntityPrototype[6];
+    [HideInInspector()]
+    [ArrayLengthAttribute(6)]
+    public FPVector3[] Start = new FPVector3[6];
+    [HideInInspector()]
+    public FPVector3 CarryFrom;
+    [HideInInspector()]
+    public FPVector3 CarryTo;
+    [HideInInspector()]
+    public FP Pushed;
+    [HideInInspector()]
+    public FP BaseSlide;
+    [HideInInspector()]
+    public FP TopSlide;
+    [HideInInspector()]
+    public FP MaxTilt;
+    [HideInInspector()]
+    public FP TopSpeed;
+    [HideInInspector()]
+    public Int32 FallenBeforeHit;
+    partial void ConvertUser(Quantum.QuantumEntityPrototypeConverter converter, ref Quantum.Prototypes.BlockBenchPrototype prototype);
+    public override Quantum.Prototypes.BlockBenchPrototype Convert(Quantum.QuantumEntityPrototypeConverter converter) {
+      var result = new Quantum.Prototypes.BlockBenchPrototype();
+      converter.Convert(this.Block, out result.Block);
+      converter.Convert(this.Grab, out result.Grab);
+      converter.Convert(this.Trial, out result.Trial);
+      converter.Convert(this.Step, out result.Step);
+      converter.Convert(this.StepTime, out result.StepTime);
+      converter.Convert(this.Placed, out result.Placed);
+      converter.Convert(this.GroundY, out result.GroundY);
+      converter.Convert(this.Blocks, out result.Blocks);
+      converter.Convert(this.Start, out result.Start);
+      converter.Convert(this.CarryFrom, out result.CarryFrom);
+      converter.Convert(this.CarryTo, out result.CarryTo);
+      converter.Convert(this.Pushed, out result.Pushed);
+      converter.Convert(this.BaseSlide, out result.BaseSlide);
+      converter.Convert(this.TopSlide, out result.TopSlide);
+      converter.Convert(this.MaxTilt, out result.MaxTilt);
+      converter.Convert(this.TopSpeed, out result.TopSpeed);
+      converter.Convert(this.FallenBeforeHit, out result.FallenBeforeHit);
+      ConvertUser(converter, ref result);
+      return result;
+    }
+  }
+  [System.SerializableAttribute()]
   public unsafe partial class BotPrototype : Quantum.QuantumUnityPrototypeAdapter<Quantum.Prototypes.BotPrototype> {
     [HideInInspector()]
     public FP Heading;

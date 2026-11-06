@@ -1,0 +1,39 @@
+// Test-only (Blocks phase): runs scripted block placings in the BlockBench dev scene, one trial at a time, from
+// the trial list an editor script hands BlockBenchSystem. See BlockBenchSystem.
+component BlockBench
+{
+    asset_ref<EntityPrototype> Block;
+    asset_ref<GrabConfig> Grab;
+    [HideInInspector] int Trial;
+    [HideInInspector] int Step;
+    [HideInInspector] FP StepTime;
+    [HideInInspector] int Placed;
+    [HideInInspector] FP GroundY;
+    [HideInInspector] array<EntityRef>[6] Blocks;
+    [HideInInspector] array<FPVector3>[6] Start;
+    [HideInInspector] FPVector3 CarryFrom;
+    [HideInInspector] FPVector3 CarryTo;
+    [HideInInspector] FP Pushed;
+    [HideInInspector] FP BaseSlide;
+    [HideInInspector] FP TopSlide;
+    [HideInInspector] FP MaxTilt;
+    [HideInInspector] FP TopSpeed;
+    [HideInInspector] int FallenBeforeHit;
+}
+
+// One finished bench trial. Slides are horizontal distances in meters from where each block stood when the top block
+// came (base) or was let go (top); Pushed is the base's slide while the top block was carried in, before the let-go.
+event BlockBenchTrialEnded
+{
+    int Trial;
+    FP Pushed;
+    FP BaseSlide;
+    FP TopSlide;
+    FP BaseFinal;
+    FP TopFinal;
+    FP MaxTilt;
+    FP TopSpeed;
+    int Fallen;
+    int FallenBeforeHit;
+    int Counted;
+}

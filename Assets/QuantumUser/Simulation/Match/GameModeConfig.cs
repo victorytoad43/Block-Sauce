@@ -63,6 +63,29 @@ namespace Quantum
         public FP SettleResetSpeed = 1;
 
         /// <summary>
+        /// Puts a counted block to sleep the moment it is still (performance only). Off: a block landing on a sleeping
+        /// tower wakes it with no contact history and the tower slips (block bench, 2026-11-06).
+        /// </summary>
+        [Header("Block physics")]
+        public bool SleepCountedBlocks;
+        /// <summary>
+        /// Damps slow creep and rocking of a block resting on another block or the ground (<see cref="BlockRestSystem"/>).
+        /// </summary>
+        public bool RestAssist = true;
+        /// <summary>
+        /// The rest assist acts below this speed relative to what the block rests on, in m/s.
+        /// </summary>
+        public FP RestAssistSpeed = FP._0_25;
+        /// <summary>
+        /// The rest assist acts below this spin, in radians per second.
+        /// </summary>
+        public FP RestAssistAngularSpeed = 1;
+        /// <summary>
+        /// The share of that slow movement the rest assist takes away each tick.
+        /// </summary>
+        public FP RestAssistDamping = FP._0_50;
+
+        /// <summary>
         /// Seconds of countdown before play starts. Players can look around but not move.
         /// </summary>
         [Header("Match flow")]

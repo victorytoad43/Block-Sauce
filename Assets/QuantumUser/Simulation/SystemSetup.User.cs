@@ -24,12 +24,15 @@
             systems.Add(new KnockbackSystem());
             systems.Add(new ObjectImpactSystem());
             systems.Add(new BlockStackSystem());
+            systems.Add(new BlockRestSystem());
             systems.Add(new SauceSystem());
             systems.Add(new RagdollSystem());
             systems.Add(new FallSystem());
 
             // Test-only: does nothing unless a scene contains a RagdollStressTest entity.
             systems.Add(new RagdollStressTestSystem());
+            // Test-only: does nothing unless a scene contains a BlockBench entity and an editor script gives it trials.
+            systems.Add(new BlockBenchSystem());
             // Test-only: acts on dev commands in debug builds only.
             systems.Add(new DevCommandSystem());
         }

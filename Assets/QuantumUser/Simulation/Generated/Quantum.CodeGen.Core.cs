@@ -946,6 +946,115 @@ namespace Quantum {
     }
   }
   [StructLayout(LayoutKind.Explicit)]
+  public unsafe partial struct BlockBench : Quantum.IComponent {
+    public const Int32 SIZE = 328;
+    public const Int32 ALIGNMENT = 8;
+    [FieldOffset(16)]
+    public AssetRef<EntityPrototype> Block;
+    [FieldOffset(24)]
+    public AssetRef<GrabConfig> Grab;
+    [FieldOffset(12)]
+    [HideInInspector()]
+    public Int32 Trial;
+    [FieldOffset(8)]
+    [HideInInspector()]
+    public Int32 Step;
+    [FieldOffset(112)]
+    [HideInInspector()]
+    public FP StepTime;
+    [FieldOffset(4)]
+    [HideInInspector()]
+    public Int32 Placed;
+    [FieldOffset(88)]
+    [HideInInspector()]
+    public FP GroundY;
+    [FieldOffset(32)]
+    [HideInInspector()]
+    [FramePrinter.FixedArrayAttribute(typeof(EntityRef), 6)]
+    private fixed Byte _Blocks_[48];
+    [FieldOffset(184)]
+    [HideInInspector()]
+    [FramePrinter.FixedArrayAttribute(typeof(FPVector3), 6)]
+    private fixed Byte _Start_[144];
+    [FieldOffset(136)]
+    [HideInInspector()]
+    public FPVector3 CarryFrom;
+    [FieldOffset(160)]
+    [HideInInspector()]
+    public FPVector3 CarryTo;
+    [FieldOffset(104)]
+    [HideInInspector()]
+    public FP Pushed;
+    [FieldOffset(80)]
+    [HideInInspector()]
+    public FP BaseSlide;
+    [FieldOffset(120)]
+    [HideInInspector()]
+    public FP TopSlide;
+    [FieldOffset(96)]
+    [HideInInspector()]
+    public FP MaxTilt;
+    [FieldOffset(128)]
+    [HideInInspector()]
+    public FP TopSpeed;
+    [FieldOffset(0)]
+    [HideInInspector()]
+    public Int32 FallenBeforeHit;
+    public readonly FixedArray<EntityRef> Blocks {
+      get {
+        fixed (byte* p = _Blocks_) { return new FixedArray<EntityRef>(p, 8, 6); }
+      }
+    }
+    public readonly FixedArray<FPVector3> Start {
+      get {
+        fixed (byte* p = _Start_) { return new FixedArray<FPVector3>(p, 24, 6); }
+      }
+    }
+    public override readonly Int32 GetHashCode() {
+      unchecked { 
+        var hash = 20599;
+        hash = hash * 31 + Block.GetHashCode();
+        hash = hash * 31 + Grab.GetHashCode();
+        hash = hash * 31 + Trial.GetHashCode();
+        hash = hash * 31 + Step.GetHashCode();
+        hash = hash * 31 + StepTime.GetHashCode();
+        hash = hash * 31 + Placed.GetHashCode();
+        hash = hash * 31 + GroundY.GetHashCode();
+        hash = hash * 31 + HashCodeUtils.GetArrayHashCode(Blocks);
+        hash = hash * 31 + HashCodeUtils.GetArrayHashCode(Start);
+        hash = hash * 31 + CarryFrom.GetHashCode();
+        hash = hash * 31 + CarryTo.GetHashCode();
+        hash = hash * 31 + Pushed.GetHashCode();
+        hash = hash * 31 + BaseSlide.GetHashCode();
+        hash = hash * 31 + TopSlide.GetHashCode();
+        hash = hash * 31 + MaxTilt.GetHashCode();
+        hash = hash * 31 + TopSpeed.GetHashCode();
+        hash = hash * 31 + FallenBeforeHit.GetHashCode();
+        return hash;
+      }
+    }
+    public static void Serialize(void* ptr, FrameSerializer serializer) {
+      var p = (BlockBench*)ptr;
+      serializer.Stream.Serialize(&p->FallenBeforeHit);
+      serializer.Stream.Serialize(&p->Placed);
+      serializer.Stream.Serialize(&p->Step);
+      serializer.Stream.Serialize(&p->Trial);
+      AssetRef.Serialize(&p->Block, serializer);
+      AssetRef.Serialize(&p->Grab, serializer);
+      FixedArray.Serialize(p->Blocks, serializer, Statics.SerializeEntityRef);
+      FP.Serialize(&p->BaseSlide, serializer);
+      FP.Serialize(&p->GroundY, serializer);
+      FP.Serialize(&p->MaxTilt, serializer);
+      FP.Serialize(&p->Pushed, serializer);
+      FP.Serialize(&p->StepTime, serializer);
+      FP.Serialize(&p->TopSlide, serializer);
+      FP.Serialize(&p->TopSpeed, serializer);
+      FPVector3.Serialize(&p->CarryFrom, serializer);
+      FPVector3.Serialize(&p->CarryTo, serializer);
+      FixedArray.Serialize(p->Start, serializer, Statics.SerializeFPVector3);
+    }
+  }
+  [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct BlockSpawnPoint : Quantum.IComponent {
     public const Int32 SIZE = 8;
     public const Int32 ALIGNMENT = 4;
@@ -1830,6 +1939,7 @@ namespace Quantum {
       private ComponentSignals _componentSignals_AIBlackboardComponent = CreateComponentSignals<Quantum.AIBlackboardComponent>(frame);
       private ComponentSignals _componentSignals_BTAgent = CreateComponentSignals<Quantum.BTAgent>(frame);
       private ComponentSignals _componentSignals_Block = CreateComponentSignals<Quantum.Block>(frame);
+      private ComponentSignals _componentSignals_BlockBench = CreateComponentSignals<Quantum.BlockBench>(frame);
       private ComponentSignals _componentSignals_BlockSpawnPoint = CreateComponentSignals<Quantum.BlockSpawnPoint>(frame);
       private ComponentSignals _componentSignals_Bot = CreateComponentSignals<Quantum.Bot>(frame);
       private ComponentSignals _componentSignals_BotSDKGlobals = CreateComponentSignals<Quantum.BotSDKGlobals>(frame);
@@ -1921,6 +2031,7 @@ namespace Quantum {
     public static FrameSerializer.Delegate SerializeByte = (v, s) => {{ s.Stream.Serialize((Byte*)v); }};
     public static FrameSerializer.Delegate SerializeFP = FP.Serialize;
     public static FrameSerializer.Delegate SerializeEntityRef = EntityRef.Serialize;
+    public static FrameSerializer.Delegate SerializeFPVector3 = FPVector3.Serialize;
     public static FrameSerializer.Delegate SerializeSandboxBlockHome = Quantum.SandboxBlockHome.Serialize;
     public static FrameSerializer.Delegate SerializeSauceDip = Quantum.SauceDip.Serialize;
     public static FrameSerializer.Delegate SerializeInt64 = (v, s) => {{ s.Stream.Serialize((Int64*)v); }};
@@ -1944,6 +2055,7 @@ namespace Quantum {
         registry.Register<Quantum.BlackboardEntry>(Quantum.BlackboardEntry.SIZE);
         registry.Register<Quantum.BlackboardValue>(Quantum.BlackboardValue.SIZE);
         registry.Register<Quantum.Block>(Quantum.Block.SIZE);
+        registry.Register<Quantum.BlockBench>(Quantum.BlockBench.SIZE);
         registry.Register<Quantum.BlockSpawnPoint>(Quantum.BlockSpawnPoint.SIZE);
         registry.Register<Quantum.Bot>(Quantum.Bot.SIZE);
         registry.Register<Quantum.BotMistakeType>(4);
@@ -2066,6 +2178,7 @@ namespace Quantum {
         registry.Register<Quantum.AIBlackboardComponent>(Quantum.AIBlackboardComponent.Serialize, null, Quantum.AIBlackboardComponent.OnRemoved, ComponentFlags.None);
         registry.Register<Quantum.BTAgent>(Quantum.BTAgent.Serialize, null, Quantum.BTAgent.OnRemoved, ComponentFlags.None);
         registry.Register<Quantum.Block>(Quantum.Block.Serialize, null, null, ComponentFlags.None);
+        registry.Register<Quantum.BlockBench>(Quantum.BlockBench.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.BlockSpawnPoint>(Quantum.BlockSpawnPoint.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.Bot>(Quantum.Bot.Serialize, null, null, ComponentFlags.None);
         registry.Register<Quantum.BotSDKGlobals>(Quantum.BotSDKGlobals.Serialize, null, null, ComponentFlags.Singleton);

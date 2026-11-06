@@ -183,7 +183,10 @@ namespace Quantum
                         break;
 
                     case StackState.Counted:
-                        SleepIfStill(frame, body);
+                        if (mode.SleepCountedBlocks)
+                        {
+                            SleepIfStill(frame, body);
+                        }
                         break;
                 }
             }

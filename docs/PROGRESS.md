@@ -4,18 +4,18 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-06)
 
-**Phases 0–7, the plan review and Bot Enhancement are done and reviewed (Jackson, 2026-11-06: "the current bots are at a great spot"). Bots are set aside. Next is the Blocks phase (stacking that behaves), then Touch-ups (grab what the camera looks at, the two highlights, a 5-minute timer with sudden death), then Phase 8 feel and juice and Phase 9 playtest build.**
+**Phases 0–7, the plan review and Bot Enhancement are done and reviewed. Bots are set aside. The Blocks phase (stacking that behaves) is built and waits for Jackson's hand check; its bench numbers are in the Blocks report. Next is Touch-ups (grab what the camera looks at, the two highlights, a 5-minute timer with sudden death), then Phase 8 feel and juice and Phase 9 playtest build.**
 
 What plays today, online with 2–6 players, in the Arena scene (the Lobby is a test scene with the sauce vats):
 - **Front end:** the game opens on Jackson's menu over an offline all-bot demo match watched by the spectator director. Start Game hosts a room with a 5-letter code; Join Game joins by code or any open room. The room screen lists the players; the host adds and removes bots, sets each bot's difficulty (`< NORMAL >`), sets the bot fill and starts the match. The HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back. Settings: volume, look speed, invert Y, fullscreen, resolution. Placeholder sounds throughout.
 - **Arena:** a walled bowl with uneven ground, six spawn pillars with stairs, a raised inner ring and a dip in the middle; each player starts on their pillar with their home block, their second block on the ring across the middle, the third in a pile of six in the middle. Camera collision with the arena.
 - **Guy:** force-driven capsule; walk/run (analog on gamepad), jump, sit, slide, stagger; grab, hold and swing, place with flush settling, hold-to-aim throw with trajectory preview, jumpshot; knockdown into an 11-limb ragdoll, Jump to recover faster, carrying bodies, get-up clips. Animation for every state, foot and hand IK.
-- **Stack & Lock:** 3 owned blocks each, settle dither, counting, win, full match loop.
+- **Stack & Lock:** 3 owned blocks each, settle dither, counting, win, full match loop. Stacks hold still: a block let go squarely enough to count stays where it was put (the rest assist, `BlockRestSystem`), and towers still fall when hit.
 - **Sauces** (Lobby only): Stack (sticky, glues) and Slip (slides); a lumpy coat shader. Dev keys F8 / Shift+F8 coat blocks.
 - **Bots:** navmesh pathfinding with jump links, slide tackles, four skill levels, three hidden personalities (Wrecker, Builder, Klutz with mistakes), a jump-grab for blocks lying on towers. Dev builds show each bot's personality and skill on the spectator label and the room screen, and `BotSoakLog` writes a `[BotSoak]` line per match.
 
 ### Known issues
-- **Stacking (the Blocks phase):** a third block placed on a two-block tower often sets all three slipping against each other until they topple (Jackson's play-test); about half of all placings land, for players and bots alike, and most towers that fall are knocked by their own builder.
+- **Stacking (Blocks phase, waiting on Jackson's hand check):** the bench says stacks hold; how stacking three feels by hand isn't checked yet. A held block carried in low enough to ram the top block's side still knocks it (that's a hit, not a slip). Bots still land only about half their placings (their line-up, not the physics).
 - **Grab and match end (Touch-ups):** grab takes the nearest block, so blocks on a tower's top need a jump-grab and a grab at a rival's short tower yanks its base out; there is no match time limit.
 - Bots don't use the stairs (they hop onto pillars and the ring); now and then they wedge against each other or a wall for a few seconds.
 - Blocks sometimes rest tilted against a pillar's rim or the ring's edge and don't count until moved.
@@ -33,6 +33,7 @@ What plays today, online with 2–6 players, in the Arena scene (the Lobby is a 
 - The placeholder sounds are unheard picks by file name.
 
 ### Waiting on Jackson
+- A hand check of the Blocks fix: stack three in the Lobby or a match. Is the difficulty now the reach, not sliding? Is the third block too easy now?
 - Detailed design for the grab highlight and the settle/stack highlight (A-025).
 - A-002 button focus states and the remaining screen mock-ups; A-006 HUD mock-ups (now with the 5-minute clock).
 - Open questions in the plan (sudden-death rule, settle numbers, swings through your own tower, Stack glue).
@@ -40,24 +41,34 @@ What plays today, online with 2–6 players, in the Arena scene (the Lobby is a 
 ### Placeholders in use
 `PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the subdivided `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_SauceVat_Stack`/`_Slip`, `PH_SauceCoat` and `PH_SauceLooks` (A-009), `PH_PlayerColors` (holds the real palette), `PH_` terrain in the Lobby test scene, `PH_MainMenu` (Jackson's main menu art; other screens are drafts, A-002), `PH_MatchHud` (A-006), the IMGUI spectator bar (A-006), `PH_RagdollTest` (stress-test scene only), `PH_SoundBank` (A-014).
 
-## Next: Blocks: stacking that behaves
+## Next: Touch-ups: grab and match end
 
-Design and done-when in `docs/PLAN.md` › Blocks. No feel calls are needed to start; Jackson's hand check closes it.
-
-Starting point:
-- Code: placing is `GrabSystem` (the release and `SettlePlacedOnBlockBelow`, around line 341, with `TryGetBlockBelow`); stacking, counting and the instant sleep are `BlockStackSystem` (`SleepIfStill`); the hold is a velocity chase in `GrabSystem`. Tuning: `PlayerGrabConfig`, `QuantumDefaultConfigs` › Physics (solver 6 + 2 iterations, penetration correction 0.9, Baumgarte 0.5, sleep thresholds), `SessionConfig` (64 Hz), the block body on `PH_Block` (mass 2, angular drag 0.5), `Resources/PhysicsMaterials` (`BlockPhysicsMaterial` friction 0.8, the Stack and Slip steps).
-- Tools: the eval and soak workflow in `CLAUDE.md` › Testing. The bench is new: a scene under `Assets/Scenes/Dev/` that is never in a match (built by a builder script, like the Arena), and an editor eval that drives trials through the simulation without a player (spawn blocks, place them with the same code path a release uses, record per tick).
+Design and done-when in `docs/PLAN.md` › Touch-ups. The grab rule and the timer are Jackson's picks and can start now; the two highlights wait on his design (A-025).
 
 Build order:
-1. **Bench first, no fixes:** build the scene and the trial runner; reproduce Jackson's slip (a third block on two) and measure how often and how far blocks slide per case (asleep or awake, offset, release speed, squaring on or off, plain or sauced). Write the numbers into the log.
-2. **One suspect at a time** (the list in the plan): change it in the bench only, keep what moves the numbers, revert what doesn't.
-3. **Apply the fix to the game,** then check that hits still topple towers (throw, swing, body check, ragdoll), Stack glue and Slip still work, and jump-placing the third block is still the hard part. A bot soak afterwards measures placings landing (a side effect, not a target).
-4. **Jackson's hand check** of stacking three, then the phase report.
+1. **Grab what the camera looks at:** `GrabSystem.FindGrabTarget` takes the free block in reach nearest the camera's aim ray (the look direction is already in the input, `PlayerLook`); keep the nearest-block rule behind a `PlayerGrabConfig` toggle until Jackson signs off. Bots read the rule through `PeekGrabTarget`; check them with a short soak (they need to face their target block before grabbing; their jump-grab may no longer be needed), no bot tuning.
+2. **Match timer and sudden death:** `MatchSeconds` (300) and the sudden-death rule on `GameModeConfig`, a time-out path in `MatchSystem` and `CheckWinner`, the clock on the HUD (A-006 draft: headline bar, top center). Soak: no match past sudden death by more than a minute.
+3. **Placeholder highlights** for the grab target and the place spot, only as far as items 1 and 2 need them for a play-test; Jackson's design replaces them.
+4. Jackson's play-test of the grab rule and the timer, then the phase report.
 
 Risks:
-- Physics settings are global: more solver iterations or different sleep rules change ragdolls, players and throws too, and cost CPU (check the build's frame time, not the editor's).
-- Making stacks too steady makes wrecking weak: keep a hit-to-topple check in every bench run.
-- The editor runs slowly; judge physics by simulation ticks on the bench, never by eye at a low frame rate.
+- The grab rule touches every interaction; it needs Jackson's play, not just soaks.
+- While holding, look input is the swing; the aim ray only matters with empty hands, so nothing changes while holding.
+- A timer changes the pace for humans more than bots, and towers now stand (all-bot matches got much shorter): try it in Jackson's play-test before tuning the length.
+
+## Blocks report (2026-11-06)
+- Built: the block bench (`Assets/Scenes/Dev/BlockBench.unity`, **Block Sauce › Build Block Bench**; `BlockBenchSystem` runs `BlockBenchTrial`s through the real place code, `GrabSystem.SetDown` and `DetachHeld`, and the hold's chase for carried blocks; **Block Sauce › Block Bench › Run Placing / Carry / Hit / Sauce Panel**; `BlockBenchStarter` starts the scene locally, with retries). Fixes: counted blocks no longer sleep early (`GameModeConfig.SleepCountedBlocks`, off); the rest assist (`BlockRestSystem`, `GameModeConfig.RestAssist`: half of any movement under 0.25 m/s and 1 rad/s relative to what a block rests on is taken off each tick; Slip-sauced blocks skipped); a held block over a block rests on it instead of being pressed in (`PlayerGrabConfig.HoldRestsOnBlockBelow`).
+- What the bench found (a two-block tower, the third block let go 2 cm above it, 15 s recorded; slide is the most any block moved sideways):
+  - Before: a centered third block never slid, asleep or awake, dropped from up to 30 cm, turned up to 45°, squared or not. Off center it slipped: 2 cm off slid the tower 18 cm and tilted it 5°; 10 cm off fell after 5–15 s; a fourth block 5 cm off brought all four down. A second block on one stayed put up to 15 cm off. Pressing a carried block 15 cm into the tower shoved it apart before the let-go.
+  - Suspects, one at a time: keeping blocks awake cut the slides to 2–9 cm with no falls (the main cause); doubling solver iterations helped a little, only with sleep on; lower penetration correction was much worse; Baumgarte, angular drag and friction changed nothing useful. With sleep off, a slow creep was left that grew over 15 s and could still topple a tower: that's what the rest assist damps.
+  - After (placing panel): every placing 0–30 cm off center, diagonal, dropped 10 cm, on an offset base, on an awake tower, a fourth block, a second block: at most 2 cm of slide and 2.6° of tilt, no falls, all counted. Carried and pressed in up to 15 cm, at 1.5 and 3 m/s, onto three- and four-block towers: 1 cm, no falls. Pressed 30–50 cm (the block rams the top block's side while carried in low): still knocked over.
+- Feel kept: hits (60 per setup: 4, 6, 8 and 12 m/s, each level, five points along the face) toppled the tower in 20 of 60 (40 blocks off) after, against 21 of 60 (37 blocks) before. Sauce: Slip towers fell to 3–4 m/s hits on the top block that plain and Stack towers stood through. Jump-placing the third block is unchanged (the fix only acts on resting blocks and the hold's height over a block).
+- In matches (a 49-minute all-bot Arena soak, 49 matches, 0 errors): matches got much shorter (median 47 s, from 104 s; the longest 171 s, none over 5 minutes) because towers that are built stay up; bots still land 52% of their placings (their line-up, unchanged); raids 8.7, throws 5.8, tackles 4.0, knockdowns 3.3 a minute (about as before). Builders won 31% of their matches, Wreckers 8%.
+- Done-when: on the bench, met (every placing within the stack tolerance moved at most 2 cm, no falls, asleep or awake; hits as before). Jackson's hand check: waiting.
+- Known issues: see Current state.
+- Placeholders still in use: none new.
+- Questions for Jackson: (1) stack three by hand: is the difficulty now the reach? (2) is the third block too easy now, or is the jump-place enough? (3) a block held low over a tower now sits on top instead of pushing into it (slamming one down onto a rival's tower lands on top): any case where you wanted to press into a tower?
+- Ready for review: yes
 
 ## Bot Enhancement: closing notes (2026-11-06)
 The full report and the soak review are in git history (`e160987`). What still matters for the next phases:
@@ -90,6 +101,13 @@ Phase report format:
 - Placeholders still in use: <list with asset IDs>
 - Ready for review: yes
 ```
+
+## 2026-11-06: Blocks: bench, causes, fix
+- Did: the block bench (scene, builder, `BlockBenchSystem`, panels, starter); `GrabSystem.SetDown`, `DetachHeld` and `LimitToRestOnBlockBelow` made public for it; the three fixes (counted-block sleep off, `BlockRestSystem`, the hold resting on the block below). Docs: plan (Blocks phase, the Stacking decision, a pace question), progress (Blocks report, Touch-ups next), `CLAUDE.md` (Block bench under Testing).
+- Verified: the bench panels before and after (Blocks report), the hit and sauce panels, a 49-minute Arena bot soak (0 errors).
+- Decided: a rest assist over solver settings (iterations, penetration correction and Baumgarte didn't fix it, and they change ragdolls and players too); its numbers (0.25 m/s, 1 rad/s, half per tick) from the bench (a fifth per tick left 2–3 cm and didn't stop a pressed-in block); counted blocks stay awake (the engine's own sleep still applies, so a still tower sleeps after 0.4 s).
+- Questions for Jackson: in the Blocks report.
+- Next: Jackson's hand check; Touch-ups items 1 and 2 can start.
 
 ## 2026-11-06: Bot Enhancement reviewed; Klutz mistakes raised; plan set for Blocks
 - Did: Jackson reviewed Bot Enhancement and answered the batched questions (in Bot Enhancement: closing notes). Klutz mistake chances raised (`BotPersonality_Klutz`: trip 0.03 → 0.075 a second while running, wild slide 0.04 → 0.1, drop 0.03 → 0.07, off-center placing 0.25 → 0.4, wild throw 0.3 → 0.5). Plan rewritten: bots set aside; a new Blocks phase (stacking that behaves: a block bench, the suspects, fixes, done-when) next, from Jackson's play-test of three-block slipping; Touch-ups now holds the camera-aim grab, the two highlights (Jackson's design), and the 5-minute timer with sudden death. ASSETS A-025 now waits on Jackson's design.
