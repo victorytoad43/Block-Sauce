@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0efdf10a322fe84ab13ca426a880768, type: 3}
+  m_Name: BotPersonality_Wrecker
+  m_EditorClassIdentifier: Quantum.Simulation::Quantum.BotPersonality
+  Identifier:
+    Path: QuantumUser/Resources/Configs/Bots/BotPersonality_Wrecker
+    Guid:
+      Value: 523310488109693450
+  BuildWeight:
+    RawValue: 65536
+  RaidWeight:
+    RawValue: 91750
+  ClearTopWeight:
+    RawValue: 32768
+  RaidAtCount: 1
+  RaidOnlyNearWin: 0
+  ThrowAtCarrierChance:
+    RawValue: 19660
+  DunkChanceScale:
+    RawValue: 32768
+  TackleChance:
+    RawValue: 39321
+  TackleCarriers: 2
+  TackleBuilders: 1
+  GuardRadius:
+    RawValue: 196608
+  GuardEmptyHanded: 0
+  TackleCooldownScale:
+    RawValue: 65536

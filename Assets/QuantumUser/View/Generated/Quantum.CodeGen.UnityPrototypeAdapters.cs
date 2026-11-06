@@ -142,6 +142,8 @@ namespace Quantum.Prototypes.Unity {
     [HideInInspector()]
     public Quantum.QEnum32<BotSkillLevel> Skill;
     [HideInInspector()]
+    public Quantum.QEnum32<BotPersonalityType> Personality;
+    [HideInInspector()]
     public Quantum.QuantumEntityPrototype Home;
     [HideInInspector()]
     public Quantum.QEnum32<BotTaskType> Task;
@@ -198,6 +200,7 @@ namespace Quantum.Prototypes.Unity {
       var result = new Quantum.Prototypes.BotPrototype();
       converter.Convert(this.Heading, out result.Heading);
       converter.Convert(this.Skill, out result.Skill);
+      converter.Convert(this.Personality, out result.Personality);
       converter.Convert(this.Home, out result.Home);
       converter.Convert(this.Task, out result.Task);
       converter.Convert(this.Status, out result.Status);

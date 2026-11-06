@@ -52,7 +52,8 @@ namespace Quantum
 
             FP heading = frame.TryGet(character, out PlayerLook look) ? look.Yaw : FP._0;
             BotSkillLevel skill = frame.TryGetSingleton(out Match match) ? match.NewBotSkill : BotSkillLevel.Normal;
-            frame.Add(character, new Bot { Heading = heading, Skill = skill });
+            var personality = (BotPersonalityType)frame.RNG->Next(0, (int)BotPersonalityType.Klutz + 1);
+            frame.Add(character, new Bot { Heading = heading, Skill = skill, Personality = personality });
             if (config.Brain.IsValid)
             {
                 frame.Add<HFSMAgent>(character);
@@ -217,6 +218,11 @@ namespace Quantum
                 if (BotConfig.TestSkillBySlot != null && (int)player->Ref < BotConfig.TestSkillBySlot.Length)
                 {
                     bot->Skill = BotConfig.TestSkillBySlot[(int)player->Ref];
+                }
+
+                if (BotConfig.TestPersonalityBySlot != null && (int)player->Ref < BotConfig.TestPersonalityBySlot.Length)
+                {
+                    bot->Personality = BotConfig.TestPersonalityBySlot[(int)player->Ref];
                 }
 
                 if (frame.Has<HFSMAgent>(entity))

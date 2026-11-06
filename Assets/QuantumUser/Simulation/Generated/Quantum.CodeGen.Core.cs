@@ -49,6 +49,11 @@ namespace Quantum {
   using RuntimeInitializeOnLoadMethodAttribute = UnityEngine.RuntimeInitializeOnLoadMethodAttribute;
   #endif //;
   
+  public enum BotPersonalityType : int {
+    Wrecker,
+    Builder,
+    Klutz,
+  }
   public enum BotSkillLevel : int {
     Easy,
     Normal,
@@ -957,30 +962,33 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Bot : Quantum.IComponent {
-    public const Int32 SIZE = 272;
+    public const Int32 SIZE = 280;
     public const Int32 ALIGNMENT = 8;
-    [FieldOffset(64)]
+    [FieldOffset(72)]
     [HideInInspector()]
     public FP Heading;
-    [FieldOffset(4)]
-    [HideInInspector()]
-    public BotSkillLevel Skill;
-    [FieldOffset(32)]
-    [HideInInspector()]
-    public EntityRef Home;
-    [FieldOffset(12)]
-    [HideInInspector()]
-    public BotTaskType Task;
     [FieldOffset(8)]
     [HideInInspector()]
-    public BotTaskStatus Status;
+    public BotSkillLevel Skill;
+    [FieldOffset(4)]
+    [HideInInspector()]
+    public BotPersonalityType Personality;
     [FieldOffset(40)]
     [HideInInspector()]
+    public EntityRef Home;
+    [FieldOffset(16)]
+    [HideInInspector()]
+    public BotTaskType Task;
+    [FieldOffset(12)]
+    [HideInInspector()]
+    public BotTaskStatus Status;
+    [FieldOffset(48)]
+    [HideInInspector()]
     public EntityRef Target;
-    [FieldOffset(224)]
+    [FieldOffset(232)]
     [HideInInspector()]
     public FPVector3 Point;
-    [FieldOffset(24)]
+    [FieldOffset(32)]
     [HideInInspector()]
     public EntityRef Carried;
     [FieldOffset(1)]
@@ -989,58 +997,58 @@ namespace Quantum {
     [FieldOffset(0)]
     [HideInInspector()]
     public Byte Attempts;
-    [FieldOffset(96)]
-    [HideInInspector()]
-    public FrameTimer StepTimer;
-    [FieldOffset(112)]
-    [HideInInspector()]
-    public FrameTimer TaskTimer;
-    [FieldOffset(120)]
-    [HideInInspector()]
-    public FrameTimer ThinkTimer;
-    [FieldOffset(144)]
-    [HideInInspector()]
-    public FPVector2 AimError;
-    [FieldOffset(160)]
-    [HideInInspector()]
-    public FPVector2 PlaceError;
-    [FieldOffset(48)]
-    [HideInInspector()]
-    public EntityRef Unreachable;
-    [FieldOffset(136)]
-    [HideInInspector()]
-    public FrameTimer UnreachableTimer;
-    [FieldOffset(248)]
-    [HideInInspector()]
-    public FPVector3 ProgressPosition;
-    [FieldOffset(88)]
-    [HideInInspector()]
-    public FrameTimer ProgressTimer;
-    [FieldOffset(56)]
-    [HideInInspector()]
-    public FP DetourYaw;
-    [FieldOffset(72)]
-    [HideInInspector()]
-    public FrameTimer DetourTimer;
-    [FieldOffset(176)]
-    [HideInInspector()]
-    public FPVector3 PathPoint;
-    [FieldOffset(200)]
-    [HideInInspector()]
-    public FPVector3 PathTarget;
-    [FieldOffset(80)]
-    [HideInInspector()]
-    public FrameTimer PathTimer;
-    [FieldOffset(20)]
-    [HideInInspector()]
-    public QBoolean PathJump;
-    [FieldOffset(16)]
-    [HideInInspector()]
-    public QBoolean HasPath;
     [FieldOffset(104)]
     [HideInInspector()]
-    public FrameTimer TackleTimer;
+    public FrameTimer StepTimer;
+    [FieldOffset(120)]
+    [HideInInspector()]
+    public FrameTimer TaskTimer;
     [FieldOffset(128)]
+    [HideInInspector()]
+    public FrameTimer ThinkTimer;
+    [FieldOffset(152)]
+    [HideInInspector()]
+    public FPVector2 AimError;
+    [FieldOffset(168)]
+    [HideInInspector()]
+    public FPVector2 PlaceError;
+    [FieldOffset(56)]
+    [HideInInspector()]
+    public EntityRef Unreachable;
+    [FieldOffset(144)]
+    [HideInInspector()]
+    public FrameTimer UnreachableTimer;
+    [FieldOffset(256)]
+    [HideInInspector()]
+    public FPVector3 ProgressPosition;
+    [FieldOffset(96)]
+    [HideInInspector()]
+    public FrameTimer ProgressTimer;
+    [FieldOffset(64)]
+    [HideInInspector()]
+    public FP DetourYaw;
+    [FieldOffset(80)]
+    [HideInInspector()]
+    public FrameTimer DetourTimer;
+    [FieldOffset(184)]
+    [HideInInspector()]
+    public FPVector3 PathPoint;
+    [FieldOffset(208)]
+    [HideInInspector()]
+    public FPVector3 PathTarget;
+    [FieldOffset(88)]
+    [HideInInspector()]
+    public FrameTimer PathTimer;
+    [FieldOffset(24)]
+    [HideInInspector()]
+    public QBoolean PathJump;
+    [FieldOffset(20)]
+    [HideInInspector()]
+    public QBoolean HasPath;
+    [FieldOffset(112)]
+    [HideInInspector()]
+    public FrameTimer TackleTimer;
+    [FieldOffset(136)]
     [HideInInspector()]
     public FrameTimer TravelSlideTimer;
     public override readonly Int32 GetHashCode() {
@@ -1048,6 +1056,7 @@ namespace Quantum {
         var hash = 419;
         hash = hash * 31 + Heading.GetHashCode();
         hash = hash * 31 + (Int32)Skill;
+        hash = hash * 31 + (Int32)Personality;
         hash = hash * 31 + Home.GetHashCode();
         hash = hash * 31 + (Int32)Task;
         hash = hash * 31 + (Int32)Status;
@@ -1081,6 +1090,7 @@ namespace Quantum {
       var p = (Bot*)ptr;
       serializer.Stream.Serialize(&p->Attempts);
       serializer.Stream.Serialize(&p->Step);
+      serializer.Stream.Serialize((Int32*)&p->Personality);
       serializer.Stream.Serialize((Int32*)&p->Skill);
       serializer.Stream.Serialize((Int32*)&p->Status);
       serializer.Stream.Serialize((Int32*)&p->Task);
@@ -1758,6 +1768,7 @@ namespace Quantum {
   unsafe partial class FramePrinterPreserve {
     [Preserve()]
     private static void EnsureNotStripped_Core() {
+      FramePrinter.EnsurePrimitiveNotStripped<Quantum.BotPersonalityType>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.BotSkillLevel>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.BotTaskStatus>();
       FramePrinter.EnsurePrimitiveNotStripped<Quantum.BotTaskType>();
@@ -1927,6 +1938,7 @@ namespace Quantum {
         registry.Register<Quantum.Block>(Quantum.Block.SIZE);
         registry.Register<Quantum.BlockSpawnPoint>(Quantum.BlockSpawnPoint.SIZE);
         registry.Register<Quantum.Bot>(Quantum.Bot.SIZE);
+        registry.Register<Quantum.BotPersonalityType>(4);
         registry.Register<Quantum.BotSDKData>(Quantum.BotSDKData.SIZE);
         registry.Register<Quantum.BotSDKGlobals>(Quantum.BotSDKGlobals.SIZE);
         registry.Register<Quantum.BotSkillLevel>(4);

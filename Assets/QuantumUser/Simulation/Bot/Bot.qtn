@@ -27,6 +27,14 @@ enum BotSkillLevel
     Expert
 }
 
+// What a bot goes for (BotPersonality assets, one per type, on BotConfig); rolled when it's added, never shown.
+enum BotPersonalityType
+{
+    Wrecker,
+    Builder,
+    Klutz
+}
+
 enum BotTaskStatus
 {
     Running,
@@ -42,6 +50,8 @@ component Bot
     [HideInInspector] FP Heading;
     // The difficulty it plays at.
     [HideInInspector] BotSkillLevel Skill;
+    // What it goes for.
+    [HideInInspector] BotPersonalityType Personality;
     // The ground block the bot builds its tower on, chosen by its brain.
     [HideInInspector] EntityRef Home;
 

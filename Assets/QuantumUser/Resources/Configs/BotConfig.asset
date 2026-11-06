@@ -33,6 +33,13 @@ MonoBehaviour:
       Value: 356056852165191317
   - Id:
       Value: 297423894570862054
+  Personalities:
+  - Id:
+      Value: 523310488109693450
+  - Id:
+      Value: 417272624047215772
+  - Id:
+      Value: 332152174237170289
   TaskSeconds:
     RawValue: 983040
   UnreachableSeconds:
@@ -89,8 +96,6 @@ MonoBehaviour:
     RawValue: 98304
   TackleRange:
     RawValue: 786432
-  TackleTowerRadius:
-    RawValue: 196608
   TackleMinSpeed:
     RawValue: 327680
   TackleSlideSeconds:

@@ -327,7 +327,7 @@ namespace Quantum
                 return;
             }
 
-            if (context.Grabber.Held != EntityRef.None || BotChoices.IsTackleTarget(frame, context.Entity, target, config) == false)
+            if (context.Grabber.Held != EntityRef.None || BotChoices.IsTackleTarget(frame, context.Entity, bot, target, config) == false)
             {
                 EndTackle(ref context, false);
                 return;
@@ -380,7 +380,8 @@ namespace Quantum
             Frame frame = context.Frame;
             Bot* bot = context.Bot;
             bot->Status = hit ? BotTaskStatus.Done : BotTaskStatus.Failed;
-            bot->TackleTimer = FrameTimer.FromSeconds(frame, context.Config.TackleCooldownSeconds);
+            bot->TackleTimer = FrameTimer.FromSeconds(frame,
+                context.Config.TackleCooldownSeconds * context.Config.GetPersonality(frame, bot).TackleCooldownScale);
             if (bot->Step == 1 || hit)
             {
                 bool dropped = bot->Carried != EntityRef.None && (frame.Exists(bot->Target) == false
@@ -421,6 +422,12 @@ namespace Quantum
             }
 
             FPVector3 target = frame.Get<Transform3D>(bot->Target).Position;
+            if (frame.Has<Player>(bot->Target))
+            {
+                // A character: at its middle, not its feet.
+                target.Y += FP._1;
+            }
+
             FP distance = FlatDistance(context.Transform->Position, target);
             FP yaw = YawTo(context.Transform->Position, target);
             FP bodyYaw = GetBodyYaw(context.Transform);

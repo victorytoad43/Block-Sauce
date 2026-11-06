@@ -15,6 +15,12 @@ namespace Quantum
         public static BotSkillLevel[] TestSkillBySlot;
 
         /// <summary>
+        /// Test only (editor soaks): the personality each player slot's bot has, overriding its own; null for none. Never
+        /// set in a match that's online.
+        /// </summary>
+        public static BotPersonalityType[] TestPersonalityBySlot;
+
+        /// <summary>
         /// Returns the bot's difficulty: the skill for its level, or the first one listed if that level has none.
         /// </summary>
         public unsafe BotSkill GetSkill(Frame frame, Bot* bot)
@@ -24,6 +30,18 @@ namespace Quantum
                 return null;
 
             return frame.FindAsset(Skills[level < Skills.Length ? level : 0]);
+        }
+
+        /// <summary>
+        /// Returns the bot's personality asset, or the first one listed if its type has none.
+        /// </summary>
+        public unsafe BotPersonality GetPersonality(Frame frame, Bot* bot)
+        {
+            int type = (int)bot->Personality;
+            if (Personalities == null || Personalities.Length == 0)
+                return null;
+
+            return frame.FindAsset(Personalities[type < Personalities.Length ? type : 0]);
         }
 
         /// <summary>
@@ -45,6 +63,11 @@ namespace Quantum
         /// The difficulty levels, one per <see cref="BotSkillLevel"/> in order (Easy, Normal, Hard, Expert).
         /// </summary>
         public AssetRef<BotSkill>[] Skills;
+
+        /// <summary>
+        /// The personalities, one per <see cref="BotPersonalityType"/> in order (Wrecker, Builder, Klutz).
+        /// </summary>
+        public AssetRef<BotPersonality>[] Personalities;
 
         /// <summary>
         /// Seconds any task may take before it fails.
@@ -133,13 +156,12 @@ namespace Quantum
         public FP DunkLiftSeconds = (FP)3 / 2;
 
         /// <summary>
-        /// Slide tackles, with empty hands: a rival within TackleRange (meters) carrying one of the bot's blocks, or
-        /// carrying anything within TackleTowerRadius of the bot's tower, gets run at and slid into (how far out and how
-        /// well lined up is on its skill). The tackle gives up after TackleSeconds; the next waits TackleCooldownSeconds.
+        /// Slide tackles, with empty hands: a rival within TackleRange (meters) worth tackling (its personality says who)
+        /// gets run at and slid into (how far out and how well lined up is on its skill). The tackle gives up after
+        /// TackleSeconds; the next waits TackleCooldownSeconds (scaled by its personality).
         /// </summary>
         [Header("Tackling")]
         public FP TackleRange = 12;
-        public FP TackleTowerRadius = 3;
         /// <summary>The slowest run, in m/s, a bot slides from (the slide needs 4).</summary>
         public FP TackleMinSpeed = 5;
         /// <summary>How long after starting the slide, in seconds, a tackle that hasn't hit counts as a miss.</summary>

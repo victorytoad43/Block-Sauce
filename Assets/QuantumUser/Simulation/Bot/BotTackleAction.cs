@@ -25,7 +25,8 @@ namespace Quantum
             // No hesitation once the bot has spotted the carrier, and a short limit; no new tackle until this one ends.
             bot->ThinkTimer = default;
             bot->TaskTimer = FrameTimer.FromSeconds(frame, config.TackleSeconds);
-            bot->TackleTimer = FrameTimer.FromSeconds(frame, config.TackleSeconds + config.TackleCooldownSeconds);
+            bot->TackleTimer = FrameTimer.FromSeconds(frame,
+                config.TackleSeconds + config.TackleCooldownSeconds * config.GetPersonality(frame, bot).TackleCooldownScale);
         }
     }
 }
