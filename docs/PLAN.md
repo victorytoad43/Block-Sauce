@@ -30,11 +30,11 @@ Reference implementation: Photon's Friendslop sample (grab, carry, throw, force-
 - **Sit and slide:** the crouch button sits. A sitting character is stationary: no steering, turning or jumping, it only brakes (a shove still slides it). Pressing it while moving 4 m/s or faster slides instead (7.5 m/s for 0.75 s), ending in a sit while the button is held. The capsule is 1.30 m tall while sitting or sliding.
 - **Control tiers:** in control (forces chase the stick's target velocity), staggered (no steering, light braking, drops the held block), knocked down (capsule off, ragdoll limbs take over and topple towers).
 - The view reads speed, direction, grounded and state, and plays Blender clips on top. Root motion stays off; animation follows the body. Timed moves (slide length, throw release, get-up offset) are simulation numbers sized to the authored clips.
-- Foot IK (feet planted per foot on statics and blocks, hips dropping up to 0.35 m) and hand IK live entirely in the view. A stagger plays a full-body flinch for the side that was hit.
+- Foot IK (feet planted per foot on statics and blocks, hips dropping up to 0.35 m), hand IK and a head look live entirely in the view. The head look (`HeadLookView`, Jackson 2026-11-06): with empty hands, Guy's head (a little of his chest, and his eyes) turns toward the block a Grab press would take right now, so everyone can see what a player or bot is about to pick up. A stagger plays a full-body flinch for the side that was hit.
 
 ### Holding a block
 
-- **Grab** takes the nearest free block within 2 m of a pivot inside Guy (0.77 m up), in a 60° cone in front (flat). It turns the least it can to sit level and square to Guy. Because the nearest block wins, the block under a tower's top is always nearer from the ground than anything resting on it: lifting a block off a tower needs a jump-grab today. Jackson's pick (2026-11-06): grab the block the camera looks at, shown by a highlight (Touch-ups phase).
+- **Grab** takes the free block within 2 m of a pivot inside Guy (0.77 m up) that the camera looks at: the first block on the camera's center line (which runs through the camera's pivot 1.4 m above Guy's feet, along the look's pitch and yaw), or else the block in reach whose center lies nearest that line, within 0.6 m; with nothing near the line, the nearest free block in a 60° cone in front (Jackson, 2026-11-06; the nearest-block rule stays behind `PlayerGrabConfig.GrabWhereAimed`). It turns the least it can to sit level and square to Guy. Bots look at the block they mean to grab.
 - While holding, look input swings the block instead of turning the camera. The block orbits the pivot at the `GrabBlock` clip's hold point (0.95 m out), level and square to him. Left/right on the left stick strafe. The block chases its hand point by velocity each tick, so a swing physically hits players and towers. A carrier never collides with, or is knocked by, the block it holds.
 - The camera always moves with look input while holding, on a gradient: 35% of the input with the block in the middle of its swing, rising to all of it at the edges. Past 45° sideways the body turns; past the top (60°) or bottom (−25°) of the swing, input only tilts the camera.
 - Holding Throw aims: the block rises to 30°, horizontal input turns the body, vertical input sets the throw angle, and a trajectory line and landing circle show the throw. Releasing throws (12 m/s; a jumpshot is 1.3×). Grab while holding places. While aiming the real block collides with nothing (`AimedBlock` layer) and its model rides in Guy's hands (`Throw` frame 4), arcing back to the block on release.
@@ -53,7 +53,7 @@ A player wins the round when all three of their blocks stand stacked, and counte
 3. A block is stacked when it rests level and squarely on another block of its owner (within half a block of center and 12° of level), or is a ground block with one of its owner's blocks on top. A lone block on the ground isn't stacked.
 4. A stacked block at rest settles: a dither in the owner's darker shade climbs it over 3 s, and any touch at 1 m/s or more restarts it. At the top it counts, for as long as it stays stacked.
 5. A block that stops being stacked stops counting, and so does any block that was only stacked because of it.
-6. The first player whose tower holds 3 counted blocks wins. There is no time limit yet; Jackson's pick (2026-11-06) is a 5-minute timer, then sudden death (Touch-ups phase).
+6. The first player whose tower holds 3 counted blocks wins. A match has a 5-minute clock (`GameModeConfig.MatchSeconds`); when it runs out, sudden death: the next block to count wins. If none counts within 2 more minutes (`SuddenDeathSeconds`), the player with the most counted blocks in one tower wins, and a tie is a draw. The HUD shows the clock in the headline.
 
 **What stacking should feel like** (Jackson, 2026-11-06): two blocks stack easily; the third is hard because you can't reach up to it (a jump-place). The difficulty is reach and timing, never friction: a block placed squarely stays put, and towers fall when something hits them, not by sliding on their own.
 
@@ -98,11 +98,11 @@ Jackson (2026-11-06): adding a third block to a two-block tower often makes all 
 - **Done when:** on the bench, a block let go within the stack tolerance on a two-block tower stays put (under 2 cm of slide, never a fall) in every repeated trial, asleep or awake, and towers hit by a throw or a ragdoll still fall as before; Jackson stacks three by hand and the difficulty comes from reach, not sliding.
 
 ### Touch-ups: grab and match end
-Jackson's picks (2026-11-06). The two highlights wait on Jackson's detailed design; the timer can start any time.
-1. **Grab what the camera looks at.** Grab takes the free block in reach nearest the camera's aim, instead of the nearest block. One function (`GrabSystem.FindGrabTarget`); bots read it through `PeekGrabTarget` and are checked by a soak, not tuned. Keep the old rule behind a toggle on `PlayerGrabConfig` until Jackson signs off.
+Jackson's picks (2026-11-06). The two highlights wait on Jackson's detailed design.
+1. [x] **Grab what the camera looks at** (2026-11-06): `GrabSystem.FindGrabTarget`; bots aim their camera at their target block; the old rule behind `PlayerGrabConfig.GrabWhereAimed`. Plus Jackson's ask: Guy's head looks at the block a grab would take (`HeadLookView`).
 2. **Grab highlight** (Jackson's design): the block Grab would take, shown for the local player only (view, reads `PeekGrabTarget`).
 3. **Settle and stack highlight** (Jackson's design): where the held block will land, and whether it would stack and count there (view only, from `BlockStackSystem`'s center and level tests; it predicts and never decides).
-4. **Match timer and sudden death:** a 5-minute timer (`MatchSeconds` on `GameModeConfig`), then sudden death: the next block to count wins, and if none counts within 2 more minutes, the player with the most counted blocks wins (a tie is a draw); the HUD shows the clock (A-006). The sudden-death rule is a proposal for Jackson's play-test.
+4. [x] **Match timer and sudden death** (2026-11-06): as in Stack & Lock rule 6; the HUD's headline shows the clock, "SUDDEN DEATH!" shows big as it starts, a timed-out tie shows DRAW. The sudden-death rule is a proposal for Jackson's play-test.
 - **Done when:** a player lifts a block off any tower they can reach with one press by looking at it; both highlights follow Jackson's design; no match runs past sudden death by more than a minute in soaks; Jackson plays a room and signs off the grab rule.
 
 ### Phase 8: Feel and juice
@@ -162,7 +162,7 @@ Current decisions only; how they were reached is in git history.
 
 ## Open questions
 
-- Sudden death: next block to count wins, then most counted blocks after 2 more minutes? (Play-test.)
+- Sudden death: next block to count wins, then most counted blocks after 2 more minutes? (Play-test.) A sudden-death winner can have fewer counted blocks than others, and the results list them first anyway; say it on the results ("WINS IN SUDDEN DEATH")?
 - Pace: with towers that stand, all-bot matches got much shorter (median 47 s, from 104 s). Is the third block now too easy for players, or is the jump-place enough? (Jackson's hand check.)
 - Settle feel: 3 s to count; a 1 m/s touch restarts settling; stacked means within half a block of center and 12° of level. Right numbers? (Play-test, after the Blocks phase.)
 - Should a pickup swing that passes through your own tower be able to knock it over, or should the grab ignore your own blocks? (Play-test; the camera-aim grab may settle it.)

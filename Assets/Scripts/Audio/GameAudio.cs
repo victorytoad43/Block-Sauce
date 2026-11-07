@@ -71,6 +71,8 @@ namespace BlockSauce
             QuantumEvent.Subscribe(this, (EventBlockCounted e) => PlayAt(_bank.Counted, e.Game, e.Block, 0.9f));
             QuantumEvent.Subscribe(this, (EventBlockUncounted e) => PlayAt(_bank.Uncounted, e.Game, e.Block, 0.8f));
             QuantumEvent.Subscribe(this, (EventMatchStateChanged e) => OnMatchState(e.State));
+            // Placeholder: sudden death reuses the match-start sound until the bank has its own.
+            QuantumEvent.Subscribe(this, (EventSuddenDeathStarted e) => PlayFlat(_bank.MatchStart, 1f));
         }
 
         private void OnDisable()

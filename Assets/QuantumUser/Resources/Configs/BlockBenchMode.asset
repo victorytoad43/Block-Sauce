@@ -41,8 +41,20 @@ MonoBehaviour:
     RawValue: 32768
   SettleResetSpeed:
     RawValue: 65536
+  SleepCountedBlocks: 0
+  RestAssist: 1
+  RestAssistSpeed:
+    RawValue: 16384
+  RestAssistAngularSpeed:
+    RawValue: 65536
+  RestAssistDamping:
+    RawValue: 32768
   CountdownSeconds:
     RawValue: 196608
+  MatchSeconds:
+    RawValue: 0
+  SuddenDeathSeconds:
+    RawValue: 7864320
   RoundEndSeconds:
     RawValue: 196608
   ResultsSeconds:

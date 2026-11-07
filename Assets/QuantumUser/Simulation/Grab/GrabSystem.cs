@@ -172,10 +172,88 @@ namespace Quantum
         }
 
         /// <summary>
+        /// Returns the block a grab takes: the one the camera looks at (<see cref="FindAimedTarget"/>), or, with aiming
+        /// off or nothing near the aim, the nearest grabbable block nobody holds within grab range of the pivot and
+        /// inside the cone in front of the character; or none.
+        /// </summary>
+        private static EntityRef FindGrabTarget(Frame frame, EntityRef grabber, FPVector3 pivot, FPQuaternion bodyYaw, GrabConfig config)
+        {
+            if (config.GrabWhereAimed && frame.Unsafe.TryGetPointer(grabber, out PlayerLook* look))
+            {
+                EntityRef aimed = FindAimedTarget(frame, grabber, pivot, look, config);
+                if (aimed != EntityRef.None || config.AimFallbackToNearest == false)
+                    return aimed;
+            }
+
+            return FindNearestTarget(frame, grabber, pivot, bodyYaw, config);
+        }
+
+        /// <summary>
+        /// Returns the free block within grab range of the pivot that the camera looks at: the first block the aim line
+        /// hits, or else the block whose center lies nearest the line, within <see cref="GrabConfig.AimMaxMiss"/>. The
+        /// aim line runs through the camera's pivot above the character along the look's pitch and yaw, so it is the
+        /// screen's center line whatever the camera's distance.
+        /// </summary>
+        private static EntityRef FindAimedTarget(Frame frame, EntityRef grabber, FPVector3 pivot, PlayerLook* look, GrabConfig config)
+        {
+            FPVector3 origin = frame.Get<Transform3D>(grabber).Position + FPVector3.Up * config.AimPivotHeight;
+            FPVector3 direction = FPQuaternion.Euler(look->Pitch, look->Yaw, FP._0) * FPVector3.Forward;
+            FP rangeSqr = config.GrabRange * config.GrabRange;
+
+            // What the line hits first, past the character itself; level geometry in the way means nothing is aimed at.
+            FP length = (origin - pivot).Magnitude + config.GrabRange;
+            HitCollection3D hits = frame.Physics3D.RaycastAll(origin, direction, length, -1,
+                QueryOptions.HitStatics | QueryOptions.HitDynamics | QueryOptions.HitKinematics);
+            hits.SortCastDistance();
+            for (int i = 0; i < hits.Count; i++)
+            {
+                if (hits[i].IsTrigger || hits[i].Entity == grabber)
+                    continue;
+
+                if (hits[i].IsStatic)
+                    break;
+
+                if (IsFreeBlock(frame, hits[i].Entity)
+                    && (frame.Get<Transform3D>(hits[i].Entity).Position - pivot).SqrMagnitude <= rangeSqr)
+                    return hits[i].Entity;
+
+                break;
+            }
+
+            // A near miss: the block in reach nearest the line.
+            HitCollection3D inReach = frame.Physics3D.OverlapShape(pivot, FPQuaternion.Identity,
+                Shape3D.CreateSphere(config.GrabRange), -1, QueryOptions.HitDynamics | QueryOptions.HitKinematics);
+            EntityRef best = EntityRef.None;
+            FP bestMiss = config.AimMaxMiss;
+            for (int i = 0; i < inReach.Count; i++)
+            {
+                EntityRef candidate = inReach[i].Entity;
+                if (candidate == grabber || candidate == best || IsFreeBlock(frame, candidate) == false)
+                    continue;
+
+                FPVector3 toCandidate = frame.Get<Transform3D>(candidate).Position - origin;
+                FP along = FPVector3.Dot(toCandidate, direction);
+                FP miss = (toCandidate - direction * along).Magnitude;
+                if (miss < bestMiss)
+                {
+                    best = candidate;
+                    bestMiss = miss;
+                }
+            }
+
+            return best;
+        }
+
+        private static bool IsFreeBlock(Frame frame, EntityRef entity)
+        {
+            return frame.Unsafe.TryGetPointer(entity, out Grabbable* grabbable) && grabbable->Holder == EntityRef.None;
+        }
+
+        /// <summary>
         /// Returns the nearest grabbable block nobody holds within grab range of the pivot and inside the cone
         /// in front of the character, or none.
         /// </summary>
-        private static EntityRef FindGrabTarget(Frame frame, EntityRef grabber, FPVector3 pivot, FPQuaternion bodyYaw, GrabConfig config)
+        private static EntityRef FindNearestTarget(Frame frame, EntityRef grabber, FPVector3 pivot, FPQuaternion bodyYaw, GrabConfig config)
         {
             FPVector3 forward = bodyYaw * FPVector3.Forward;
             FP minCos = FPMath.Cos(config.GrabConeHalfAngle * FP.Deg2Rad);

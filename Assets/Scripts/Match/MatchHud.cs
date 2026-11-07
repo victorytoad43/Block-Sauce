@@ -67,6 +67,11 @@ namespace BlockSauce
         private bool _shownHost;
         private float _nextResultsRefresh;
         private int[] _towerKeys = Array.Empty<int>();
+        private int _shownClock = -1;
+        private bool _shownSuddenDeath;
+        private float _suddenDeathBigUntil;
+        private const string PlayingHeadline = "STACK ALL 3 BLOCKS INTO ONE TOWER";
+        private const float SuddenDeathBigSeconds = 2.5f;
 
         private void Update()
         {
@@ -115,7 +120,9 @@ namespace BlockSauce
                     UpdateTowers(frame, mode);
                     break;
                 case MatchState.Playing:
-                    ShowBig(Time.time - _playingSince < _goSeconds ? "GO!" : string.Empty);
+                    UpdateClock(frame, match, mode);
+                    ShowBig(Time.time - _playingSince < _goSeconds ? "GO!"
+                        : Time.time < _suddenDeathBigUntil ? "SUDDEN DEATH!" : string.Empty);
                     UpdateTowers(frame, mode);
                     break;
                 case MatchState.RoundEnd:
@@ -176,7 +183,10 @@ namespace BlockSauce
                     break;
                 case MatchState.Playing:
                     _playingSince = Time.time;
-                    _headlineText.text = "STACK ALL 3 BLOCKS INTO ONE TOWER";
+                    _shownClock = -1;
+                    _shownSuddenDeath = false;
+                    _suddenDeathBigUntil = 0f;
+                    _headlineText.text = PlayingHeadline;
                     break;
                 case MatchState.RoundEnd:
                     ShowWinner();
@@ -198,8 +208,35 @@ namespace BlockSauce
             }
             else
             {
-                ShowBig("NO WINNER");
+                ShowBig(match.SuddenDeath ? "DRAW" : "NO WINNER");
             }
+        }
+
+        /// <summary>
+        /// The match clock in the headline (A-006 draft: the headline bar, top center); in sudden death the headline
+        /// says so, with sudden death's own clock, and SUDDEN DEATH! shows big for a moment as it starts.
+        /// </summary>
+        private void UpdateClock(Frame frame, Match match, GameModeConfig mode)
+        {
+            if (mode == null || mode.MatchSeconds <= 0)
+                return;
+
+            if (match.SuddenDeath && _shownSuddenDeath == false)
+            {
+                _shownSuddenDeath = true;
+                _shownClock = -1;
+                _suddenDeathBigUntil = Time.time + SuddenDeathBigSeconds;
+            }
+
+            int seconds = Mathf.Max(0, Mathf.CeilToInt(match.Timer.RemainingSeconds(frame).AsFloat));
+            if (seconds == _shownClock)
+                return;
+
+            _shownClock = seconds;
+            string clock = $"{seconds / 60}:{seconds % 60:00}";
+            _headlineText.text = match.SuddenDeath
+                ? $"SUDDEN DEATH {clock}   NEXT BLOCK WINS"
+                : $"{clock}   {PlayingHeadline}";
         }
 
         private void ShowPrompt(bool isHost)
@@ -331,7 +368,8 @@ namespace BlockSauce
                 return ((int)a.Player).CompareTo((int)b.Player);
             });
 
-            _resultsWinner.text = winner.IsValid ? $"{GetName(frame, winner)} WINS!" : "NO WINNER";
+            bool draw = frame.TryGetSingleton(out Match match) && match.SuddenDeath;
+            _resultsWinner.text = winner.IsValid ? $"{GetName(frame, winner)} WINS!" : draw ? "DRAW" : "NO WINNER";
             _resultsWinner.color = winner.IsValid ? GetColor(winner) : Color.white;
             int towerHeight = mode != null ? mode.TowerHeight : 3;
             for (int i = 0; i < _resultRows.Length; i++)

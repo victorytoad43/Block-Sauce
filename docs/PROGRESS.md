@@ -4,19 +4,19 @@ Where the build stands and what happens next. The agent adds a short entry at th
 
 ## Current state (2026-11-06)
 
-**Phases 0–7, the plan review and Bot Enhancement are done and reviewed. Bots are set aside. The Blocks phase (stacking that behaves) is built and waits for Jackson's hand check; its bench numbers are in the Blocks report. Next is Touch-ups (grab what the camera looks at, the two highlights, a 5-minute timer with sudden death), then Phase 8 feel and juice and Phase 9 playtest build.**
+**Phases 0–7, the plan review and Bot Enhancement are done and reviewed. Bots are set aside. The Blocks phase (stacking that behaves) is built and waits for Jackson's hand check (Blocks report). Touch-ups is half built: grab what the camera looks at, Guy's head looking at what he'd grab, and the 5-minute clock with sudden death are in; the grab highlight and the settle/stack highlight wait on Jackson's design. Then Phase 8 feel and juice and Phase 9 playtest build.**
 
 What plays today, online with 2–6 players, in the Arena scene (the Lobby is a test scene with the sauce vats):
 - **Front end:** the game opens on Jackson's menu over an offline all-bot demo match watched by the spectator director. Start Game hosts a room with a 5-letter code; Join Game joins by code or any open room. The room screen lists the players; the host adds and removes bots, sets each bot's difficulty (`< NORMAL >`), sets the bot fill and starts the match. The HUD shows the countdown, everyone's tower slots, the winner and the results, then the room screen comes back. Settings: volume, look speed, invert Y, fullscreen, resolution. Placeholder sounds throughout.
 - **Arena:** a walled bowl with uneven ground, six spawn pillars with stairs, a raised inner ring and a dip in the middle; each player starts on their pillar with their home block, their second block on the ring across the middle, the third in a pile of six in the middle. Camera collision with the arena.
-- **Guy:** force-driven capsule; walk/run (analog on gamepad), jump, sit, slide, stagger; grab, hold and swing, place with flush settling, hold-to-aim throw with trajectory preview, jumpshot; knockdown into an 11-limb ragdoll, Jump to recover faster, carrying bodies, get-up clips. Animation for every state, foot and hand IK.
-- **Stack & Lock:** 3 owned blocks each, settle dither, counting, win, full match loop. Stacks hold still: a block let go squarely enough to count stays where it was put (the rest assist, `BlockRestSystem`), and towers still fall when hit.
+- **Guy:** looks (head, chest, eyes) at the block a grab would take; force-driven capsule; walk/run (analog on gamepad), jump, sit, slide, stagger; grab, hold and swing, place with flush settling, hold-to-aim throw with trajectory preview, jumpshot; knockdown into an 11-limb ragdoll, Jump to recover faster, carrying bodies, get-up clips. Animation for every state, foot and hand IK.
+- **Stack & Lock:** 3 owned blocks each, settle dither, counting, win, a 5-minute clock with sudden death (the HUD headline shows it), full match loop. Grab takes the block the camera looks at. Stacks hold still: a block let go squarely enough to count stays where it was put (the rest assist, `BlockRestSystem`), and towers still fall when hit.
 - **Sauces** (Lobby only): Stack (sticky, glues) and Slip (slides); a lumpy coat shader. Dev keys F8 / Shift+F8 coat blocks.
 - **Bots:** navmesh pathfinding with jump links, slide tackles, four skill levels, three hidden personalities (Wrecker, Builder, Klutz with mistakes), a jump-grab for blocks lying on towers. Dev builds show each bot's personality and skill on the spectator label and the room screen, and `BotSoakLog` writes a `[BotSoak]` line per match.
 
 ### Known issues
 - **Stacking (Blocks phase, waiting on Jackson's hand check):** the bench says stacks hold; how stacking three feels by hand isn't checked yet. A held block carried in low enough to ram the top block's side still knocks it (that's a hit, not a slip). Bots still land only about half their placings (their line-up, not the physics).
-- **Grab and match end (Touch-ups):** grab takes the nearest block, so blocks on a tower's top need a jump-grab and a grab at a rival's short tower yanks its base out; there is no match time limit.
+- **Touch-ups, waiting on Jackson:** no grab highlight yet (Guy's head look shows the target meanwhile); the camera-aim grab and sudden death are unplayed by a person. A sudden-death winner is listed first on the results even with fewer blocks. Sudden death reuses the match-start sound.
 - Bots don't use the stairs (they hop onto pillars and the ring); now and then they wedge against each other or a wall for a few seconds.
 - Blocks sometimes rest tilted against a pillar's rim or the ring's edge and don't count until moved.
 - The editor runs a match at 20–33 fps on Jackson's PC (waiting on presentation); a build runs far faster. A small hiccup on knockdowns (Phase 9 profiling).
@@ -33,6 +33,7 @@ What plays today, online with 2–6 players, in the Arena scene (the Lobby is a 
 - The placeholder sounds are unheard picks by file name.
 
 ### Waiting on Jackson
+- A play-test of the Touch-ups so far: grabbing by looking (with the head look as the only cue until the highlight), the 5-minute clock and sudden death (the rule is my proposal), and whether the head look reads.
 - A hand check of the Blocks fix: stack three in the Lobby or a match. Is the difficulty now the reach, not sliding? Is the third block too easy now?
 - Detailed design for the grab highlight and the settle/stack highlight (A-025).
 - A-002 button focus states and the remaining screen mock-ups; A-006 HUD mock-ups (now with the 5-minute clock).
@@ -41,20 +42,14 @@ What plays today, online with 2–6 players, in the Arena scene (the Lobby is a 
 ### Placeholders in use
 `PH_PlayerCapsule` (Guy's view on it), `PH_Block` (with the subdivided `BL_Block` mesh), `PH_LockDither` (A-007/A-013), `PH_SauceVat_Stack`/`_Slip`, `PH_SauceCoat` and `PH_SauceLooks` (A-009), `PH_PlayerColors` (holds the real palette), `PH_` terrain in the Lobby test scene, `PH_MainMenu` (Jackson's main menu art; other screens are drafts, A-002), `PH_MatchHud` (A-006), the IMGUI spectator bar (A-006), `PH_RagdollTest` (stress-test scene only), `PH_SoundBank` (A-014).
 
-## Next: Touch-ups: grab and match end
+## Next: Touch-ups: the two highlights
 
-Design and done-when in `docs/PLAN.md` › Touch-ups. The grab rule and the timer are Jackson's picks and can start now; the two highlights wait on his design (A-025).
+Design in `docs/PLAN.md` › Touch-ups; items 1 and 4 are built. Items 2 and 3 (the grab highlight and the settle/stack highlight) wait on Jackson's detailed design (A-025); both are view only and read the simulation (`GrabSystem.PeekGrabTarget` for the grab target, the same query `HeadLookView` uses; the place spot from `GrabSystem.LimitToRestOnBlockBelow` and `TryGetBlockBelow` with `BlockStackSystem`'s center and level tests). Then Jackson's play-test of the whole phase and its report.
 
-Build order:
-1. **Grab what the camera looks at:** `GrabSystem.FindGrabTarget` takes the free block in reach nearest the camera's aim ray (the look direction is already in the input, `PlayerLook`); keep the nearest-block rule behind a `PlayerGrabConfig` toggle until Jackson signs off. Bots read the rule through `PeekGrabTarget`; check them with a short soak (they need to face their target block before grabbing; their jump-grab may no longer be needed), no bot tuning.
-2. **Match timer and sudden death:** `MatchSeconds` (300) and the sudden-death rule on `GameModeConfig`, a time-out path in `MatchSystem` and `CheckWinner`, the clock on the HUD (A-006 draft: headline bar, top center). Soak: no match past sudden death by more than a minute.
-3. **Placeholder highlights** for the grab target and the place spot, only as far as items 1 and 2 need them for a play-test; Jackson's design replaces them.
-4. Jackson's play-test of the grab rule and the timer, then the phase report.
-
-Risks:
-- The grab rule touches every interaction; it needs Jackson's play, not just soaks.
-- While holding, look input is the swing; the aim ray only matters with empty hands, so nothing changes while holding.
-- A timer changes the pace for humans more than bots, and towers now stand (all-bot matches got much shorter): try it in Jackson's play-test before tuning the length.
+What was checked for items 1 and 4 (2026-11-06):
+- Grab by aim: a 39-minute all-bot Arena soak (35 matches, 0 errors) with bots looking at their target blocks: placings land 51% (52% before), fetches 33 a minute (31), raids 10.5 (8.7), match length the same (median 48 s). Not played by a person yet.
+- Head look: close-up renders of bots in the demo show the head and eyes turned toward the block they're about to grab.
+- Clock: with the clock shortened to 20 s and sudden death to 15 s (in memory, not saved), 48 all-bot matches all went to sudden death and ended within 35 s: most by the next block to count, 4 at sudden death's time-out (2 of them draws). In an online room with bots, screenshots show the clock in the headline, "SUDDEN DEATH!" as it starts, and the round end and results (headline shortened after the sudden-death one overflowed its bar). At the normal 5 minutes, no all-bot match reached sudden death (towers stand now; the longest ran 185 s).
 
 ## Blocks report (2026-11-06)
 - Built: the block bench (`Assets/Scenes/Dev/BlockBench.unity`, **Block Sauce › Build Block Bench**; `BlockBenchSystem` runs `BlockBenchTrial`s through the real place code, `GrabSystem.SetDown` and `DetachHeld`, and the hold's chase for carried blocks; **Block Sauce › Block Bench › Run Placing / Carry / Hit / Sauce Panel**; `BlockBenchStarter` starts the scene locally, with retries). Fixes: counted blocks no longer sleep early (`GameModeConfig.SleepCountedBlocks`, off); the rest assist (`BlockRestSystem`, `GameModeConfig.RestAssist`: half of any movement under 0.25 m/s and 1 rad/s relative to what a block rests on is taken off each tick; Slip-sauced blocks skipped); a held block over a block rests on it instead of being pressed in (`PlayerGrabConfig.HoldRestsOnBlockBelow`).
@@ -101,6 +96,13 @@ Phase report format:
 - Placeholders still in use: <list with asset IDs>
 - Ready for review: yes
 ```
+
+## 2026-11-06: Touch-ups: grab by aim, head look, clock and sudden death
+- Did: `GrabSystem.FindAimedTarget` (the camera's center line through the camera pivot, first block hit or nearest within 0.6 m, else the old nearest-in-cone rule; `PlayerGrabConfig.GrabWhereAimed`, `AimPivotHeight`, `AimMaxMiss`, `AimFallbackToNearest`); bots look at their target block within 3.5 m (their move input turned to match); `HeadLookView` on `PH_PlayerCapsule` (Jackson's ask mid-session); `GameModeConfig.MatchSeconds` (300) and `SuddenDeathSeconds` (120), `Match.SuddenDeath`, event `SuddenDeathStarted`, `MatchSystem.UpdateClock`; the HUD clock, SUDDEN DEATH! and DRAW; `BotSoakLog` adds `suddenDeath=`; the bench mode has no clock.
+- Verified: see Next › What was checked.
+- Decided: a near-miss tolerance and the old rule as fallback, so a grab still works when the camera isn't on a block (the highlight will show which); the head look uses the grab's own query, so it always shows the block a press would take; the sudden-death winner is the player whose counted blocks go above the fewest they had since sudden death began (a rebuilt block counts as the next block).
+- Questions for Jackson: in Waiting on Jackson.
+- Next: the two highlights when Jackson's design arrives; his play-test.
 
 ## 2026-11-06: Blocks: bench, causes, fix
 - Did: the block bench (scene, builder, `BlockBenchSystem`, panels, starter); `GrabSystem.SetDown`, `DetachHeld` and `LimitToRestOnBlockBelow` made public for it; the three fixes (counted-block sleep off, `BlockRestSystem`, the hold resting on the block below). Docs: plan (Blocks phase, the Stacking decision, a pace question), progress (Blocks report, Touch-ups next), `CLAUDE.md` (Block bench under Testing).

@@ -117,6 +117,7 @@ GameObject:
   - component: {fileID: 6414982322801283057}
   - component: {fileID: 4769580823115886944}
   - component: {fileID: 4473357891918747787}
+  - component: {fileID: 5660732923602268648}
   m_Layer: 0
   m_Name: PH_PlayerCapsule
   m_TagString: Untagged
@@ -591,6 +592,14 @@ MonoBehaviour:
     Config:
       Id:
         Value: 305904877395740238
+    PendingImpulse:
+      X:
+        RawValue: 0
+      Y:
+        RawValue: 0
+      Z:
+        RawValue: 0
+    PendingSource: {fileID: 0}
 --- !u!114 &1127897408115431833
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -735,7 +744,28 @@ MonoBehaviour:
   _otherGripHalfWidth: 0.18
   _gripBack: 0.12
   _reachSeconds: 0.1
-  _throwStart: 0.3
+  _aimFrame: 4
+  _aimBlendSeconds: 0.15
+  _releaseSeconds: 0.08
+  _arcTopHeight: 2.05
+--- !u!114 &5660732923602268648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4830101896938081584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa1b671662409ed4286698c6e612e097, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockSauce.HeadLookView
+  _animator: {fileID: 6532893055267455855}
+  _maxHeadAngle: 65
+  _chestShare: 0.2
+  _maxEyeAngle: 25
+  _fadeSeconds: 0.2
+  _followSharpness: 12
 --- !u!1 &6939438412846394903
 GameObject:
   m_ObjectHideFlags: 0

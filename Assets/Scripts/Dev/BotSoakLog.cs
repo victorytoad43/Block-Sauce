@@ -149,7 +149,8 @@ namespace BlockSauce
             var line = new StringBuilder();
             // Simulation seconds, so sped-up soaks read the same.
             float seconds = (tick - _playStartTick) / (float)frame.SessionConfig.UpdateFPS;
-            line.Append($"[BotSoak] match={_matches} seconds={seconds:F0} winner={(int)winner}");
+            bool suddenDeath = frame.TryGetSingleton(out Match match) && match.SuddenDeath;
+            line.Append($"[BotSoak] match={_matches} seconds={seconds:F0} winner={(winner.IsValid ? (int)winner : -1)} suddenDeath={(suddenDeath ? 1 : 0)}");
             for (int slot = 0; slot < frame.MaxPlayerCount; slot++)
             {
                 if (PlayerSystem.TryGetCharacter(frame, slot, out EntityRef character) == false)

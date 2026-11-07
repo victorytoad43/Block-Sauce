@@ -20,7 +20,7 @@ The agent builds these with placeholders until Jackson's designs arrive.
     - Grab highlight: the one block a Grab press would take right now (the block the camera looks at), for the local player only.
     - Settle/stack highlight: while holding a block, where it would land and whether it would stack and count there.
     - Things the design should cover, from the build side: reading on any player color, under a sauce coat and over the settle dither (A-007); not looking like the ownership highlight A-013 plans; what shows when no block is in reach.
-2. **A-006 addition: match timer** (goes with the HUD mock-ups below). A 5-minute clock and a SUDDEN DEATH banner when it runs out. Today's draft will put the clock in the headline bar, top center.
+2. **A-006 addition: match timer** (goes with the HUD mock-ups below). A 5-minute clock and a SUDDEN DEATH banner when it runs out. Draft built (2026-11-06): the clock leads the headline bar, top center ("4:32   STACK ALL 3 BLOCKS INTO ONE TOWER"); in sudden death the headline reads "SUDDEN DEATH 1:47   NEXT BLOCK WINS" and "SUDDEN DEATH!" shows big for 2.5 s; a timed-out tie shows DRAW. Sound: sudden death reuses the match-start sound until the bank has its own (A-014).
 
 ## Phase 6 (front end and bots)
 

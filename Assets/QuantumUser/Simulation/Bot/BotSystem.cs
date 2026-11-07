@@ -248,6 +248,32 @@ namespace Quantum
         }
 
         /// <summary>
+        /// With empty hands and its target block close, a bot looks at it, since a grab takes the block the camera looks
+        /// at (<see cref="GrabSystem"/>); otherwise it looks where it walks.
+        /// </summary>
+        private static void AimAtTarget(Frame frame, EntityRef entity, Bot* bot, ref FP yaw, ref FP pitch)
+        {
+            if (frame.Unsafe.TryGetPointer(entity, out Grabber* grabber) == false || grabber->Held != EntityRef.None
+                || frame.Exists(bot->Target) == false || frame.Has<Block>(bot->Target) == false)
+                return;
+
+            GrabConfig grab = frame.FindAsset(grabber->Config);
+            FPVector3 origin = frame.Get<Transform3D>(entity).Position + FPVector3.Up * grab.AimPivotHeight;
+            FPVector3 toTarget = frame.Get<Transform3D>(bot->Target).Position - origin;
+            FP flat = FPMath.Sqrt(toTarget.X * toTarget.X + toTarget.Z * toTarget.Z);
+            if (flat > AimDistance || flat < FP.EN2)
+                return;
+
+            yaw = FPMath.Atan2(toTarget.X, toTarget.Z) * FP.Rad2Deg;
+            pitch = FPMath.Clamp(FPMath.Atan2(-toTarget.Y, flat) * FP.Rad2Deg, -30, 70);
+        }
+
+        /// <summary>
+        /// How close, in meters on the flat, a bot's target block must be before the bot looks at it.
+        /// </summary>
+        private static readonly FP AimDistance = (FP)35 / 10;
+
+        /// <summary>
         /// Returns the entity whose Bot this is.
         /// </summary>
         private static EntityRef GetEntity(Frame frame, Bot* bot)
@@ -309,9 +335,16 @@ namespace Quantum
 
                 Input* input = &player->Input;
                 input->HasCamera = true;
-                input->Camera.Yaw = intent.MoveYaw;
-                input->Camera.Pitch = 15;
-                input->Move = intent.MoveAmount > FP._0 ? new FPVector2(FP._0, intent.MoveAmount) : FPVector2.Zero;
+                FP cameraYaw = intent.MoveYaw;
+                FP cameraPitch = 15;
+                AimAtTarget(frame, entity, bot, ref cameraYaw, ref cameraPitch);
+                input->Camera.Yaw = cameraYaw;
+                input->Camera.Pitch = cameraPitch;
+                // Movement is relative to the camera, so a camera turned to aim keeps the bot walking its way.
+                FP moveTurn = (intent.MoveYaw - cameraYaw) * FP.Deg2Rad;
+                input->Move = intent.MoveAmount > FP._0
+                    ? new FPVector2(FPMath.Sin(moveTurn), FPMath.Cos(moveTurn)) * intent.MoveAmount
+                    : FPVector2.Zero;
                 input->Swing = intent.Swing;
                 input->Run.Update(frame.Number, intent.Run);
                 input->Grab.Update(frame.Number, intent.Grab);

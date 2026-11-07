@@ -54,14 +54,20 @@ namespace Quantum
                 case MatchState.Countdown:
                     if (match->Timer.IsRunning(frame) == false)
                     {
-                        SetState(frame, match, MatchState.Playing, FP._0);
+                        SetState(frame, match, MatchState.Playing, mode.MatchSeconds);
                         mode.OnMatchStarted(frame);
                     }
                     break;
 
                 case MatchState.Playing:
                     PlayerRef winner = mode.CheckWinner(frame);
-                    if (winner.IsValid)
+                    bool ended = winner.IsValid;
+                    if (ended == false && mode.MatchSeconds > FP._0)
+                    {
+                        ended = UpdateClock(frame, match, mode, out winner);
+                    }
+
+                    if (ended)
                     {
                         match->Winner = winner;
                         SetState(frame, match, MatchState.RoundEnd, mode.RoundEndSeconds);
@@ -92,9 +98,102 @@ namespace Quantum
             return frame.TryGetSingleton(out Match match) && match.State == MatchState.Countdown;
         }
 
+        /// <summary>
+        /// The match clock: when it runs out, sudden death starts, and the next block to count wins (a player whose
+        /// counted blocks go above the fewest they had since sudden death began). If none counts before sudden death's
+        /// own clock runs out, the player with the most counted blocks in one tower wins; a tie is a draw (no winner).
+        /// Returns true when the round is over.
+        /// </summary>
+        private static bool UpdateClock(Frame frame, Match* match, GameModeConfig mode, out PlayerRef winner)
+        {
+            winner = PlayerRef.None;
+            if (match->SuddenDeath == false)
+            {
+                if (match->Timer.IsRunning(frame))
+                    return false;
+
+                match->SuddenDeath = true;
+                match->Timer = FrameTimer.FromSeconds(frame, mode.SuddenDeathSeconds);
+                for (int player = 0; player < Input.MAX_COUNT; player++)
+                {
+                    match->SuddenDeathCounted[player] = (byte)CountCounted(frame, player);
+                }
+
+                frame.Events.SuddenDeathStarted();
+                return false;
+            }
+
+            int best = 0;
+            for (int player = 0; player < Input.MAX_COUNT; player++)
+            {
+                int counted = CountCounted(frame, player);
+                if (counted > match->SuddenDeathCounted[player])
+                {
+                    if (winner.IsValid == false || counted > best)
+                    {
+                        winner = player;
+                        best = counted;
+                    }
+                }
+                else
+                {
+                    match->SuddenDeathCounted[player] = (byte)counted;
+                }
+            }
+
+            if (winner.IsValid)
+                return true;
+
+            if (match->Timer.IsRunning(frame))
+                return false;
+
+            bool tie = false;
+            best = 0;
+            for (int player = 0; player < frame.MaxPlayerCount; player++)
+            {
+                int tower = BlockTower.CountBest(frame, player);
+                if (tower > best)
+                {
+                    best = tower;
+                    winner = player;
+                    tie = false;
+                }
+                else if (tower == best && tower > 0)
+                {
+                    tie = true;
+                }
+            }
+
+            if (tie)
+            {
+                winner = PlayerRef.None;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// How many of the player's blocks count right now, in any tower.
+        /// </summary>
+        private static int CountCounted(Frame frame, PlayerRef player)
+        {
+            int count = 0;
+            var blocks = frame.Filter<Block>();
+            while (blocks.NextUnsafe(out EntityRef _, out Block* block))
+            {
+                if (block->Owner == player && block->Stack == StackState.Counted)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
         private static void StartMatch(Frame frame, Match* match, GameModeConfig mode)
         {
             match->Winner = PlayerRef.None;
+            match->SuddenDeath = false;
             DestroyBlocks(frame);
 
             var players = frame.Filter<Player, Transform3D>();
@@ -127,6 +226,7 @@ namespace Quantum
             }
 
             match->Winner = PlayerRef.None;
+            match->SuddenDeath = false;
             SetState(frame, match, MatchState.Lobby, FP._0);
         }
 

@@ -54,8 +54,9 @@ namespace BlockSauce.Editor
                 AssetDatabase.CreateAsset(mode, ModePath);
             }
 
-            // Everything as in a match, except a tower of up to five blocks counts and none wins.
+            // Everything as in a match, except a tower of up to five blocks counts and none wins, and there's no clock.
             mode.TowerHeight = 6;
+            mode.MatchSeconds = 0;
             EditorUtility.SetDirty(mode);
             AssetDatabase.SaveAssets();
             Quantum.Editor.QuantumUnityDBUtilities.RefreshGlobalDB();

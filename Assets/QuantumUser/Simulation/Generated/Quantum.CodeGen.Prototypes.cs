@@ -571,6 +571,11 @@ namespace Quantum.Prototypes {
     public QBoolean LeaveSlotsEmpty;
     [HideInInspector()]
     public Quantum.QEnum32<BotSkillLevel> NewBotSkill;
+    [HideInInspector()]
+    public QBoolean SuddenDeath;
+    [HideInInspector()]
+    [ArrayLengthAttribute(6)]
+    public Byte[] SuddenDeathCounted = new Byte[6];
     partial void MaterializeUser(Frame frame, ref Quantum.Match result, in PrototypeMaterializationContext context);
     public override Boolean AddToEntity(FrameBase f, EntityRef entity, in PrototypeMaterializationContext context) {
       Quantum.Match component = default;
@@ -595,6 +600,10 @@ namespace Quantum.Prototypes {
       }
       result.LeaveSlotsEmpty = this.LeaveSlotsEmpty;
       result.NewBotSkill = this.NewBotSkill;
+      result.SuddenDeath = this.SuddenDeath;
+      for (int i = 0, count = PrototypeValidator.CheckLength(SuddenDeathCounted, 6, in context); i < count; ++i) {
+        result.SuddenDeathCounted[i] = this.SuddenDeathCounted[i];
+      }
       MaterializeUser(frame, ref result, in context);
     }
   }

@@ -568,8 +568,31 @@ namespace Quantum {
       }
     }
   }
-  public unsafe partial class EventJumped : EventBase {
+  public unsafe partial class EventSuddenDeathStarted : EventBase {
     public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 18;
+    protected EventSuddenDeathStarted(Int32 id, EventFlags flags) : 
+        base(id, flags) {
+    }
+    public EventSuddenDeathStarted() : 
+        base(ID, EventFlags.Server|EventFlags.Client) {
+    }
+    public new QuantumGame Game {
+      get {
+        return (QuantumGame)base.Game;
+      }
+      set {
+        base.Game = value;
+      }
+    }
+    public override Int32 GetHashCode() {
+      unchecked {
+        var hash = 166407445;
+        return hash;
+      }
+    }
+  }
+  public unsafe partial class EventJumped : EventBase {
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 19;
     public EntityRef Entity;
     protected EventJumped(Int32 id, EventFlags flags) : 
         base(id, flags) {
@@ -594,7 +617,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventSlideStarted : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 19;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 20;
     public EntityRef Entity;
     protected EventSlideStarted(Int32 id, EventFlags flags) : 
         base(id, flags) {
@@ -619,7 +642,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventRagdollChanged : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 20;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 21;
     public EntityRef Entity;
     public EntityRef Body;
     public QBoolean Active;
@@ -648,7 +671,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventStruggled : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 21;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 22;
     public EntityRef Entity;
     protected EventStruggled(Int32 id, EventFlags flags) : 
         base(id, flags) {
@@ -673,7 +696,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventBrokeFree : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 22;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 23;
     public EntityRef Entity;
     protected EventBrokeFree(Int32 id, EventFlags flags) : 
         base(id, flags) {
@@ -698,7 +721,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventBlockDipStarted : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 23;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 24;
     public EntityRef Block;
     public EntityRef Vat;
     public SauceType Type;
@@ -727,7 +750,7 @@ namespace Quantum {
     }
   }
   public unsafe partial class EventBlockDipEnded : EventBase {
-    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 24;
+    public new const Int32 ID = Statics.EventRegistrations.CoreIdStart + 25;
     public EntityRef Block;
     public SauceType Type;
     public Byte Dip;
@@ -902,6 +925,11 @@ namespace Quantum {
         _f.AddEvent(ev);
         return ev;
       }
+      public EventSuddenDeathStarted SuddenDeathStarted() {
+        var ev = _f.Context.AcquireEvent<EventSuddenDeathStarted>(EventSuddenDeathStarted.ID);
+        _f.AddEvent(ev);
+        return ev;
+      }
       public EventJumped Jumped(EntityRef Entity) {
         var ev = _f.Context.AcquireEvent<EventJumped>(EventJumped.ID);
         ev.Entity = Entity;
@@ -976,6 +1004,7 @@ namespace Quantum {
         registry.Register<EventObjectImpact>(EventObjectImpact.ID);
         registry.Register<EventKnockedBack>(EventKnockedBack.ID);
         registry.Register<EventMatchStateChanged>(EventMatchStateChanged.ID);
+        registry.Register<EventSuddenDeathStarted>(EventSuddenDeathStarted.ID);
         registry.Register<EventJumped>(EventJumped.ID);
         registry.Register<EventSlideStarted>(EventSlideStarted.ID);
         registry.Register<EventRagdollChanged>(EventRagdollChanged.ID);

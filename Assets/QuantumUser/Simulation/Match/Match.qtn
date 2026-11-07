@@ -25,12 +25,20 @@ singleton component Match
     [HideInInspector] bool LeaveSlotsEmpty;
     // The room's setting: the level new bots play at (and fill bots); the last level the host picked, Normal at first.
     [HideInInspector] BotSkillLevel NewBotSkill;
+    // Playing: the match clock ran out (the mode's MatchSeconds) and the next block to count wins (see MatchSystem).
+    [HideInInspector] bool SuddenDeath;
+    // Each player's counted blocks, lowest since sudden death began; a player who goes above theirs has counted a block.
+    [HideInInspector] array<byte>[6] SuddenDeathCounted;
 }
 
 event MatchStateChanged
 {
     MatchState State;
     PlayerRef Winner;
+}
+
+event SuddenDeathStarted
+{
 }
 
 // A map marker where a block appears at match start, for the player on spawn point number Slot (in map order). Home

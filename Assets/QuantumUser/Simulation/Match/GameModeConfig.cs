@@ -91,6 +91,15 @@ namespace Quantum
         [Header("Match flow")]
         public FP CountdownSeconds = 3;
         /// <summary>
+        /// The match clock, in seconds of play; when it runs out, sudden death starts. 0: no clock.
+        /// </summary>
+        public FP MatchSeconds = 300;
+        /// <summary>
+        /// Sudden death: the next block to count wins. If none counts within these seconds, the player with the most
+        /// counted blocks in one tower wins, and a tie is a draw.
+        /// </summary>
+        public FP SuddenDeathSeconds = 120;
+        /// <summary>
         /// Seconds the round end (winner announcement) lasts before the results.
         /// </summary>
         public FP RoundEndSeconds = 3;

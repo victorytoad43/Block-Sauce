@@ -30,6 +30,23 @@ namespace Quantum
         /// The half-angle, in degrees, of the cone in front of the character a block must be in to be grabbed.
         /// </summary>
         public FP GrabConeHalfAngle = 60;
+        /// <summary>
+        /// Grab takes the block in reach the camera looks at (Jackson, 2026-11-06). Off: the nearest block in the cone.
+        /// </summary>
+        public bool GrabWhereAimed = true;
+        /// <summary>
+        /// The height above the character's feet that the camera looks through (the orbit camera's pivot height, 1.4 m),
+        /// which with the look's pitch and yaw gives the aim line.
+        /// </summary>
+        public FP AimPivotHeight = (FP)14 / 10;
+        /// <summary>
+        /// How far, in meters, a block's center may lie off the aim line and still be the one looked at.
+        /// </summary>
+        public FP AimMaxMiss = (FP)6 / 10;
+        /// <summary>
+        /// When no block in reach is near the aim line, grab the nearest block in the cone instead.
+        /// </summary>
+        public bool AimFallbackToNearest = true;
 
         /// <summary>
         /// How far the swing can take the block around the character, either side of its facing, in degrees.

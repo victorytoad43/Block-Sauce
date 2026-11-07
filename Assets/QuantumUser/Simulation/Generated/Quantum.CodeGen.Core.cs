@@ -1433,31 +1433,37 @@ namespace Quantum {
   }
   [StructLayout(LayoutKind.Explicit)]
   public unsafe partial struct Match : Quantum.IComponentSingleton {
-    public const Int32 SIZE = 40;
+    public const Int32 SIZE = 56;
     public const Int32 ALIGNMENT = 8;
-    [FieldOffset(24)]
+    [FieldOffset(40)]
     public AssetRef<GameModeConfig> Mode;
-    [FieldOffset(4)]
-    [HideInInspector()]
-    public MatchState State;
-    [FieldOffset(32)]
-    [HideInInspector()]
-    public FrameTimer Timer;
-    [FieldOffset(8)]
-    [HideInInspector()]
-    public PlayerRef Winner;
-    [FieldOffset(16)]
-    [HideInInspector()]
-    public QBoolean SandboxRecorded;
-    [FieldOffset(20)]
-    [HideInInspector()]
-    public QListPtr<SandboxBlockHome> SandboxBlocks;
     [FieldOffset(12)]
     [HideInInspector()]
+    public MatchState State;
+    [FieldOffset(48)]
+    [HideInInspector()]
+    public FrameTimer Timer;
+    [FieldOffset(16)]
+    [HideInInspector()]
+    public PlayerRef Winner;
+    [FieldOffset(24)]
+    [HideInInspector()]
+    public QBoolean SandboxRecorded;
+    [FieldOffset(32)]
+    [HideInInspector()]
+    public QListPtr<SandboxBlockHome> SandboxBlocks;
+    [FieldOffset(20)]
+    [HideInInspector()]
     public QBoolean LeaveSlotsEmpty;
-    [FieldOffset(0)]
+    [FieldOffset(8)]
     [HideInInspector()]
     public BotSkillLevel NewBotSkill;
+    [FieldOffset(28)]
+    [HideInInspector()]
+    public QBoolean SuddenDeath;
+    [FieldOffset(0)]
+    [HideInInspector()]
+    public fixed Byte SuddenDeathCounted[6];
     public override readonly Int32 GetHashCode() {
       unchecked { 
         var hash = 13877;
@@ -1469,6 +1475,8 @@ namespace Quantum {
         hash = hash * 31 + SandboxBlocks.GetHashCode();
         hash = hash * 31 + LeaveSlotsEmpty.GetHashCode();
         hash = hash * 31 + (Int32)NewBotSkill;
+        hash = hash * 31 + SuddenDeath.GetHashCode();
+        fixed (Byte* p = SuddenDeathCounted) hash = hash * 31 + HashCodeUtils.GetArrayHashCode(p, 6);
         return hash;
       }
     }
@@ -1481,11 +1489,13 @@ namespace Quantum {
     }
     public static void Serialize(void* ptr, FrameSerializer serializer) {
       var p = (Match*)ptr;
+      serializer.Stream.SerializeBuffer(&p->SuddenDeathCounted[0], 6);
       serializer.Stream.Serialize((Int32*)&p->NewBotSkill);
       serializer.Stream.Serialize((Int32*)&p->State);
       PlayerRef.Serialize(&p->Winner, serializer);
       QBoolean.Serialize(&p->LeaveSlotsEmpty, serializer);
       QBoolean.Serialize(&p->SandboxRecorded, serializer);
+      QBoolean.Serialize(&p->SuddenDeath, serializer);
       QList.Serialize(&p->SandboxBlocks, serializer, Statics.SerializeSandboxBlockHome);
       AssetRef.Serialize(&p->Mode, serializer);
       FrameTimer.Serialize(&p->Timer, serializer);

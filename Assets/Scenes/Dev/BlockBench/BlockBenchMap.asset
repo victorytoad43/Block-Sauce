@@ -302,14 +302,39 @@ MonoBehaviour:
     - rid: 8117359029035991040
     - rid: 8117359029035991041
   - Components:
-    - rid: 3267181503955599360
+    - rid: 1155291474003230720
   - Components:
-    - rid: 7826300835679174656
-    - rid: 7826300835679174657
+    - rid: 7623547970939518976
+    - rid: 7623547970939518977
   SerializedTriangleDataUncompressedSize: 8
   references:
     version: 2
     RefIds:
+    - rid: 1155291474003230720
+      type: {class: MatchPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
+      data:
+        Mode:
+          Id:
+            Value: 363153506413886931
+        State:
+          Value: 0
+        Timer:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        Winner:
+          _index: 0
+        SandboxRecorded:
+          Value: 0
+        SandboxBlocks: []
+        LeaveSlotsEmpty:
+          Value: 0
+        NewBotSkill:
+          Value: 0
+        SuddenDeath:
+          Value: 0
+        SuddenDeathCounted: 000000000000
     - rid: 2190018983317471232
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
@@ -373,28 +398,6 @@ MonoBehaviour:
       type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         _empty_prototype_dummy_field_: 0
-    - rid: 3267181503955599360
-      type: {class: MatchPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
-      data:
-        Mode:
-          Id:
-            Value: 363153506413886931
-        State:
-          Value: 0
-        Timer:
-          Mode: 0
-          Frames: 0
-          Seconds:
-            RawValue: 0
-        Winner:
-          _index: 0
-        SandboxRecorded:
-          Value: 0
-        SandboxBlocks: []
-        LeaveSlotsEmpty:
-          Value: 0
-        NewBotSkill:
-          Value: 0
     - rid: 4045534967898308608
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
@@ -479,7 +482,7 @@ MonoBehaviour:
       type: {class: PlayerSpawnPointPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         _empty_prototype_dummy_field_: 0
-    - rid: 7826300835679174656
+    - rid: 7623547970939518976
       type: {class: Transform3DPrototype, ns: Quantum.Prototypes, asm: Quantum.Engine}
       data:
         Position:
@@ -496,7 +499,7 @@ MonoBehaviour:
             RawValue: 0
           Z:
             RawValue: 0
-    - rid: 7826300835679174657
+    - rid: 7623547970939518977
       type: {class: BlockBenchPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
         Block:
