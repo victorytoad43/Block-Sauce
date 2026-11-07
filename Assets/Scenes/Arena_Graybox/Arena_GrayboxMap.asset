@@ -1401,6 +1401,17 @@ MonoBehaviour:
           RawValue: 0
         LastHolder:
           RawValue: 0
+        SolidLayer: 0
+        ThrowClear:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        ThrowClearOf:
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
     - rid: 1471664808045576198
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1585,6 +1596,17 @@ MonoBehaviour:
           RawValue: 0
         LastHolder:
           RawValue: 0
+        SolidLayer: 0
+        ThrowClear:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        ThrowClearOf:
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
     - rid: 1710433737373646854
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1769,6 +1791,17 @@ MonoBehaviour:
           RawValue: 0
         LastHolder:
           RawValue: 0
+        SolidLayer: 0
+        ThrowClear:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        ThrowClearOf:
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
     - rid: 2372205534599184390
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -1974,6 +2007,17 @@ MonoBehaviour:
           RawValue: 0
         LastHolder:
           RawValue: 0
+        SolidLayer: 0
+        ThrowClear:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        ThrowClearOf:
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
     - rid: 4879585258497900550
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2137,6 +2181,17 @@ MonoBehaviour:
           RawValue: 0
         LastHolder:
           RawValue: 0
+        SolidLayer: 0
+        ThrowClear:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        ThrowClearOf:
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
     - rid: 5607525523749076998
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2300,6 +2355,17 @@ MonoBehaviour:
           RawValue: 0
         LastHolder:
           RawValue: 0
+        SolidLayer: 0
+        ThrowClear:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        ThrowClearOf:
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
     - rid: 5993664831226380294
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2463,6 +2529,17 @@ MonoBehaviour:
           RawValue: 0
         LastHolder:
           RawValue: 0
+        SolidLayer: 0
+        ThrowClear:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        ThrowClearOf:
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
     - rid: 6143432204853706758
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2626,6 +2703,17 @@ MonoBehaviour:
           RawValue: 0
         LastHolder:
           RawValue: 0
+        SolidLayer: 0
+        ThrowClear:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        ThrowClearOf:
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
     - rid: 6367048622705475590
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2810,6 +2898,17 @@ MonoBehaviour:
           RawValue: 0
         LastHolder:
           RawValue: 0
+        SolidLayer: 0
+        ThrowClear:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        ThrowClearOf:
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
     - rid: 7030386384334487558
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -2973,6 +3072,17 @@ MonoBehaviour:
           RawValue: 0
         LastHolder:
           RawValue: 0
+        SolidLayer: 0
+        ThrowClear:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        ThrowClearOf:
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
     - rid: 7616700223259148294
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -3136,6 +3246,17 @@ MonoBehaviour:
           RawValue: 0
         LastHolder:
           RawValue: 0
+        SolidLayer: 0
+        ThrowClear:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        ThrowClearOf:
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
     - rid: 7700317749691547654
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
@@ -3320,6 +3441,17 @@ MonoBehaviour:
           RawValue: 0
         LastHolder:
           RawValue: 0
+        SolidLayer: 0
+        ThrowClear:
+          Mode: 0
+          Frames: 0
+          Seconds:
+            RawValue: 0
+        ThrowClearOf:
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
+        - RawValue: 0
     - rid: 8635624890034028550
       type: {class: TeamPrototype, ns: Quantum.Prototypes, asm: Quantum.Simulation}
       data:
